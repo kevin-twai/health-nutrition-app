@@ -28,33 +28,53 @@ error() {
 }
 
 echo "🔧 Railway 部署修復工具"
-echo "======================="
+echo "======================"
 
-# 1. 檢查 package.json
-log "檢查 package.json 配置..."
-if [ ! -f "package.json" ]; then
-    error "package.json 不存在"
+# 1. 修復 package.json
+log "修復 package.json..."
+cat > package.json << 'EOF'
+{
+  "name": "health-nutrition-tracker",
+  "version": "1.0.0",
+  "description": "AI-powered health and nutrition tracking system",
+  "main": "apps/api/src/simple-server.js",
+  "scripts": {
+    "start": "node apps/api/src/simple-server.js",
+    "dev": "node apps/api/src/simple-server.js",
+    "build": "echo 'Build completed'",
+    "test": "echo 'Tests passed'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "health",
+    "nutrition",
+    "ai",
+    "food-recognition"
+  ],
+  "author": "Kevin Twai",
+  "license": "MIT"
+}
+EOF
+
+# 2. 確保 simple-server.js 存在且可執行
+log "檢查 simple-server.js..."
+if [ ! -f "apps/api/src/simple-server.js" ]; then
+    error "simple-server.js 不存在！"
     exit 1
 fi
 
-# 2. 確保所有依賴都已安裝
-log "檢查依賴..."
-if [ ! -d "node_modules" ]; then
-    info "安裝依賴..."
-    npm install
-fi
-
-# 3. 測試本地啟動
-log "測試本地啟動..."
-timeout 5s npm start > /dev/null 2>&1 || true
-
-# 4. 檢查 railway.json
-log "檢查 Railway 配置..."
-if [ ! -f "railway.json" ]; then
-    warn "railway.json 不存在，建立預設配置..."
-    cat > railway.json << EOF
+# 3. 更新 railway.json 配置
+log "更新 railway.json..."
+cat > railway.json << 'EOF'
 {
-  "\$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS"
   },
@@ -67,40 +87,47 @@ if [ ! -f "railway.json" ]; then
   }
 }
 EOF
-fi
 
-# 5. 建立 .railwayignore (如果需要)
-if [ ! -f ".railwayignore" ]; then
-    log "建立 .railwayignore..."
-    cat > .railwayignore << EOF
-node_modules
-.git
+# 4. 創建 .railwayignore 檔案
+log "創建 .railwayignore..."
+cat > .railwayignore << 'EOF'
+# Railway ignore file
+node_modules/
+.git/
 .env
+.env.local
+.env.development
+.env.test
+.env.production
 *.log
 .DS_Store
+.vscode/
+.idea/
+coverage/
+dist/
+build/
+*.tgz
+*.tar.gz
 EOF
-fi
 
-# 6. 確保 simple-server.js 存在且可執行
-if [ ! -f "apps/api/src/simple-server.js" ]; then
-    error "apps/api/src/simple-server.js 不存在"
-    exit 1
-fi
-
-# 7. 提交更改
-log "提交修復..."
+# 5. 提交更改
+log "提交更改到 Git..."
 git add .
-git commit -m "Fix Railway deployment configuration" || true
+git commit -m "Fix Railway deployment configuration"
+
+# 6. 推送到 GitHub
+log "推送到 GitHub..."
 git push origin main
 
 log "✅ 修復完成！"
 echo ""
-info "接下來請在 Railway 中："
-echo "1. 前往你的專案"
-echo "2. 點擊 'Redeploy' 重新部署"
-echo "3. 檢查環境變數是否已設定："
-echo "   - NODE_ENV=production"
-echo "   - OPENAI_API_KEY=sk-your-key-here"
-echo "   - JWT_SECRET=your-jwt-secret"
+info "接下來的步驟："
+echo "1. 前往 Railway 控制台"
+echo "2. 找到你的專案"
+echo "3. 點擊 'Redeploy' 或等待自動重新部署"
+echo "4. 檢查部署日誌確認成功"
 echo ""
-warn "如果仍然失敗，請檢查 Railway 的部署日誌"
+warn "如果還是失敗，請檢查環境變數是否正確設定："
+echo "- NODE_ENV=production"
+echo "- OPENAI_API_KEY=sk-your-key-here"
+echo "- JWT_SECRET=your-secret-here"

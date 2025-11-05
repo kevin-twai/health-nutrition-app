@@ -1,5 +1,17 @@
-node_modules
-.git
+# Railway ignore file
+node_modules/
+.git/
 .env
+.env.local
+.env.development
+.env.test
+.env.production
 *.log
 .DS_Store
+.vscode/
+.idea/
+coverage/
+dist/
+build/
+*.tgz
+*.tar.gz
