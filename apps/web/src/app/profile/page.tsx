@@ -1,10 +1,11 @@
 'use client'
 
+import { useState } from 'react'
+
 export default function Profile() {
-  let activeTab = 'basic'
-  let isEditing = false
-  
-  const profile = {
+  const [activeTab, setActiveTab] = useState('basic')
+  const [isEditing, setIsEditing] = useState(false)
+  const [profile, setProfile] = useState({
     name: '張小明',
     email: 'demo@example.com',
     age: 28,
@@ -15,9 +16,9 @@ export default function Profile() {
     goals: ['weight_loss', 'muscle_gain'],
     targetWeight: 60,
     targetCalories: 1800
-  }
-
-  const preferences = {
+  })
+  
+  const [preferences, setPreferences] = useState({
     language: 'zh-TW',
     timezone: 'Asia/Taipei',
     notifications: {
@@ -28,63 +29,15 @@ export default function Profile() {
     },
     privacy: {
       dataSharing: false,
-      analytics: true,
-      thirdPartyIntegration: true
+      profileVisibility: 'private'
     }
-  }
+  })
 
-  const setActiveTab = (tab: string) => {
-    activeTab = tab
-    // 更新 UI
-    const tabs = ['basic', 'health', 'preferences']
-    tabs.forEach(t => {
-      const tabButton = document.getElementById(`tab-${t}`)
-      const tabContent = document.getElementById(`content-${t}`)
-      if (tabButton && tabContent) {
-        if (t === tab) {
-          tabButton.style.backgroundColor = '#f3f4f6'
-          tabButton.style.borderBottom = '2px solid #4f46e5'
-          tabButton.style.fontWeight = '600'
-          tabButton.style.color = '#4f46e5'
-          tabContent.style.display = 'block'
-        } else {
-          tabButton.style.backgroundColor = 'transparent'
-          tabButton.style.borderBottom = '2px solid transparent'
-          tabButton.style.fontWeight = 'normal'
-          tabButton.style.color = '#6b7280'
-          tabContent.style.display = 'none'
-        }
-      }
-    })
-  }
-
-  const toggleEditing = () => {
-    isEditing = !isEditing
-    const editButton = document.getElementById('edit-button')
-    const inputs = document.querySelectorAll('.profile-input')
-    
-    if (editButton) {
-      editButton.textContent = isEditing ? '保存' : '編輯'
-      editButton.style.backgroundColor = isEditing ? '#059669' : '#4f46e5'
-    }
-    
-    inputs.forEach((input: any) => {
-      input.disabled = !isEditing
-      input.style.backgroundColor = isEditing ? 'white' : '#f9fafb'
-    })
-    
-    if (!isEditing) {
-      alert('個人資料已更新！')
-    }
-  }
-
-  const handleSaveProfile = () => {
-    alert('個人資料已更新！')
-  }
-
-  const handleSavePreferences = () => {
-    alert('偏好設定已更新！')
-  }
+  const genderOptions = [
+    { value: 'male', label: '男性' },
+    { value: 'female', label: '女性' },
+    { value: 'other', label: '其他' }
+  ]
 
   const activityLevels = [
     { value: 'sedentary', label: '久坐少動', description: '辦公室工作，很少運動' },
@@ -122,492 +75,435 @@ export default function Profile() {
               >
                 ← 返回
               </button>
-              <h1 style={{ fontSize: '30px', fontWeight: 'bold', color: '#111827' }}>👤 個人資料</h1>
+              <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>個人檔案</h1>
             </div>
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: isEditing ? '#10b981' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              {isEditing ? '儲存' : '編輯'}
+            </button>
           </div>
         </div>
       </header>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 16px' }}>
-        {/* 標籤頁 */}
-        <div style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '8px', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', borderBottom: '1px solid #e5e7eb' }}>
-            <button
-              id="tab-basic"
-              onClick={() => setActiveTab('basic')}
-              style={{
-                flex: 1,
-                padding: '16px',
-                border: 'none',
-                backgroundColor: '#f3f4f6',
-                borderBottom: '2px solid #4f46e5',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#4f46e5'
-              }}
-            >
-              基本資料
-            </button>
-            <button
-              id="tab-health"
-              onClick={() => setActiveTab('health')}
-              style={{
-                flex: 1,
-                padding: '16px',
-                border: 'none',
-                backgroundColor: 'transparent',
-                borderBottom: '2px solid transparent',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: 'normal',
-                color: '#6b7280'
-              }}
-            >
-              健康目標
-            </button>
-            <button
-              id="tab-preferences"
-              onClick={() => setActiveTab('preferences')}
-              style={{
-                flex: 1,
-                padding: '16px',
-                border: 'none',
-                backgroundColor: 'transparent',
-                borderBottom: '2px solid transparent',
-                cursor: 'pointer',
-                fontSize: '16px',
-                fontWeight: 'normal',
-                color: '#6b7280'
-              }}
-            >
-              偏好設定
-            </button>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 16px' }}>
+        {/* Tab Navigation */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ borderBottom: '1px solid #e5e7eb' }}>
+            <nav style={{ display: 'flex', gap: '32px' }}>
+              {[
+                { id: 'basic', label: '基本資料', icon: '👤' },
+                { id: 'health', label: '健康資料', icon: '💪' },
+                { id: 'preferences', label: '偏好設定', icon: '⚙️' }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  style={{
+                    padding: '12px 0',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+                    color: activeTab === tab.id ? '#3b82f6' : '#6b7280',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: activeTab === tab.id ? '600' : '400'
+                  }}
+                >
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </nav>
           </div>
+        </div>
 
-          <div style={{ padding: '24px' }}>
-            {/* 基本資料標籤 */}
-            <div id="content-basic" style={{ display: 'block' }}>
+        {/* Basic Info Tab */}
+        {activeTab === 'basic' && (
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px', color: '#1f2937' }}>基本資料</h2>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827' }}>基本資料</h2>
-                  <button
-                    id="edit-button"
-                    onClick={toggleEditing}
-                    style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#4f46e5',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
-                    }}
-                  >
-                    編輯
-                  </button>
-                </div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  姓名
+                </label>
+                <input
+                  type="text"
+                  value={profile.name}
+                  onChange={(e) => setProfile({...profile, name: e.target.value})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      姓名
-                    </label>
-                    <input
-                      type="text"
-                      defaultValue={profile.name}
-                      disabled={true}
-                      className="profile-input"
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        backgroundColor: '#f9fafb'
-                      }}
-                    />
-                  </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  電子郵件
+                </label>
+                <input
+                  type="email"
+                  value={profile.email}
+                  onChange={(e) => setProfile({...profile, email: e.target.value})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      電子郵件
-                    </label>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  年齡
+                </label>
+                <input
+                  type="number"
+                  value={profile.age}
+                  onChange={(e) => setProfile({...profile, age: parseInt(e.target.value)})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  性別
+                </label>
+                <select
+                  value={profile.gender}
+                  onChange={(e) => setProfile({...profile, gender: e.target.value})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                >
+                  {genderOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Health Info Tab */}
+        {activeTab === 'health' && (
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px', color: '#1f2937' }}>健康資料</h2>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  身高 (cm)
+                </label>
+                <input
+                  type="number"
+                  value={profile.height}
+                  onChange={(e) => setProfile({...profile, height: parseInt(e.target.value)})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  體重 (kg)
+                </label>
+                <input
+                  type="number"
+                  value={profile.weight}
+                  onChange={(e) => setProfile({...profile, weight: parseInt(e.target.value)})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  目標體重 (kg)
+                </label>
+                <input
+                  type="number"
+                  value={profile.targetWeight}
+                  onChange={(e) => setProfile({...profile, targetWeight: parseInt(e.target.value)})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                  目標卡路里
+                </label>
+                <input
+                  type="number"
+                  value={profile.targetCalories}
+                  onChange={(e) => setProfile({...profile, targetCalories: parseInt(e.target.value)})}
+                  disabled={!isEditing}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    backgroundColor: isEditing ? 'white' : '#f9fafb'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '12px', color: '#374151' }}>
+                活動程度
+              </label>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {activityLevels.map((level) => (
+                  <label key={level.value} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                     <input
-                      type="email"
-                      value={profile.email}
-                      onChange={(e) => setProfile({...profile, email: e.target.value})}
+                      type="radio"
+                      name="activityLevel"
+                      value={level.value}
+                      checked={profile.activityLevel === level.value}
+                      onChange={(e) => setProfile({...profile, activityLevel: e.target.value})}
                       disabled={!isEditing}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        backgroundColor: isEditing ? 'white' : '#f9fafb'
-                      }}
                     />
-                  </div>
+                    <div>
+                      <div style={{ fontWeight: '500' }}>{level.label}</div>
+                      <div style={{ fontSize: '14px', color: '#6b7280' }}>{level.description}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      年齡
-                    </label>
+            <div style={{ marginTop: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '12px', color: '#374151' }}>
+                健康目標
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                {healthGoals.map((goal) => (
+                  <label key={goal.value} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                     <input
-                      type="number"
-                      value={profile.age}
-                      onChange={(e) => setProfile({...profile, age: parseInt(e.target.value)})}
-                      disabled={!isEditing}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        backgroundColor: isEditing ? 'white' : '#f9fafb'
+                      type="checkbox"
+                      checked={profile.goals.includes(goal.value)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setProfile({...profile, goals: [...profile.goals, goal.value]})
+                        } else {
+                          setProfile({...profile, goals: profile.goals.filter(g => g !== goal.value)})
+                        }
                       }}
+                      disabled={!isEditing}
                     />
-                  </div>
+                    <span>{goal.icon} {goal.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
+        {/* Preferences Tab */}
+        {activeTab === 'preferences' && (
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '24px', color: '#1f2937' }}>偏好設定</h2>
+            
+            <div style={{ display: 'grid', gap: '32px' }}>
+              {/* Language & Timezone */}
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#374151' }}>語言與時區</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      性別
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                      語言
                     </label>
                     <select
-                      value={profile.gender}
-                      onChange={(e) => setProfile({...profile, gender: e.target.value})}
+                      value={preferences.language}
+                      onChange={(e) => setPreferences({...preferences, language: e.target.value})}
                       disabled={!isEditing}
                       style={{
                         width: '100%',
-                        padding: '8px 12px',
+                        padding: '12px',
                         border: '1px solid #d1d5db',
                         borderRadius: '6px',
-                        fontSize: '14px',
+                        fontSize: '16px',
                         backgroundColor: isEditing ? 'white' : '#f9fafb'
                       }}
                     >
-                      <option value="male">男性</option>
-                      <option value="female">女性</option>
-                      <option value="other">其他</option>
+                      <option value="zh-TW">繁體中文</option>
+                      <option value="zh-CN">简体中文</option>
+                      <option value="en">English</option>
                     </select>
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      身高 (cm)
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                      時區
                     </label>
-                    <input
-                      type="number"
-                      value={profile.height}
-                      onChange={(e) => setProfile({...profile, height: parseInt(e.target.value)})}
+                    <select
+                      value={preferences.timezone}
+                      onChange={(e) => setPreferences({...preferences, timezone: e.target.value})}
                       disabled={!isEditing}
                       style={{
                         width: '100%',
-                        padding: '8px 12px',
+                        padding: '12px',
                         border: '1px solid #d1d5db',
                         borderRadius: '6px',
-                        fontSize: '14px',
+                        fontSize: '16px',
                         backgroundColor: isEditing ? 'white' : '#f9fafb'
                       }}
-                    />
+                    >
+                      <option value="Asia/Taipei">台北時間</option>
+                      <option value="Asia/Shanghai">上海時間</option>
+                      <option value="UTC">UTC</option>
+                    </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Notifications */}
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#374151' }}>通知設定</h3>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {[
+                    { key: 'email', label: '電子郵件通知', description: '接收重要更新和提醒' },
+                    { key: 'push', label: '推播通知', description: '即時提醒和建議' },
+                    { key: 'weeklyReport', label: '週報', description: '每週健康報告' },
+                    { key: 'achievements', label: '成就通知', description: '達成目標時的慶祝通知' }
+                  ].map((item) => (
+                    <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={preferences.notifications[item.key as keyof typeof preferences.notifications]}
+                        onChange={(e) => setPreferences({
+                          ...preferences,
+                          notifications: {
+                            ...preferences.notifications,
+                            [item.key]: e.target.checked
+                          }
+                        })}
+                        disabled={!isEditing}
+                      />
+                      <div>
+                        <div style={{ fontWeight: '500' }}>{item.label}</div>
+                        <div style={{ fontSize: '14px', color: '#6b7280' }}>{item.description}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Privacy */}
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#374151' }}>隱私設定</h3>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={preferences.privacy.dataSharing}
+                      onChange={(e) => setPreferences({
+                        ...preferences,
+                        privacy: {
+                          ...preferences.privacy,
+                          dataSharing: e.target.checked
+                        }
+                      })}
+                      disabled={!isEditing}
+                    />
+                    <div>
+                      <div style={{ fontWeight: '500' }}>資料分享</div>
+                      <div style={{ fontSize: '14px', color: '#6b7280' }}>允許匿名資料用於改善服務</div>
+                    </div>
+                  </label>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      體重 (kg)
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>
+                      個人檔案可見性
                     </label>
-                    <input
-                      type="number"
-                      value={profile.weight}
-                      onChange={(e) => setProfile({...profile, weight: parseInt(e.target.value)})}
+                    <select
+                      value={preferences.privacy.profileVisibility}
+                      onChange={(e) => setPreferences({
+                        ...preferences,
+                        privacy: {
+                          ...preferences.privacy,
+                          profileVisibility: e.target.value
+                        }
+                      })}
                       disabled={!isEditing}
                       style={{
                         width: '100%',
-                        padding: '8px 12px',
+                        padding: '12px',
                         border: '1px solid #d1d5db',
                         borderRadius: '6px',
-                        fontSize: '14px',
+                        fontSize: '16px',
                         backgroundColor: isEditing ? 'white' : '#f9fafb'
                       }}
-                    />
-                  </div>
-                </div>
-
-                {/* BMI 計算 */}
-                <div style={{ 
-                  marginTop: '24px', 
-                  padding: '16px', 
-                  backgroundColor: '#f3f4f6', 
-                  borderRadius: '6px' 
-                }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    健康指標
-                  </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px' }}>
-                    <div>
-                      <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#4f46e5' }}>
-                        {(profile.weight / Math.pow(profile.height / 100, 2)).toFixed(1)}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#6b7280' }}>BMI</div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#059669' }}>
-                        {profile.targetCalories}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#6b7280' }}>每日目標卡路里</div>
-                    </div>
+                    >
+                      <option value="private">私人</option>
+                      <option value="friends">朋友可見</option>
+                      <option value="public">公開</option>
+                    </select>
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* 健康目標標籤 */}
-            {activeTab === 'health' && (
-              <div>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-                  健康目標設定
-                </h2>
-
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    活動水平
-                  </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {activityLevels.map((level) => (
-                      <label key={level.value} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                        <input
-                          type="radio"
-                          name="activityLevel"
-                          value={level.value}
-                          checked={profile.activityLevel === level.value}
-                          onChange={(e) => setProfile({...profile, activityLevel: e.target.value})}
-                          style={{ marginRight: '8px' }}
-                        />
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: '500' }}>{level.label}</div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{level.description}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
-                    健康目標 (可多選)
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
-                    {healthGoals.map((goal) => (
-                      <label key={goal.value} style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        padding: '8px',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        backgroundColor: profile.goals.includes(goal.value) ? '#eff6ff' : 'white'
-                      }}>
-                        <input
-                          type="checkbox"
-                          value={goal.value}
-                          checked={profile.goals.includes(goal.value)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setProfile({...profile, goals: [...profile.goals, goal.value]})
-                            } else {
-                              setProfile({...profile, goals: profile.goals.filter(g => g !== goal.value)})
-                            }
-                          }}
-                          style={{ marginRight: '8px' }}
-                        />
-                        <span style={{ marginRight: '8px' }}>{goal.icon}</span>
-                        <span style={{ fontSize: '14px' }}>{goal.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      目標體重 (kg)
-                    </label>
-                    <input
-                      type="number"
-                      value={profile.targetWeight}
-                      onChange={(e) => setProfile({...profile, targetWeight: parseInt(e.target.value)})}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '4px' }}>
-                      每日目標卡路里
-                    </label>
-                    <input
-                      type="number"
-                      value={profile.targetCalories}
-                      onChange={(e) => setProfile({...profile, targetCalories: parseInt(e.target.value)})}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleSaveProfile}
-                  style={{
-                    marginTop: '24px',
-                    padding: '12px 24px',
-                    backgroundColor: '#4f46e5',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                  }}
-                >
-                  保存健康目標
-                </button>
-              </div>
-            )}
-
-            {/* 偏好設定標籤 */}
-            {activeTab === 'preferences' && (
-              <div>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#111827', marginBottom: '24px' }}>
-                  偏好設定
-                </h2>
-
-                {/* 通知設定 */}
-                <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#374151', marginBottom: '16px' }}>
-                    通知設定
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>電子郵件通知</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.email}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          notifications: { ...preferences.notifications, email: e.target.checked }
-                        })}
-                      />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>推播通知</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.push}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          notifications: { ...preferences.notifications, push: e.target.checked }
-                        })}
-                      />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>週報通知</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.weeklyReport}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          notifications: { ...preferences.notifications, weeklyReport: e.target.checked }
-                        })}
-                      />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>成就通知</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.notifications.achievements}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          notifications: { ...preferences.notifications, achievements: e.target.checked }
-                        })}
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                {/* 隱私設定 */}
-                <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#374151', marginBottom: '16px' }}>
-                    隱私設定
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>數據分享</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.privacy.dataSharing}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          privacy: { ...preferences.privacy, dataSharing: e.target.checked }
-                        })}
-                      />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>使用分析</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.privacy.analytics}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          privacy: { ...preferences.privacy, analytics: e.target.checked }
-                        })}
-                      />
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '14px' }}>第三方整合</span>
-                      <input
-                        type="checkbox"
-                        checked={preferences.privacy.thirdPartyIntegration}
-                        onChange={(e) => setPreferences({
-                          ...preferences,
-                          privacy: { ...preferences.privacy, thirdPartyIntegration: e.target.checked }
-                        })}
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleSavePreferences}
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#4f46e5',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                  }}
-                >
-                  保存偏好設定
-                </button>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
