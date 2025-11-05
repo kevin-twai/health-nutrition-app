@@ -1,0 +1,140 @@
+config:
+  target: 'http://localhost:3001'
+  phases:
+    # 暖身階段
+    - duration: 60
+      arrivalRate: 5
+      name: "暖身階段"
+    # 負載測試階段
+    - duration: 300
+      arrivalRate: 20
+      name: "正常負載"
+    # 壓力測試階段
+    - duration: 120
+      arrivalRate: 50
+      name: "高負載"
+    # 尖峰測試階段
+    - duration: 60
+      arrivalRate: 100
+      name: "尖峰負載"
+  payload:
+    path: "./test-data.csv"
+    fields:
+      - "email"
+      - "password"
+      - "name"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+
+scenarios:
+  # 用戶註冊和登入流程
+  - name: "用戶認證流程"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+            name: "{{ name }}"
+            age: 25
+            gender: "other"
+            height: 170
+            weight: 65
+            activityLevel: "moderate"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+            - json: "$.user.id"
+              as: "userId"
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          expect:
+            - statusCode: 200
+
+  # 食物搜尋流程
+  - name: "食物搜尋"
+    weight: 40
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - get:
+          url: "/api/food/search?q=apple"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/food/search?q=chicken"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/food/search?q=rice"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # AI聊天流程
+  - name: "AI聊天"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - post:
+          url: "/api/chat/message"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            message: "今天的營養攝取如何？"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/chat/recommendations"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # 用戶資料查詢
+  - name: "用戶資料查詢"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - get:
+          url: "/api/users/profile"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/gamification/progress"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200

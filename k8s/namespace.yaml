@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: health-nutrition-tracker
+  labels:
+    name: health-nutrition-tracker
+    environment: production

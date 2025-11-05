@@ -1,0 +1,48 @@
+# DigitalOcean App Platform 部署配置
+name: health-nutrition-tracker
+services:
+  - name: api
+    source_dir: /
+    dockerfile_path: Dockerfile.simple
+    github:
+      repo: your-username/health-nutrition-app
+      branch: main
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 3001
+    routes:
+      - path: /api
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+      - key: OPENAI_API_KEY
+        value: ${OPENAI_API_KEY}
+        type: SECRET
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+        type: SECRET
+
+  - name: web
+    source_dir: /apps/web
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 3000
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: ${_self.URL}/api
+
+databases:
+  - name: postgres-db
+    engine: PG
+    version: "15"
+    size: db-s-dev-database
+
+static_sites: []

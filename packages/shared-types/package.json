@@ -1,0 +1,19 @@
+{
+  "name": "@health-tracker/shared-types",
+  "version": "1.0.0",
+  "description": "共享類型定義",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.0"
+  },
+  "files": [
+    "dist"
+  ]
+}

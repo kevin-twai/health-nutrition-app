@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: health-tracker-postgres-test
+    environment:
+      POSTGRES_DB: health_tracker_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_password_123
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - health-tracker-test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:6.0
+    container_name: health-tracker-mongodb-test
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: test_password_123
+      MONGO_INITDB_DATABASE: health_tracker_nutrition_test
+    ports:
+      - "27018:27017"
+    networks:
+      - health-tracker-test
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: health-tracker-redis-test
+    command: redis-server --requirepass test_password_123
+    ports:
+      - "6380:6379"
+    networks:
+      - health-tracker-test
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "test_password_123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # API Service
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+      target: development
+    container_name: health-tracker-api-test
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: health_tracker_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test_password_123
+      MONGODB_URI: mongodb://admin:test_password_123@mongodb:27017/health_tracker_nutrition_test?authSource=admin
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: test_password_123
+      JWT_SECRET: test_jwt_secret_key_for_development_only_32_chars
+      LOG_LEVEL: debug
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - health-tracker-test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/shared-types/src:/app/packages/shared-types/src
+
+networks:
+  health-tracker-test:
+    driver: bridge

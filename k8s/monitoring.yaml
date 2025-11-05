@@ -1,0 +1,169 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: health-nutrition-monitor
+  namespace: health-nutrition-tracker
+  labels:
+    app: health-nutrition-tracker
+spec:
+  selector:
+    matchLabels:
+      app: api
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: health-nutrition-tracker
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    rule_files:
+      - "alert_rules.yml"
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+    
+    scrape_configs:
+      - job_name: 'health-nutrition-api'
+        static_configs:
+          - targets: ['api-service:3000']
+        metrics_path: /metrics
+        scrape_interval: 30s
+      
+      - job_name: 'postgres'
+        static_configs:
+          - targets: ['postgres-service:5432']
+        scrape_interval: 60s
+      
+      - job_name: 'mongodb'
+        static_configs:
+          - targets: ['mongodb-service:27017']
+        scrape_interval: 60s
+      
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis-service:6379']
+        scrape_interval: 60s
+  
+  alert_rules.yml: |
+    groups:
+    - name: health-nutrition-alerts
+      rules:
+      - alert: HighCPUUsage
+        expr: cpu_usage_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "高 CPU 使用率"
+          description: "{{ $labels.instance }} CPU 使用率超過 80%"
+      
+      - alert: HighMemoryUsage
+        expr: memory_usage_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "高記憶體使用率"
+          description: "{{ $labels.instance }} 記憶體使用率超過 85%"
+      
+      - alert: DatabaseConnectionFailed
+        expr: database_connection_status == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "資料庫連接失敗"
+          description: "{{ $labels.database }} 連接失敗"
+      
+      - alert: APIResponseTimeHigh
+        expr: api_response_time_seconds > 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API 回應時間過長"
+          description: "API 平均回應時間超過 2 秒"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: health-nutrition-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+        - name: prometheus-storage
+          mountPath: /prometheus
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--web.console.libraries=/etc/prometheus/console_libraries'
+          - '--web.console.templates=/etc/prometheus/consoles'
+          - '--storage.tsdb.retention.time=30d'
+          - '--web.enable-lifecycle'
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-storage
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: health-nutrition-tracker
+spec:
+  selector:
+    app: prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: health-nutrition-tracker
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

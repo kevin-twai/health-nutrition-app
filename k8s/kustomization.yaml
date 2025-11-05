@@ -1,0 +1,80 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: health-nutrition-tracker
+  namespace: health-nutrition-tracker
+
+# 命名空間
+namespace: health-nutrition-tracker
+
+# 資源清單
+resources:
+  - namespace.yaml
+  - init-configmap.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - postgres-deployment.yaml
+  - mongodb-deployment.yaml
+  - redis-deployment.yaml
+  - api-deployment.yaml
+  - web-deployment.yaml
+  - ingress.yaml
+  - backup-cronjob.yaml
+  - monitoring.yaml
+  - grafana.yaml
+  - logging.yaml
+  - elasticsearch.yaml
+  - kibana.yaml
+
+# 通用標籤
+commonLabels:
+  app.kubernetes.io/name: health-nutrition-tracker
+  app.kubernetes.io/version: v1.0.0
+  app.kubernetes.io/component: application
+  app.kubernetes.io/part-of: health-nutrition-system
+
+# 通用註解
+commonAnnotations:
+  app.kubernetes.io/managed-by: kustomize
+  deployment.kubernetes.io/revision: "1"
+
+# 映像標籤
+images:
+  - name: health-nutrition-tracker/api
+    newTag: v1.0.0
+  - name: health-nutrition-tracker/web
+    newTag: v1.0.0
+
+# 資源配置
+patchesStrategicMerge:
+  - |-
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: api
+      namespace: health-nutrition-tracker
+    spec:
+      template:
+        metadata:
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "3000"
+            prometheus.io/path: "/metrics"
+
+# 配置生成器
+configMapGenerator:
+  - name: app-version
+    literals:
+      - VERSION=v1.0.0
+      - BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      - GIT_COMMIT=$(git rev-parse --short HEAD)
+
+# 秘密生成器 (用於開發環境)
+secretGenerator:
+  - name: dev-secrets
+    literals:
+      - JWT_SECRET=dev-jwt-secret-key-for-development-only
+    type: Opaque
+    options:
+      disableNameSuffixHash: true

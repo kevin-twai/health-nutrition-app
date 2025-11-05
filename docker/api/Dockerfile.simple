@@ -1,0 +1,21 @@
+# 簡化的 API Dockerfile 用於部署測試
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 安裝必要的系統依賴
+RUN apk add --no-cache curl
+
+# 直接安裝必要的依賴
+RUN npm init -y && npm install express cors multer
+
+# 複製簡單服務器
+COPY apps/api/src/simple-server.js ./
+
+EXPOSE 3001
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+CMD ["node", "simple-server.js"]

@@ -1,0 +1,138 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: health-nutrition-tracker
+spec:
+  schedule: "0 2 * * *" # 每天凌晨 2 點執行
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: postgres-backup
+            image: postgres:15
+            command:
+            - /bin/bash
+            - -c
+            - |
+              BACKUP_FILE="postgres_backup_$(date +%Y%m%d_%H%M%S).sql"
+              pg_dump -h $POSTGRES_HOST -U postgres -d $POSTGRES_DB > /backup/$BACKUP_FILE
+              aws s3 cp /backup/$BACKUP_FILE s3://$S3_BACKUP_BUCKET/postgres/
+              # 保留最近 30 天的備份
+              find /backup -name "postgres_backup_*.sql" -mtime +30 -delete
+            env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_DB
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: S3_BACKUP_BUCKET
+              value: "health-nutrition-backups"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+          restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongodb-backup
+  namespace: health-nutrition-tracker
+spec:
+  schedule: "0 3 * * *" # 每天凌晨 3 點執行
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mongodb-backup
+            image: mongo:6.0
+            command:
+            - /bin/bash
+            - -c
+            - |
+              BACKUP_FILE="mongodb_backup_$(date +%Y%m%d_%H%M%S)"
+              mongodump --host $MONGODB_HOST --port $MONGODB_PORT --db $MONGODB_DB --username admin --password $MONGODB_PASSWORD --out /backup/$BACKUP_FILE
+              tar -czf /backup/$BACKUP_FILE.tar.gz -C /backup $BACKUP_FILE
+              aws s3 cp /backup/$BACKUP_FILE.tar.gz s3://$S3_BACKUP_BUCKET/mongodb/
+              # 保留最近 30 天的備份
+              find /backup -name "mongodb_backup_*.tar.gz" -mtime +30 -delete
+              rm -rf /backup/$BACKUP_FILE
+            env:
+            - name: MONGODB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_HOST
+            - name: MONGODB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_PORT
+            - name: MONGODB_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_DB
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGODB_PASSWORD
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: S3_BACKUP_BUCKET
+              value: "health-nutrition-backups"
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: backup-pvc
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+  namespace: health-nutrition-tracker
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
