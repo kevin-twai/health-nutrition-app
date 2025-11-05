@@ -1,22 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['localhost'],
+  output: 'standalone',
+  experimental: {
+    outputFileTracingRoot: require('path').join(__dirname, '../../'),
   },
   env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
-  webpack: (config, { isServer }) => {
-    // 修復 webpack 問題
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      }
-    }
-    return config
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://health-nutrition-app-w3zm.onrender.com',
   },
 }
 
