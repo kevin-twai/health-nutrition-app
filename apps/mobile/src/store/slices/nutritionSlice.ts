@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { FoodLog, RecognitionResult, FoodItem, NutritionData } from '@health-tracker/shared-types';
 import { nutritionAPI } from '../../services/api';
+import { localFoodRecognition } from '../../services/LocalFoodRecognition';
 
 // 狀態介面
 interface NutritionState {
@@ -27,10 +28,52 @@ export const recognizeFood = createAsyncThunk(
   'nutrition/recognizeFood',
   async (imageUri: string, { rejectWithValue }) => {
     try {
+      console.log('開始 API 食物辨識:', imageUri);
       const response = await nutritionAPI.recognizeFood(imageUri);
-      return response.data;
+      
+      // 檢查 API 回應格式
+      if (response.data && response.data.success && response.data.data) {
+        const { recognition } = response.data.data;
+        console.log('API 辨識成功:', recognition);
+        return recognition;
+      } else {
+        // 如果 API 回應格式不正確，拋出錯誤以觸發本地備用方案
+        throw new Error('API 回應格式錯誤');
+      }
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || '食物辨識失敗');
+      console.error('API 食物辨識失敗，嘗試本地辨識:', error);
+      
+      try {
+        // 使用本地辨識作為備用方案
+        console.log('開始本地食物辨識');
+        const localResult = await localFoodRecognition.recognizeFood(imageUri);
+        console.log('本地辨識成功:', localResult);
+        
+        // 標記這是本地辨識結果
+        return {
+          ...localResult,
+          isLocalRecognition: true
+        };
+      } catch (localError) {
+        console.error('本地辨識也失敗:', localError);
+        
+        // 提供更詳細的錯誤信息
+        let errorMessage = '食物辨識失敗';
+        
+        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+          errorMessage = '網路連線超時，本地辨識也失敗';
+        } else if (error.response?.status === 413) {
+          errorMessage = '圖片檔案過大，請選擇較小的圖片';
+        } else if (error.response?.status === 400) {
+          errorMessage = '圖片格式不支援，請選擇 JPG 或 PNG 格式';
+        } else if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else {
+          errorMessage = '辨識服務暫時不可用，請稍後再試';
+        }
+        
+        return rejectWithValue(errorMessage);
+      }
     }
   }
 );

@@ -93,16 +93,17 @@ export const userAPI = {
 export const nutritionAPI = {
   recognizeFood: (imageUri: string) => {
     const formData = new FormData();
-    formData.append('image', {
+    formData.append('photo', {
       uri: imageUri,
       type: 'image/jpeg',
       name: 'food.jpg',
     } as any);
     
-    return apiClient.post('/photo/upload', formData, {
+    return apiClient.post('/photo/recognize', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: 15000, // 15秒超時
     });
   },
   

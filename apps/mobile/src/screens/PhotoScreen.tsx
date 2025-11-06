@@ -82,6 +82,9 @@ const PhotoScreen: React.FC = () => {
     const asset = response.assets?.[0];
     if (asset?.uri) {
       setSelectedImage(asset.uri);
+      // 清除之前的辨識結果
+      dispatch(clearRecognitionResult());
+      // 開始辨識
       dispatch(recognizeFood(asset.uri) as any);
     }
   }, [dispatch]);
@@ -183,11 +186,27 @@ const PhotoScreen: React.FC = () => {
         </>
       )}
 
+      {/* 手動分析按鈕 */}
+      {selectedImage && !isRecognizing && !recognitionResult && (
+        <View style={styles.analyzeContainer}>
+          <TouchableOpacity 
+            style={styles.analyzeButton} 
+            onPress={() => dispatch(recognizeFood(selectedImage) as any)}
+            testID="analyze-button"
+          >
+            <Icon name="search" size={24} color="#ffffff" />
+            <Text style={styles.analyzeButtonText}>開始分析</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* 載入指示器 */}
       {isRecognizing && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3498db" />
-          <Text style={styles.loadingText}>正在辨識食物...</Text>
+          <Text style={styles.loadingText}>
+            {selectedImage ? '正在分析食物...' : '正在辨識食物...'}
+          </Text>
         </View>
       )}
 
@@ -373,6 +392,26 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 12,
     marginBottom: 20,
+  },
+  analyzeContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  analyzeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3498db',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+    minWidth: 150,
+  },
+  analyzeButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
 

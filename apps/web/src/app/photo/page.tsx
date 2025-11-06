@@ -177,7 +177,7 @@ export default function PhotoRecognition() {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 8000) // 8秒超時，提升用戶體驗
       
-      const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/upload', {
+      const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/recognize', {
         method: 'POST',
         body: formData,
         signal: controller.signal
@@ -224,9 +224,11 @@ export default function PhotoRecognition() {
     } catch (error) {
       console.error('API 調用失敗:', error)
       
-      // 顯示友好的錯誤提示
-      if (analyzeBtn) {
-        analyzeBtn.textContent = '⚡ 快速分析中...'
+      // 更新按鈕狀態為快速分析
+      if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
+        analyzeBtnText.textContent = '⚡ 快速分析中...'
+        analyzeBtnText.style.display = 'inline-block'
+        analyzeBtnLoading.style.display = 'none'
       }
       
       // 回退到本地分析（更快速）
@@ -241,6 +243,7 @@ export default function PhotoRecognition() {
     // 恢復按鈕狀態
     if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
       analyzeBtn.disabled = false
+      analyzeBtnText.textContent = '🔍 開始分析' // 重置按鈕文字
       analyzeBtnText.style.display = 'inline-block'
       analyzeBtnLoading.style.display = 'none'
       analyzeBtn.style.backgroundColor = '#4f46e5'
@@ -480,6 +483,7 @@ export default function PhotoRecognition() {
     
     if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
       analyzeBtn.disabled = false
+      analyzeBtnText.textContent = '🔍 開始分析' // 重置按鈕文字
       analyzeBtnText.style.display = 'inline-block'
       analyzeBtnLoading.style.display = 'none'
       analyzeBtn.style.backgroundColor = '#4f46e5'
@@ -561,6 +565,7 @@ export default function PhotoRecognition() {
     
     if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
       analyzeBtn.disabled = false
+      analyzeBtnText.textContent = '🔍 開始分析' // 重置按鈕文字
       analyzeBtnText.style.display = 'inline-block'
       analyzeBtnLoading.style.display = 'none'
       analyzeBtn.style.backgroundColor = '#4f46e5'

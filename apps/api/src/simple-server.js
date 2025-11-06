@@ -637,8 +637,8 @@ app.get('/api/v1/food/:id', (req, res) => {
   });
 });
 
-// 照片上傳 API (Google Vision API 整合)
-app.post('/api/v1/photo/upload', upload.single('photo'), async (req, res) => {
+// 照片辨識 API (Google Vision API 整合)
+app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => {
   console.log('收到照片上傳請求');
   console.log('文件信息:', req.file ? `${req.file.originalname} (${req.file.size} bytes)` : '無文件');
   console.log('請求參數:', req.body);
@@ -929,7 +929,7 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`👤 用戶註冊: POST http://localhost:${port}/api/v1/auth/register`);
   console.log(`🔐 用戶登入: POST http://localhost:${port}/api/v1/auth/login`);
   console.log(`🍎 食物搜尋: GET http://localhost:${port}/api/v1/food/search`);
-  console.log(`📸 照片上傳: POST http://localhost:${port}/api/v1/photo/upload`);
+  console.log(`📸 照片辨識: POST http://localhost:${port}/api/v1/photo/recognize`);
   console.log(`💬 AI 聊天: POST http://localhost:${port}/api/v1/chat`);
   console.log(`📊 週報告: GET http://localhost:${port}/api/v1/reports/weekly`);
   console.log(`🎮 遊戲化: GET http://localhost:${port}/api/v1/gamification/profile`);

@@ -130,7 +130,13 @@ const FoodRecognitionResult: React.FC<FoodRecognitionResultProps> = ({
         <Text style={styles.title}>辨識結果</Text>
         <Text style={styles.subtitle}>
           處理時間: {result.processingTime.toFixed(1)}秒
+          {(result as any).isLocalRecognition && ' (本地辨識)'}
         </Text>
+        {(result as any).isLocalRecognition && (
+          <Text style={styles.localRecognitionNote}>
+            💡 使用本地辨識，結果可能不如雲端辨識準確
+          </Text>
+        )}
       </View>
 
       {result.foods.length === 0 ? (
@@ -312,6 +318,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#bdc3c7',
     textAlign: 'center',
+  },
+  localRecognitionNote: {
+    fontSize: 12,
+    color: '#f39c12',
+    textAlign: 'center',
+    marginTop: 4,
+    fontStyle: 'italic',
   },
 });
 

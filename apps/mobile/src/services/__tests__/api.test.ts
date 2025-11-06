@@ -202,7 +202,7 @@ describe('API Services', () => {
       const result = await nutritionAPI.recognizeFood(imageUri);
 
       expect(mockApiClient.post).toHaveBeenCalledWith(
-        '/photo/upload',
+        '/photo/recognize',
         expect.any(FormData),
         {
           headers: {

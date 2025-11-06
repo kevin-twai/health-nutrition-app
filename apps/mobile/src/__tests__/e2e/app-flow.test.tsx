@@ -16,9 +16,15 @@ jest.mock('../../services/api', () => ({
     register: jest.fn(),
     logout: jest.fn(),
   },
-  photoAPI: {
-    uploadPhoto: jest.fn(),
+  nutritionAPI: {
+    recognizeFood: jest.fn(),
     confirmFood: jest.fn(),
+    getFoodLogs: jest.fn(),
+    addFoodLog: jest.fn(),
+    updateFoodLog: jest.fn(),
+    deleteFoodLog: jest.fn(),
+    searchFoods: jest.fn(),
+    getFoodDetails: jest.fn(),
   },
   chatAPI: {
     sendMessage: jest.fn(),
@@ -120,7 +126,7 @@ describe('移動應用端到端測試', () => {
 
   describe('拍照辨識流程', () => {
     it('應該完成完整的拍照到確認食物流程', async () => {
-      mockAPI.photoAPI.uploadPhoto.mockResolvedValue({
+      mockAPI.nutritionAPI.recognizeFood.mockResolvedValue({
         foods: [
           {
             id: 'apple-001',
@@ -138,7 +144,7 @@ describe('移動應用端到端測試', () => {
         confidence: 0.95
       });
 
-      mockAPI.photoAPI.confirmFood.mockResolvedValue({
+      mockAPI.nutritionAPI.confirmFood.mockResolvedValue({
         logId: 'log-001',
         nutrition: {
           calories: 52,
@@ -162,7 +168,7 @@ describe('移動應用端到端測試', () => {
       });
 
       await waitFor(() => {
-        expect(mockAPI.photoAPI.uploadPhoto).toHaveBeenCalled();
+        expect(mockAPI.nutritionAPI.recognizeFood).toHaveBeenCalled();
       });
 
       // 檢查辨識結果顯示
@@ -175,7 +181,7 @@ describe('移動應用端到端測試', () => {
       fireEvent.press(getByTestId('confirm-food-button'));
 
       await waitFor(() => {
-        expect(mockAPI.photoAPI.confirmFood).toHaveBeenCalledWith({
+        expect(mockAPI.nutritionAPI.confirmFood).toHaveBeenCalledWith({
           foodId: 'apple-001',
           portion: 1,
           mealType: expect.any(String)
@@ -189,7 +195,7 @@ describe('移動應用端到端測試', () => {
     });
 
     it('應該處理低信心度的辨識結果', async () => {
-      mockAPI.photoAPI.uploadPhoto.mockResolvedValue({
+      mockAPI.nutritionAPI.recognizeFood.mockResolvedValue({
         foods: [
           {
             id: 'unknown-001',
