@@ -59,7 +59,7 @@ export default function Home() {
             color: '#1f2937',
             marginBottom: '1rem'
           }}>
-            AI 驅動的健康管理
+            🚀 AI 驅動的健康管理
           </h2>
           <p style={{ 
             fontSize: '1.25rem', 
