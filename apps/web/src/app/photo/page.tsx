@@ -167,8 +167,8 @@ export default function PhotoRecognition() {
       formData.append('minConfidence', '0.3')
       formData.append('language', 'zh-TW')
       
-      // 使用簡單服務器的模擬端點 (端口 3002)
-      const response = await fetch('http://localhost:3002/api/v1/photo/upload', {
+      // 使用正確的 API 端點 (端口 3001)
+      const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/upload', {
         method: 'POST',
         body: formData
       })
