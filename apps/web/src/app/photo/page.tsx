@@ -155,9 +155,19 @@ export default function PhotoRecognition() {
     
     const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement
     if (analyzeBtn) {
-      analyzeBtn.textContent = '分析中...'
+      analyzeBtn.textContent = '🔍 AI 分析中...'
       analyzeBtn.disabled = true
     }
+    
+    // 添加進度提示
+    let progressDots = 0
+    const progressInterval = setInterval(() => {
+      if (analyzeBtn) {
+        progressDots = (progressDots + 1) % 4
+        const dots = '.'.repeat(progressDots)
+        analyzeBtn.textContent = `🔍 AI 分析中${dots}`
+      }
+    }, 500)
     
     try {
       // 使用真正的 Google Vision API 進行食物辨識
@@ -167,11 +177,18 @@ export default function PhotoRecognition() {
       formData.append('minConfidence', '0.3')
       formData.append('language', 'zh-TW')
       
-      // 使用正確的 API 端點 (端口 3001)
+      // 使用正確的 API 端點，添加超時控制
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15秒超時
+      
       const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
+      clearInterval(progressInterval)
       
       if (!response.ok) {
         throw new Error(`API 錯誤: ${response.status}`)
@@ -210,8 +227,15 @@ export default function PhotoRecognition() {
       }
       
     } catch (error) {
+      clearInterval(progressInterval)
       console.error('API 調用失敗:', error)
-      // 回退到本地分析
+      
+      // 顯示友好的錯誤提示
+      if (analyzeBtn) {
+        analyzeBtn.textContent = '⚡ 快速分析中...'
+      }
+      
+      // 回退到本地分析（更快速）
       const imageKeywords = await analyzeImageContent(selectedFile!)
       await performLocalAnalysis(imageKeywords)
       return
@@ -220,9 +244,16 @@ export default function PhotoRecognition() {
     // 顯示結果
     displayResults()
     
+    clearInterval(progressInterval)
     if (analyzeBtn) {
-      analyzeBtn.textContent = '開始分析'
+      analyzeBtn.textContent = '✅ 分析完成'
       analyzeBtn.disabled = false
+      // 2秒後恢復原始文字
+      setTimeout(() => {
+        if (analyzeBtn) {
+          analyzeBtn.textContent = '開始分析'
+        }
+      }, 2000)
     }
   }
   
@@ -454,8 +485,14 @@ export default function PhotoRecognition() {
     
     const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement
     if (analyzeBtn) {
-      analyzeBtn.textContent = '開始分析'
+      analyzeBtn.textContent = '✅ 分析完成'
       analyzeBtn.disabled = false
+      // 2秒後恢復原始文字
+      setTimeout(() => {
+        if (analyzeBtn) {
+          analyzeBtn.textContent = '開始分析'
+        }
+      }, 2000)
     }
   }
   
@@ -583,7 +620,10 @@ export default function PhotoRecognition() {
                   maxWidth: '300px', 
                   maxHeight: '300px', 
                   borderRadius: '8px',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  display: 'block',
+                  margin: '0 auto 16px auto',
+                  objectFit: 'contain'
                 }} 
               />
               <div>
