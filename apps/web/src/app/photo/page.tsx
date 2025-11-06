@@ -153,21 +153,17 @@ export default function PhotoRecognition() {
   const handleAnalyze = async () => {
     if (!selectedFile) return
     
+    // 更新按鈕狀態
     const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement
-    if (analyzeBtn) {
-      analyzeBtn.textContent = '🔍 AI 分析中...'
-      analyzeBtn.disabled = true
-    }
+    const analyzeBtnText = document.getElementById('analyze-btn-text')
+    const analyzeBtnLoading = document.getElementById('analyze-btn-loading')
     
-    // 添加進度提示
-    let progressDots = 0
-    const progressInterval = setInterval(() => {
-      if (analyzeBtn) {
-        progressDots = (progressDots + 1) % 4
-        const dots = '.'.repeat(progressDots)
-        analyzeBtn.textContent = `🔍 AI 分析中${dots}`
-      }
-    }, 500)
+    if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
+      analyzeBtn.disabled = true
+      analyzeBtnText.style.display = 'none'
+      analyzeBtnLoading.style.display = 'inline-block'
+      analyzeBtn.style.backgroundColor = '#6366f1'
+    }
     
     try {
       // 使用真正的 Google Vision API 進行食物辨識
@@ -179,7 +175,7 @@ export default function PhotoRecognition() {
       
       // 使用正確的 API 端點，添加超時控制
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000) // 15秒超時
+      const timeoutId = setTimeout(() => controller.abort(), 8000) // 8秒超時，提升用戶體驗
       
       const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/upload', {
         method: 'POST',
@@ -244,16 +240,12 @@ export default function PhotoRecognition() {
     // 顯示結果
     displayResults()
     
-    clearInterval(progressInterval)
-    if (analyzeBtn) {
-      analyzeBtn.textContent = '✅ 分析完成'
+    // 恢復按鈕狀態
+    if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
       analyzeBtn.disabled = false
-      // 2秒後恢復原始文字
-      setTimeout(() => {
-        if (analyzeBtn) {
-          analyzeBtn.textContent = '開始分析'
-        }
-      }, 2000)
+      analyzeBtnText.style.display = 'inline-block'
+      analyzeBtnLoading.style.display = 'none'
+      analyzeBtn.style.backgroundColor = '#4f46e5'
     }
   }
   
@@ -483,16 +475,16 @@ export default function PhotoRecognition() {
     // 顯示結果
     displayResults()
     
+    // 恢復按鈕狀態
     const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement
-    if (analyzeBtn) {
-      analyzeBtn.textContent = '✅ 分析完成'
+    const analyzeBtnText = document.getElementById('analyze-btn-text')
+    const analyzeBtnLoading = document.getElementById('analyze-btn-loading')
+    
+    if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
       analyzeBtn.disabled = false
-      // 2秒後恢復原始文字
-      setTimeout(() => {
-        if (analyzeBtn) {
-          analyzeBtn.textContent = '開始分析'
-        }
-      }, 2000)
+      analyzeBtnText.style.display = 'inline-block'
+      analyzeBtnLoading.style.display = 'none'
+      analyzeBtn.style.backgroundColor = '#4f46e5'
     }
   }
   
@@ -566,7 +558,27 @@ export default function PhotoRecognition() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <>
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        .loading-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: .5;
+          }
+        }
+      `}</style>
+      <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       {/* Header */}
       <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 16px' }}>
@@ -638,10 +650,25 @@ export default function PhotoRecognition() {
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '16px',
-                    marginRight: '12px'
+                    marginRight: '12px',
+                    position: 'relative',
+                    minWidth: '120px'
                   }}
                 >
-                  開始分析
+                  <span id="analyze-btn-text">🔍 開始分析</span>
+                  <span id="analyze-btn-loading" style={{ display: 'none' }}>
+                    <span style={{ 
+                      display: 'inline-block', 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid #ffffff40',
+                      borderTop: '2px solid #ffffff',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      marginRight: '8px'
+                    }}></span>
+                    分析中...
+                  </span>
                 </button>
                 <button
                   onClick={handleReset}
@@ -792,5 +819,6 @@ export default function PhotoRecognition() {
         </div>
       </div>
     </div>
+    </>
   )
 }
