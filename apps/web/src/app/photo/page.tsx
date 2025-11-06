@@ -184,7 +184,6 @@ export default function PhotoRecognition() {
       })
       
       clearTimeout(timeoutId)
-      clearInterval(progressInterval)
       
       if (!response.ok) {
         throw new Error(`API 錯誤: ${response.status}`)
@@ -223,7 +222,6 @@ export default function PhotoRecognition() {
       }
       
     } catch (error) {
-      clearInterval(progressInterval)
       console.error('API 調用失敗:', error)
       
       // 顯示友好的錯誤提示
