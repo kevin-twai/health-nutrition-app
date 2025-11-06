@@ -553,6 +553,18 @@ export default function PhotoRecognition() {
     if (fileInput) {
       fileInput.value = ''
     }
+    
+    // 重置按鈕狀態
+    const analyzeBtn = document.getElementById('analyze-btn') as HTMLButtonElement
+    const analyzeBtnText = document.getElementById('analyze-btn-text')
+    const analyzeBtnLoading = document.getElementById('analyze-btn-loading')
+    
+    if (analyzeBtn && analyzeBtnText && analyzeBtnLoading) {
+      analyzeBtn.disabled = false
+      analyzeBtnText.style.display = 'inline-block'
+      analyzeBtnLoading.style.display = 'none'
+      analyzeBtn.style.backgroundColor = '#4f46e5'
+    }
   }
 
   return (
