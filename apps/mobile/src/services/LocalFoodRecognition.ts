@@ -90,11 +90,36 @@ export class LocalFoodRecognitionService {
           fat: food.fat,
           fiber: 0, // 預設值
           sugar: 0, // 預設值
-          sodium: 0 // 預設值
+          sodium: 0, // 預設值
+          vitamins: {
+            vitaminA: 0,
+            vitaminC: 0,
+            vitaminD: 0,
+            vitaminE: 0,
+            vitaminK: 0,
+            thiamine: 0,
+            riboflavin: 0,
+            niacin: 0,
+            vitaminB6: 0,
+            folate: 0,
+            vitaminB12: 0
+          },
+          minerals: {
+            calcium: 0,
+            iron: 0,
+            magnesium: 0,
+            phosphorus: 0,
+            potassium: 0,
+            sodium: 0,
+            zinc: 0,
+            copper: 0,
+            manganese: 0,
+            selenium: 0
+          }
         }
       }));
       
-      const processingTime = Date.now() - startTime;
+      const processingTime = Math.max(Date.now() - startTime, 1); // 確保至少 1ms
       
       return {
         foods: detectedFoods,
@@ -109,7 +134,7 @@ export class LocalFoodRecognitionService {
       return {
         foods: [],
         confidence: 0,
-        processingTime: Date.now() - startTime
+        processingTime: Math.max(Date.now() - startTime, 1) // 確保至少 1ms
       };
     }
   }
