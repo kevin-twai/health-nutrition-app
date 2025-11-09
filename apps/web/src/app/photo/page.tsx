@@ -191,12 +191,12 @@ export default function PhotoRecognition() {
       formData.append('language', 'zh-TW')
       
       // 使用正確的 API 端點，添加超時控制
-      // OpenAI Vision API 需要較長時間處理，設定 30 秒超時
+      // OpenAI Vision API 需要較長時間處理，設定 60 秒超時
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
-        console.warn('⏱️ API 請求超時（30秒）')
+        console.warn('⏱️ API 請求超時（60秒）')
         controller.abort()
-      }, 30000) // 30秒超時，給 OpenAI API 足夠時間
+      }, 60000) // 60秒超時，給 OpenAI API 足夠時間
       
       console.log('📤 發送請求到後端 API...')
       const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/recognize', {
