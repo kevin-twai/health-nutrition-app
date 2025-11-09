@@ -207,32 +207,43 @@ export default function PhotoRecognition() {
       }
       
       const result = await response.json()
+      console.log('✅ API 回應:', result)
       
-      if (result.success && result.data.recognition && result.data.recognition.suggestions.length > 0) {
-        // 使用模擬 API 的結果
-        const recognizedFoods = result.data.recognition.suggestions.map((suggestion: any) => ({
-          name: suggestion.food.name,
-          confidence: suggestion.confidence,
-          portion: '1 份 (100g)',
-          calories: suggestion.food.calories,
-          protein: suggestion.food.protein,
-          carbs: suggestion.food.carbs,
-          fat: suggestion.food.fat
-        }))
+      // 檢查 API 回應結構
+      if (result.success && result.data && result.data.recognition) {
+        const recognition = result.data.recognition
+        console.log('🎯 使用 OpenAI Vision API 辨識結果')
         
-        analysisResult = {
-          foods: recognizedFoods,
-          totalCalories: recognizedFoods.reduce((sum: number, food: any) => sum + food.calories, 0),
-          totalProtein: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.protein, 0) * 10) / 10,
-          totalCarbs: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.carbs, 0) * 10) / 10,
-          totalFat: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.fat, 0) * 10) / 10
+        // 檢查是否有 suggestions 陣列
+        if (recognition.suggestions && recognition.suggestions.length > 0) {
+          const recognizedFoods = recognition.suggestions.map((suggestion: any) => ({
+            name: suggestion.food.name,
+            confidence: suggestion.confidence,
+            portion: suggestion.food.portion || '1 份 (100g)',
+            calories: suggestion.food.calories,
+            protein: suggestion.food.protein,
+            carbs: suggestion.food.carbs,
+            fat: suggestion.food.fat,
+            category: suggestion.food.category,
+            description: suggestion.food.description
+          }))
+          
+          analysisResult = {
+            foods: recognizedFoods,
+            totalCalories: recognizedFoods.reduce((sum: number, food: any) => sum + food.calories, 0),
+            totalProtein: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.protein, 0) * 10) / 10,
+            totalCarbs: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.carbs, 0) * 10) / 10,
+            totalFat: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.fat, 0) * 10) / 10,
+            description: recognition.description || '使用 OpenAI Vision API 辨識'
+          }
+          
+          console.log('✅ OpenAI Vision API 識別成功:', analysisResult)
+        } else {
+          console.warn('⚠️ API 回應中沒有 suggestions')
+          throw new Error('API 回應格式不正確')
         }
-        
-        console.log('模擬 API 識別結果:', result.data.recognition)
-        
       } else {
-        // 如果 API 失敗，回退到本地分析
-        console.log('API 識別失敗，使用本地分析')
+        console.warn('⚠️ API 回應格式不正確，回退到本地分析')
         const imageKeywords = await analyzeImageContent(selectedFile!)
         await performLocalAnalysis(imageKeywords)
         return
