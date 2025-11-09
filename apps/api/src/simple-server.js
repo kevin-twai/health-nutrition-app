@@ -1,4 +1,5 @@
 // 增強版測試服務器 - 健康營養追蹤系統
+// 版本: 1.0.1 - 添加 OpenAI Vision API 詳細日誌
 const express = require('express');
 const cors = require('cors');
 const app = express();
