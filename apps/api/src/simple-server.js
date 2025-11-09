@@ -948,6 +948,313 @@ app.get('/api/v1/gamification/profile', (req, res) => {
   });
 });
 
+// 測試工具頁面
+app.get('/test-vision-api', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Vision API 測試工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 32px; margin-bottom: 10px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        .content { padding: 30px; }
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px dashed #dee2e6;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-label {
+            display: block;
+            padding: 15px 25px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 500;
+        }
+        .file-input-label:hover { background: #667eea; color: white; }
+        .selected-file {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #495057;
+        }
+        button {
+            width: 100%;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover:not(:disabled) { transform: translateY(-2px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .log-section { margin-top: 25px; }
+        .log-section h2 { font-size: 20px; margin-bottom: 15px; color: #212529; }
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        .log:empty::before { content: '等待測試...'; color: #6c757d; font-style: italic; }
+        .log-entry { margin: 5px 0; padding: 5px 0; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .warning { color: #f59e0b; }
+        .timestamp { color: #6b7280; margin-right: 8px; }
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff40;
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 OpenAI Vision API 測試工具</h1>
+            <p>診斷食物辨識 API 問題</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" accept="image/*">
+                    <label class="file-input-label" for="fileInput">📁 選擇圖片文件</label>
+                </div>
+                <div id="selectedFile" class="selected-file" style="display: none;"></div>
+                <button id="testBtn" onclick="testAPI()">🚀 開始測試 API</button>
+            </div>
+            
+            <div id="statsSection" class="stats" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="statDuration">-</div>
+                    <div class="stat-label">處理時間（秒）</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statAPI">-</div>
+                    <div class="stat-label">使用的 API</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statFoods">-</div>
+                    <div class="stat-label">識別食材數量</div>
+                </div>
+            </div>
+            
+            <div class="log-section">
+                <h2>📊 詳細日誌</h2>
+                <div id="log" class="log"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const selectedFileDiv = document.getElementById('selectedFile');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                selectedFileDiv.textContent = \`✅ 已選擇: \${this.files[0].name} (\${(this.files[0].size / 1024).toFixed(2)} KB)\`;
+                selectedFileDiv.style.display = 'block';
+            }
+        });
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString('zh-TW');
+            const entry = document.createElement('div');
+            entry.className = \`log-entry \${type}\`;
+            entry.innerHTML = \`<span class="timestamp">[\${timestamp}]</span>\${message}\`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(\`[\${timestamp}] \${message}\`);
+        }
+        
+        async function testAPI() {
+            const fileInput = document.getElementById('fileInput');
+            const testBtn = document.getElementById('testBtn');
+            const statsSection = document.getElementById('statsSection');
+            const logDiv = document.getElementById('log');
+            
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('❌ 請先選擇一張圖片');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            logDiv.innerHTML = '';
+            statsSection.style.display = 'none';
+            
+            log(\`🎬 開始測試 OpenAI Vision API\`, 'info');
+            log(\`📦 圖片: \${file.name}\`, 'info');
+            log(\`📏 大小: \${(file.size / 1024).toFixed(2)} KB\`, 'info');
+            log(\`\`, 'info');
+            
+            testBtn.disabled = true;
+            testBtn.innerHTML = '<span class="loading"></span>測試中...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('photo', file);
+                
+                log('🌐 發送請求到後端 API...', 'info');
+                log('🔗 URL: ' + window.location.origin + '/api/v1/photo/recognize', 'info');
+                const startTime = Date.now();
+                
+                const response = await fetch(window.location.origin + '/api/v1/photo/recognize', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+                
+                log(\`\`, 'info');
+                log(\`📥 收到後端回應\`, 'success');
+                log(\`⏱️  處理時間: \${duration} 秒\`, 'info');
+                log(\`📊 HTTP 狀態: \${response.status} \${response.statusText}\`, response.ok ? 'success' : 'error');
+                
+                if (!response.ok) {
+                    throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+                }
+                
+                const result = await response.json();
+                log(\`✅ JSON 解析成功\`, 'success');
+                log(\`\`, 'info');
+                
+                document.getElementById('statDuration').textContent = duration;
+                document.getElementById('statAPI').textContent = result.data?.apiUsed || '未知';
+                document.getElementById('statFoods').textContent = result.data?.recognition?.suggestions?.length || 0;
+                statsSection.style.display = 'grid';
+                
+                log(\`📋 API 回應結構分析:\`, 'info');
+                log(\`  ├─ success: \${result.success}\`, 'info');
+                log(\`  ├─ data.apiUsed: \${result.data?.apiUsed}\`, 'info');
+                log(\`  └─ suggestions: \${result.data?.recognition?.suggestions?.length || 0} 個\`, 'info');
+                log(\`\`, 'info');
+                
+                if (result.data?.apiUsed === 'ChatGPT Vision API') {
+                    log(\`🎯 ✅ 成功使用 OpenAI Vision API！\`, 'success');
+                    log(\`\`, 'info');
+                    
+                    if (result.data.recognition.suggestions && result.data.recognition.suggestions.length > 0) {
+                        log(\`🍽️  識別到 \${result.data.recognition.suggestions.length} 種食材:\`, 'success');
+                        result.data.recognition.suggestions.forEach((s, i) => {
+                            const confidence = Math.round(s.confidence * 100);
+                            log(\`  \${i + 1}. \${s.food.name} - \${confidence}% 信心度\`, 'success');
+                            log(\`     └─ \${s.food.calories} 卡路里 | \${s.food.protein}g 蛋白質\`, 'info');
+                        });
+                    } else {
+                        log(\`⚠️  警告: 沒有識別到任何食材\`, 'warning');
+                    }
+                } else {
+                    log(\`⚠️  警告: 使用的是 \${result.data?.apiUsed}\`, 'warning');
+                    log(\`❌ 未使用 OpenAI Vision API\`, 'error');
+                }
+                
+                log(\`\`, 'info');
+                log(\`📄 完整 API 回應:\`, 'info');
+                log(JSON.stringify(result, null, 2), 'info');
+                
+            } catch (error) {
+                log(\`\`, 'info');
+                log(\`❌ 測試失敗\`, 'error');
+                log(\`❌ 錯誤: \${error.message}\`, 'error');
+            } finally {
+                testBtn.disabled = false;
+                testBtn.innerHTML = '🚀 開始測試 API';
+            }
+        }
+    </script>
+</body>
+</html>`);
+});
+
 // 基本路由
 app.get('/', (req, res) => {
   res.json({
@@ -962,7 +1269,7 @@ app.get('/', (req, res) => {
       '✅ 健康報告生成',
       '✅ 遊戲化系統'
     ],
-    endpoints: ['/health', '/api/v1']
+    endpoints: ['/health', '/api/v1', '/test-vision-api']
   });
 });
 
