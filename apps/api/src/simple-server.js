@@ -180,9 +180,11 @@ async function callChatGPTVisionAPI(imageBuffer) {
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.log('ChatGPT Vision API 錯誤詳情:', errorText);
-      console.log('請求狀態:', response.status);
-      console.log('請求標頭:', response.headers);
+      console.error('❌ ChatGPT Vision API HTTP 錯誤');
+      console.error('   - 狀態碼:', response.status);
+      console.error('   - 狀態文本:', response.statusText);
+      console.error('   - 錯誤詳情:', errorText);
+      console.error('   - API Key 前10字元:', apiKey.substring(0, 10));
       throw new Error(`ChatGPT Vision API error: ${response.status} - ${errorText}`);
     }
     
@@ -647,11 +649,14 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
   
   // 嘗試使用 ChatGPT Vision API
   if (req.file && process.env.OPENAI_API_KEY) {
-    console.log('嘗試調用 ChatGPT Vision API...');
+    console.log('✅ 開始調用 ChatGPT Vision API...');
+    console.log('📝 API Key 前10字元:', process.env.OPENAI_API_KEY.substring(0, 10));
+    console.log('📦 圖片大小:', req.file.size, 'bytes');
     try {
       const visionResult = await callChatGPTVisionAPI(req.file.buffer);
       if (visionResult) {
-        console.log('ChatGPT Vision API 成功調用');
+        console.log('✅ ChatGPT Vision API 成功調用');
+        console.log('📊 辨識結果:', JSON.stringify(visionResult, null, 2));
         return res.json({
           success: true,
           data: {
@@ -662,12 +667,21 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
           },
           message: '使用 ChatGPT Vision API 辨識成功'
         });
+      } else {
+        console.log('⚠️ ChatGPT Vision API 返回空結果');
       }
     } catch (error) {
-      console.log('ChatGPT Vision API 調用失敗，使用模擬數據:', error.message);
+      console.error('❌ ChatGPT Vision API 調用失敗:', error);
+      console.error('❌ 錯誤堆疊:', error.stack);
+      console.log('⚠️ 回退到模擬數據');
     }
   } else {
-    console.log('跳過 ChatGPT Vision API 調用 - 文件:', !!req.file, 'OpenAI API Key:', !!process.env.OPENAI_API_KEY);
+    console.log('⚠️ 跳過 ChatGPT Vision API 調用');
+    console.log('   - 文件存在:', !!req.file);
+    console.log('   - OpenAI API Key 存在:', !!process.env.OPENAI_API_KEY);
+    if (process.env.OPENAI_API_KEY) {
+      console.log('   - API Key 前10字元:', process.env.OPENAI_API_KEY.substring(0, 10));
+    }
   }
   // 智能模擬照片辨識 - 基於圖片特徵分析
   setTimeout(async () => {
