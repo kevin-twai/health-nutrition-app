@@ -1,11 +1,46 @@
 // 增強版測試服務器 - 健康營養追蹤系統
-// 版本: 1.0.1 - 添加 OpenAI Vision API 詳細日誌
+// 版本: 1.0.2 - 添加 HEIC 圖片格式轉換支援
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const sharp = require('sharp');
 const app = express();
 const port = process.env.PORT || 3001;
+
+// 圖片格式轉換函數 - 將 HEIC 等格式轉換為 JPEG
+async function convertImageToJpeg(buffer, originalName) {
+  try {
+    const ext = path.extname(originalName).toLowerCase();
+    console.log(`📦 原始圖片格式: ${ext}`);
+    
+    // 如果是 HEIC 或其他不支援的格式，轉換為 JPEG
+    if (ext === '.heic' || ext === '.heif') {
+      console.log('🔄 轉換 HEIC 格式到 JPEG...');
+      const convertedBuffer = await sharp(buffer)
+        .jpeg({ quality: 90 })
+        .toBuffer();
+      console.log(`✅ HEIC 轉換完成 (${buffer.length} bytes -> ${convertedBuffer.length} bytes)`);
+      return convertedBuffer;
+    }
+    
+    // 如果是其他格式，也統一轉換為 JPEG 以確保相容性
+    if (ext !== '.jpg' && ext !== '.jpeg') {
+      console.log(`🔄 轉換 ${ext} 格式到 JPEG...`);
+      const convertedBuffer = await sharp(buffer)
+        .jpeg({ quality: 90 })
+        .toBuffer();
+      console.log(`✅ 格式轉換完成 (${buffer.length} bytes -> ${convertedBuffer.length} bytes)`);
+      return convertedBuffer;
+    }
+    
+    console.log('✅ 已是 JPEG 格式，無需轉換');
+    return buffer;
+  } catch (error) {
+    console.error('❌ 圖片轉換失敗:', error.message);
+    throw error;
+  }
+}
 
 // 圖片特徵分析 (不需要 Google Vision API)
 async function analyzeImageFeatures(imageBuffer) {
@@ -701,9 +736,13 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
   if (req.file && process.env.OPENAI_API_KEY) {
     console.log('✅ 開始調用 ChatGPT Vision API...');
     console.log('📝 API Key 前10字元:', process.env.OPENAI_API_KEY.substring(0, 10));
-    console.log('📦 圖片大小:', req.file.size, 'bytes');
+    console.log('📦 原始圖片大小:', req.file.size, 'bytes');
     try {
-      const visionResult = await callChatGPTVisionAPI(req.file.buffer);
+      // 轉換圖片格式為 JPEG（支援 HEIC）
+      const convertedBuffer = await convertImageToJpeg(req.file.buffer, req.file.originalname);
+      console.log('📦 轉換後圖片大小:', convertedBuffer.length, 'bytes');
+      
+      const visionResult = await callChatGPTVisionAPI(convertedBuffer);
       if (visionResult && visionResult.suggestions && visionResult.suggestions.length > 0) {
         console.log('✅ ChatGPT Vision API 成功調用');
         console.log('📊 辨識結果:', JSON.stringify(visionResult, null, 2));
