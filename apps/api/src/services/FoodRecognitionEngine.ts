@@ -1,6 +1,6 @@
-import { ImageAnnotatorClient } from '@google-cloud/vision';
 import { DetectedFood, RecognitionResult } from '@health-tracker/shared-types';
 import { FoodRepository } from '../repositories/FoodRepository';
+import OpenAI from 'openai';
 
 export interface FoodRecognitionOptions {
   maxResults?: number;
@@ -15,7 +15,7 @@ export interface VisionApiResult {
 }
 
 export class FoodRecognitionEngine {
-  private visionClient: ImageAnnotatorClient;
+  private openai: OpenAI | null;
   private foodRepository: FoodRepository;
   
   // 食物相關關鍵字映射
@@ -28,176 +28,96 @@ export class FoodRecognitionEngine {
   ]);
 
   constructor() {
-    // 初始化 Google Vision API 客戶端
-    this.visionClient = new ImageAnnotatorClient({
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID
-    });
+    // 初始化 OpenAI 客戶端
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (apiKey) {
+      this.openai = new OpenAI({ apiKey });
+      console.log('✅ OpenAI Vision API 已初始化');
+    } else {
+      this.openai = null;
+      console.warn('⚠️ OPENAI_API_KEY 未設定，將使用本地分析');
+    }
     
     this.foodRepository = new FoodRepository(null as any, null as any);
   }
 
   /**
-   * 使用 Google Vision API 辨識圖片中的物件
+   * 使用 OpenAI Vision API 辨識圖片中的食物
    */
-  private async detectObjects(imageBuffer: Buffer): Promise<VisionApiResult[]> {
+  private async detectFoodWithOpenAI(imageBuffer: Buffer, language: string = 'zh-TW'): Promise<VisionApiResult[]> {
+    if (!this.openai) {
+      throw new Error('OpenAI API 未初始化');
+    }
+
     try {
-      const [result] = await this.visionClient?.objectLocalization({
-        image: { content: imageBuffer.toString('base64') }
+      const base64Image = imageBuffer.toString('base64');
+      const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+
+      const prompt = language === 'zh-TW' 
+        ? `請仔細分析這張圖片中的所有食物。對於每個食物項目，請提供：
+1. 食物名稱（中文）
+2. 信心度（0-1之間的數字）
+3. 估計份量（公克）
+
+請以 JSON 格式回應，格式如下：
+{
+  "foods": [
+    {"name": "食物名稱", "confidence": 0.95, "portion": 150},
+    ...
+  ]
+}
+
+如果圖片中沒有食物，請回應 {"foods": []}`
+        : `Please analyze all food items in this image. For each food item, provide:
+1. Food name (in English)
+2. Confidence score (0-1)
+3. Estimated portion (grams)
+
+Respond in JSON format:
+{
+  "foods": [
+    {"name": "food name", "confidence": 0.95, "portion": 150},
+    ...
+  ]
+}
+
+If no food is detected, respond with {"foods": []}`;
+
+      console.log('🤖 調用 OpenAI Vision API...');
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              { type: 'image_url', image_url: { url: imageUrl } }
+            ]
+          }
+        ],
+        max_tokens: 1000
       });
 
-      const objects = result?.localizedObjectAnnotations || [];
-      
-      return objects?.map(obj => ({
-        description: obj?.name || '',
-        score: obj?.score || 0,
-        boundingPoly: obj?.boundingPoly
-      })) || [];
+      const content = response.choices[0]?.message?.content || '{}';
+      console.log('📝 OpenAI 回應:', content);
+
+      // 解析 JSON 回應
+      const parsed = JSON.parse(content);
+      const foods = parsed.foods || [];
+
+      return foods.map((food: any) => ({
+        description: food.name || '',
+        score: food.confidence || 0.5,
+        portion: food.portion || 100
+      }));
+
     } catch (error) {
-      console.error('Google Vision API 物件偵測錯誤:', error);
-      throw new Error('物件偵測失敗');
+      console.error('❌ OpenAI Vision API 錯誤:', error);
+      throw new Error(`OpenAI Vision API 調用失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
     }
   }
 
-  /**
-   * 使用 Google Vision API 辨識圖片中的標籤
-   */
-  private async detectLabels(imageBuffer: Buffer): Promise<VisionApiResult[]> {
-    try {
-      const [result] = await this.visionClient.labelDetection({
-        image: { content: imageBuffer.toString('base64') }
-      });
 
-      const labels = result?.labelAnnotations || [];
-      
-      return labels?.map(label => ({
-        description: label?.description || '',
-        score: label?.score || 0
-      })) || [];
-    } catch (error) {
-      console.error('Google Vision API 標籤偵測錯誤:', error);
-      throw new Error('標籤偵測失敗');
-    }
-  }
-
-  /**
-   * 使用 Google Vision API 辨識圖片中的文字
-   */
-  private async detectText(imageBuffer: Buffer): Promise<string[]> {
-    try {
-      const [result] = await this.visionClient.textDetection({
-        image: { content: imageBuffer.toString('base64') }
-      });
-
-      const detections = result?.textAnnotations || [];
-      
-      return detections?.map(text => text?.description || '').filter(Boolean) || [];
-    } catch (error) {
-      console.error('Google Vision API 文字偵測錯誤:', error);
-      return [];
-    }
-  }
-
-  /**
-   * 過濾食物相關的辨識結果
-   */
-  private filterFoodRelatedResults(results: VisionApiResult[]): VisionApiResult[] {
-    return results.filter(result => {
-      const description = result.description.toLowerCase();
-      return Array.from(this.foodKeywords).some(keyword => 
-        description.includes(keyword.toLowerCase())
-      );
-    });
-  }
-
-  /**
-   * 計算辨識結果的信心度
-   */
-  private calculateConfidence(
-    objectResults: VisionApiResult[],
-    labelResults: VisionApiResult[],
-    textResults: string[]
-  ): number {
-    let confidence = 0;
-    let factors = 0;
-
-    // 物件辨識信心度 (權重: 40%)
-    if (objectResults.length > 0) {
-      const avgObjectScore = objectResults.reduce((sum, obj) => sum + obj.score, 0) / objectResults.length;
-      confidence += avgObjectScore * 0.4;
-      factors += 0.4;
-    }
-
-    // 標籤辨識信心度 (權重: 40%)
-    if (labelResults.length > 0) {
-      const avgLabelScore = labelResults.reduce((sum, label) => sum + label.score, 0) / labelResults.length;
-      confidence += avgLabelScore * 0.4;
-      factors += 0.4;
-    }
-
-    // 文字辨識加分 (權重: 20%)
-    if (textResults.length > 0) {
-      const hasMenuText = textResults.some(text => 
-        /menu|價格|price|\$|NT\$|元/.test(text)
-      );
-      if (hasMenuText) {
-        confidence += 0.2;
-        factors += 0.2;
-      }
-    }
-
-    return factors > 0 ? confidence / factors : 0;
-  }
-
-  /**
-   * 從辨識結果生成食物建議
-   */
-  private async generateFoodSuggestions(
-    objectResults: VisionApiResult[],
-    labelResults: VisionApiResult[]
-  ): Promise<DetectedFood[]> {
-    const allResults = [...objectResults, ...labelResults];
-    const uniqueDescriptions = Array.from(
-      new Set(allResults.map(r => r.description.toLowerCase()))
-    );
-
-    const suggestions: DetectedFood[] = [];
-
-    for (const description of uniqueDescriptions) {
-      try {
-        // 在資料庫中搜尋相似的食物
-        const searchResult = await this.foodRepository.search({ 
-          query: description, 
-          limit: 3 
-        });
-        const matchingFoods = searchResult.items;
-        
-        for (const food of matchingFoods.slice(0, 3)) { // 最多3個建議
-          const originalResult = allResults.find(r => 
-            r.description.toLowerCase() === description
-          );
-          
-          suggestions.push({
-            id: food.id,
-            name: food.name,
-            confidence: originalResult?.score || 0.5,
-            estimatedPortion: this.estimatePortion(food.name),
-            nutrition: food.nutritionPer100g
-          });
-        }
-      } catch (error) {
-        console.error(`搜尋食物 "${description}" 時發生錯誤:`, error);
-      }
-    }
-
-    // 按信心度排序並去重
-    return suggestions
-      .sort((a, b) => b.confidence - a.confidence)
-      .filter((food, index, arr) => 
-        arr.findIndex(f => f.id === food.id) === index
-      )
-      .slice(0, 5); // 最多返回5個建議
-  }
 
   /**
    * 估算食物份量 (簡單的啟發式方法)
@@ -234,29 +154,19 @@ export class FoodRecognitionEngine {
     } = options;
 
     try {
-      // 並行執行多種辨識
-      const [objectResults, labelResults, textResults] = await Promise.all([
-        this.detectObjects(imageBuffer),
-        this.detectLabels(imageBuffer),
-        this.detectText(imageBuffer)
-      ]);
-
-      // 過濾食物相關結果
-      const foodObjects = this.filterFoodRelatedResults(objectResults);
-      const foodLabels = this.filterFoodRelatedResults(labelResults);
+      // 使用 OpenAI Vision API 辨識
+      console.log('🔍 開始使用 OpenAI Vision API 辨識食物...');
+      const visionResults = await this.detectFoodWithOpenAI(imageBuffer, language);
+      
+      console.log(`✅ OpenAI 辨識到 ${visionResults.length} 個食物項目`);
 
       // 計算整體信心度
-      const overallConfidence = this.calculateConfidence(
-        foodObjects,
-        foodLabels,
-        textResults
-      );
+      const overallConfidence = visionResults.length > 0
+        ? visionResults.reduce((sum, r) => sum + r.score, 0) / visionResults.length
+        : 0;
 
-      // 生成食物建議
-      const detectedFoods = await this.generateFoodSuggestions(
-        foodObjects,
-        foodLabels
-      );
+      // 生成食物建議（從資料庫匹配）
+      const detectedFoods = await this.generateFoodSuggestionsFromVision(visionResults);
 
       // 過濾低信心度結果
       const filteredFoods = detectedFoods
@@ -265,6 +175,8 @@ export class FoodRecognitionEngine {
 
       const processingTime = Date.now() - startTime;
 
+      console.log(`⏱️ 處理時間: ${processingTime}ms, 信心度: ${overallConfidence.toFixed(2)}`);
+
       return {
         foods: filteredFoods,
         confidence: overallConfidence,
@@ -272,9 +184,60 @@ export class FoodRecognitionEngine {
       };
 
     } catch (error) {
-      console.error('食物辨識錯誤:', error);
+      console.error('❌ 食物辨識錯誤:', error);
       throw new Error(`食物辨識失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
     }
+  }
+
+  /**
+   * 從 OpenAI Vision 結果生成食物建議
+   */
+  private async generateFoodSuggestionsFromVision(
+    visionResults: VisionApiResult[]
+  ): Promise<DetectedFood[]> {
+    const suggestions: DetectedFood[] = [];
+
+    for (const result of visionResults) {
+      try {
+        // 在資料庫中搜尋相似的食物
+        const searchResult = await this.foodRepository.search({ 
+          query: result.description, 
+          limit: 1 
+        });
+        const matchingFoods = searchResult.items;
+        
+        if (matchingFoods.length > 0) {
+          const food = matchingFoods[0];
+          suggestions.push({
+            id: food.id,
+            name: food.name,
+            confidence: result.score,
+            estimatedPortion: (result as any).portion || this.estimatePortion(food.name),
+            nutrition: food.nutritionPer100g
+          });
+        } else {
+          // 如果資料庫中沒有，創建一個基本的建議
+          suggestions.push({
+            id: `temp-${Date.now()}-${Math.random()}`,
+            name: result.description,
+            confidence: result.score,
+            estimatedPortion: (result as any).portion || 100,
+            nutrition: {
+              calories: 0,
+              protein: 0,
+              carbs: 0,
+              fat: 0,
+              fiber: 0,
+              sodium: 0
+            }
+          });
+        }
+      } catch (error) {
+        console.error(`搜尋食物 "${result.description}" 時發生錯誤:`, error);
+      }
+    }
+
+    return suggestions.sort((a, b) => b.confidence - a.confidence);
   }
 
   /**
@@ -335,14 +298,12 @@ export class FoodRecognitionEngine {
    */
   async healthCheck(): Promise<{ status: string; details: any }> {
     try {
-      // 測試 Google Vision API 連接
-      const testImage = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
-      await this.visionClient.labelDetection({ image: { content: testImage } });
+      const isOpenAIConfigured = !!this.openai;
       
       return {
-        status: 'healthy',
+        status: isOpenAIConfigured ? 'healthy' : 'degraded',
         details: {
-          visionApiConnected: true,
+          openaiConfigured: isOpenAIConfigured,
           supportedCategories: this.getSupportedFoodCategories().length,
           timestamp: new Date()
         }
@@ -351,7 +312,7 @@ export class FoodRecognitionEngine {
       return {
         status: 'unhealthy',
         details: {
-          visionApiConnected: false,
+          openaiConfigured: false,
           error: error instanceof Error ? error.message : '未知錯誤',
           timestamp: new Date()
         }
