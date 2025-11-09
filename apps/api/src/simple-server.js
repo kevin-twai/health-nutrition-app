@@ -231,11 +231,20 @@ async function callChatGPTVisionAPI(imageBuffer) {
       // 提取 JSON 部分（可能包含在 ```json 標記中）
       const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? jsonMatch[1] || jsonMatch[0] : content;
+      console.log('📝 提取的 JSON 字串:', jsonStr.substring(0, 200) + '...');
       parsedResult = JSON.parse(jsonStr);
+      console.log('✅ JSON 解析成功');
+      console.log('📊 parsedResult.foods 數量:', parsedResult.foods?.length || 0);
+      if (parsedResult.foods && parsedResult.foods.length > 0) {
+        console.log('📊 第一個食物:', JSON.stringify(parsedResult.foods[0], null, 2));
+      }
     } catch (parseError) {
-      console.log('JSON 解析失敗，使用文本分析:', content);
+      console.log('❌ JSON 解析失敗:', parseError.message);
+      console.log('📝 原始內容:', content);
+      console.log('⚠️ 使用文本分析作為回退');
       // 如果 JSON 解析失敗，嘗試從文本中提取食物信息
       parsedResult = parseTextResponse(content);
+      console.log('📊 文本分析結果 foods 數量:', parsedResult.foods?.length || 0);
     }
     
     // 轉換為我們的格式
@@ -693,7 +702,7 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
     console.log('📦 圖片大小:', req.file.size, 'bytes');
     try {
       const visionResult = await callChatGPTVisionAPI(req.file.buffer);
-      if (visionResult) {
+      if (visionResult && visionResult.suggestions && visionResult.suggestions.length > 0) {
         console.log('✅ ChatGPT Vision API 成功調用');
         console.log('📊 辨識結果:', JSON.stringify(visionResult, null, 2));
         return res.json({
@@ -707,10 +716,13 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
           message: '使用 ChatGPT Vision API 辨識成功'
         });
       } else {
-        console.log('⚠️ ChatGPT Vision API 返回空結果');
+        console.log('⚠️ ChatGPT Vision API 返回空結果或無 suggestions');
+        console.log('⚠️ visionResult:', visionResult);
       }
     } catch (error) {
       console.error('❌ ChatGPT Vision API 調用失敗:', error);
+      console.error('❌ 錯誤類型:', error.name);
+      console.error('❌ 錯誤信息:', error.message);
       console.error('❌ 錯誤堆疊:', error.stack);
       console.log('⚠️ 回退到模擬數據');
     }
@@ -722,6 +734,9 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
       console.log('   - API Key 前10字元:', process.env.OPENAI_API_KEY.substring(0, 10));
     }
   }
+  
+  // 如果 OpenAI API 失敗或未配置，使用智能模擬照片辨識
+  console.log('📊 使用模擬數據作為回退方案');
   // 智能模擬照片辨識 - 基於圖片特徵分析
   setTimeout(async () => {
     let analysisResult = null;
