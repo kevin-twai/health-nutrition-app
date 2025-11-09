@@ -92,16 +92,33 @@ export default function PhotoRecognition() {
             
             const keywords: string[] = []
             
+            console.log('圖片分析數據:', {
+              brownRatio: brownRatio.toFixed(3),
+              yellowRatio: yellowRatio.toFixed(3),
+              orangeRatio: orangeRatio.toFixed(3),
+              colorfulRatio: colorfulRatio.toFixed(3),
+              darkRatio: darkRatio.toFixed(3),
+              avgRed: avgRed.toFixed(0),
+              avgGreen: avgGreen.toFixed(0),
+              avgBlue: avgBlue.toFixed(0)
+            })
+            
             // 更精確的食物類型判斷
-            // 咖喱類 (棕黃色湯汁、蔬菜配料) - 放寬條件
-            if (brownRatio > 0.2 || yellowRatio > 0.05 || orangeRatio > 0.03 || 
-                (colorfulRatio > 0.2 && avgRed > 120 && avgGreen > 80)) {
+            // 咖喱類優先判斷 (棕黃色湯汁、蔬菜配料、橙黃色調)
+            const hasCurryColor = yellowRatio > 0.03 || orangeRatio > 0.02 || 
+                                  (brownRatio > 0.15 && avgRed > 110 && avgGreen > 70)
+            const hasVegetables = colorfulRatio > 0.15
+            const hasSoup = brownRatio > 0.1 || (avgRed > 100 && avgGreen > 60)
+            
+            if (hasCurryColor || (hasVegetables && hasSoup)) {
               keywords.push('curry', '咖喱', 'soup', '湯咖喱')
+              console.log('識別為咖喱類')
             }
             
             // 湯麵類 (有湯汁、麵條的特徵，但不是咖喱色)
-            else if (brownRatio > 0.3 && darkRatio > 0.2 && lightRatio < 0.4 && yellowRatio < 0.05) {
+            else if (brownRatio > 0.3 && darkRatio > 0.2 && lightRatio < 0.4 && yellowRatio < 0.03 && orangeRatio < 0.02) {
               keywords.push('noodle', 'soup', 'ramen', '拉麵', '湯麵')
+              console.log('識別為拉麵類')
             }
             
             // 炒麵類 (較乾、顏色較深)
