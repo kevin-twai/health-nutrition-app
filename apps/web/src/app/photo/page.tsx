@@ -214,11 +214,18 @@ export default function PhotoRecognition() {
       
       const result = await response.json()
       console.log('✅ API 回應:', result)
+      console.log('📊 API 回應結構檢查:')
+      console.log('  - success:', result.success)
+      console.log('  - data:', result.data)
+      console.log('  - recognition:', result.data?.recognition)
+      console.log('  - suggestions:', result.data?.recognition?.suggestions)
+      console.log('  - apiUsed:', result.data?.apiUsed)
       
       // 檢查 API 回應結構
       if (result.success && result.data && result.data.recognition) {
         const recognition = result.data.recognition
-        console.log('🎯 使用 OpenAI Vision API 辨識結果')
+        console.log('🎯 使用的 API:', result.data.apiUsed)
+        console.log('🎯 辨識結果:', recognition)
         
         // 檢查是否有 suggestions 陣列
         if (recognition.suggestions && recognition.suggestions.length > 0) {

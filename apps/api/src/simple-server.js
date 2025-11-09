@@ -220,9 +220,10 @@ async function callChatGPTVisionAPI(imageBuffer) {
     }
     
     const result = await response.json();
-    console.log('ChatGPT Vision API 完整回應:', JSON.stringify(result, null, 2));
+    console.log('✅ ChatGPT Vision API 完整回應:', JSON.stringify(result, null, 2));
     const content = result.choices[0].message.content;
-    console.log('ChatGPT Vision API 內容:', content);
+    console.log('✅ ChatGPT Vision API 內容:', content);
+    console.log('✅ 內容長度:', content.length, '字元');
     
     // 嘗試解析 JSON 回應
     let parsedResult;
@@ -257,7 +258,10 @@ async function callChatGPTVisionAPI(imageBuffer) {
       confidence: food.confidence || 0.8
     })) || [];
     
-    return {
+    console.log('✅ 轉換後的 suggestions 數量:', suggestions.length);
+    console.log('✅ 第一個 suggestion:', JSON.stringify(suggestions[0], null, 2));
+    
+    const finalResult = {
       confidence: parsedResult.overall_confidence || 0.85,
       suggestions: suggestions.slice(0, 10),
       description: parsedResult.description || '使用 ChatGPT Vision 分析',
@@ -266,6 +270,10 @@ async function callChatGPTVisionAPI(imageBuffer) {
         parsedFoods: parsedResult.foods || []
       }
     };
+    
+    console.log('✅ 最終返回結果:', JSON.stringify(finalResult, null, 2));
+    
+    return finalResult;
     
   } catch (error) {
     console.error('ChatGPT Vision API 調用錯誤:', error);
