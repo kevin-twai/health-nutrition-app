@@ -336,6 +336,8 @@ async function callChatGPTVisionAPI(imageBuffer) {
     }
     
     // 轉換為我們的格式
+    console.log('🔄 開始轉換 OpenAI 返回的數據格式...');
+    console.log('📊 parsedResult.foods:', JSON.stringify(parsedResult.foods, null, 2));
     const suggestions = parsedResult.foods?.map(food => ({
       food: {
         id: Math.floor(Math.random() * 1000) + 100,
@@ -796,8 +798,11 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
       const visionResult = await callChatGPTVisionAPI(convertedBuffer);
       if (visionResult && visionResult.suggestions && visionResult.suggestions.length > 0) {
         console.log('✅ ChatGPT Vision API 成功調用');
-        console.log('📊 辨識結果:', JSON.stringify(visionResult, null, 2));
-        return res.json({
+        console.log('📊 辨識結果 suggestions 數量:', visionResult.suggestions.length);
+        console.log('📊 前3個食材:', visionResult.suggestions.slice(0, 3).map(s => s.food.name).join(', '));
+        console.log('📊 完整辨識結果:', JSON.stringify(visionResult, null, 2));
+        
+        const responseData = {
           success: true,
           data: {
             imageId: 'chatgpt-vision-' + Date.now(),
@@ -806,7 +811,10 @@ app.post('/api/v1/photo/recognize', upload.single('photo'), async (req, res) => 
             apiUsed: 'ChatGPT Vision API'
           },
           message: '使用 ChatGPT Vision API 辨識成功'
-        });
+        };
+        
+        console.log('📤 準備返回給前端的數據:', JSON.stringify(responseData, null, 2));
+        return res.json(responseData);
       } else {
         console.log('⚠️ ChatGPT Vision API 返回空結果或無 suggestions');
         console.log('⚠️ visionResult:', visionResult);
