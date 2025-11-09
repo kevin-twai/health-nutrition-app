@@ -1,10 +1,11 @@
 // 增強版測試服務器 - 健康營養追蹤系統
-// 版本: 1.0.2 - 添加 HEIC 圖片格式轉換支援
+// 版本: 1.0.3 - 使用 heic-convert 支援 HEIC 格式
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
+const convert = require('heic-convert');
 const app = express();
 const port = process.env.PORT || 3001;
 
@@ -14,19 +15,21 @@ async function convertImageToJpeg(buffer, originalName) {
     const ext = path.extname(originalName).toLowerCase();
     console.log(`📦 原始圖片格式: ${ext}`);
     
-    // 如果是 HEIC 或其他不支援的格式，轉換為 JPEG
+    // 如果是 HEIC 格式，使用 heic-convert（純 JS 實現，無需系統依賴）
     if (ext === '.heic' || ext === '.heif') {
-      console.log('🔄 轉換 HEIC 格式到 JPEG...');
-      const convertedBuffer = await sharp(buffer)
-        .jpeg({ quality: 90 })
-        .toBuffer();
-      console.log(`✅ HEIC 轉換完成 (${buffer.length} bytes -> ${convertedBuffer.length} bytes)`);
-      return convertedBuffer;
+      console.log('🔄 使用 heic-convert 轉換 HEIC 格式到 JPEG...');
+      const outputBuffer = await convert({
+        buffer: buffer,
+        format: 'JPEG',
+        quality: 0.9
+      });
+      console.log(`✅ HEIC 轉換完成 (${buffer.length} bytes -> ${outputBuffer.length} bytes)`);
+      return outputBuffer;
     }
     
-    // 如果是其他格式，也統一轉換為 JPEG 以確保相容性
+    // 如果是其他格式，使用 sharp 轉換為 JPEG
     if (ext !== '.jpg' && ext !== '.jpeg') {
-      console.log(`🔄 轉換 ${ext} 格式到 JPEG...`);
+      console.log(`🔄 使用 sharp 轉換 ${ext} 格式到 JPEG...`);
       const convertedBuffer = await sharp(buffer)
         .jpeg({ quality: 90 })
         .toBuffer();
@@ -38,6 +41,7 @@ async function convertImageToJpeg(buffer, originalName) {
     return buffer;
   } catch (error) {
     console.error('❌ 圖片轉換失敗:', error.message);
+    console.error('❌ 錯誤堆疊:', error.stack);
     throw error;
   }
 }
