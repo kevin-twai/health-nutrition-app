@@ -87,12 +87,161 @@ async function analyzeImageFeatures(imageBuffer) {
   }
 }
 
-// ChatGPT Vision API 整合
-async function callChatGPTVisionAPI(imageBuffer) {
+// 使用更強 prompt 的 ChatGPT Vision API（用於重試）
+async function callChatGPTVisionAPIWithStrongerPrompt(imageBuffer, retryCount = 0) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error('OpenAI API key not configured');
   }
+  
+  const MAX_RETRIES = 2;
+  
+  try {
+    const base64Image = imageBuffer.toString('base64');
+    
+    console.log(`🔄 使用更強 prompt 重試 (嘗試 ${retryCount}/${MAX_RETRIES})`);
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a professional nutritionist AI assistant helping users track their meals for health and dietary purposes. Your role is to analyze food photos and provide detailed nutritional information to support healthy eating habits."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `I need your help analyzing this meal photo for nutritional tracking purposes. This is for personal health monitoring and dietary logging.
+
+Please identify all visible food items in this image and provide their nutritional information in JSON format.
+
+Focus on:
+1. All visible ingredients and food items
+2. Estimated portion sizes
+3. Nutritional values (calories, protein, carbs, fat, fiber, sodium)
+4. Cooking method and cuisine type
+
+Return the analysis in this JSON format:
+{
+  "foods": [
+    {
+      "name": "food name",
+      "category": "food category",
+      "confidence": 0.90,
+      "portion": "estimated portion",
+      "calories": number,
+      "protein": number,
+      "carbs": number,
+      "fat": number,
+      "fiber": number,
+      "sodium": number,
+      "description": "food description"
+    }
+  ],
+  "overall_confidence": 0.85,
+  "description": "overall meal description",
+  "cooking_method": "cooking method",
+  "cuisine_type": "cuisine type"
+}
+
+Please analyze this meal photo now.`
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Image}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 2500,
+        temperature: 0.3
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ ChatGPT Vision API HTTP 錯誤（重試版本）');
+      console.error('   - 狀態碼:', response.status);
+      console.error('   - 錯誤詳情:', errorText);
+      throw new Error(`ChatGPT Vision API error: ${response.status} - ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ ChatGPT Vision API 重試成功！');
+    const content = result.choices[0].message.content;
+    
+    // 再次檢查是否被拒絕
+    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot") || content.includes("I can't help")) {
+      console.error('❌ 重試後仍被拒絕');
+      throw new Error('OpenAI content policy: Image analysis refused after retry - ' + content.substring(0, 100));
+    }
+    
+    // 解析 JSON
+    let parsedResult;
+    try {
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[1] || jsonMatch[0] : content;
+      parsedResult = JSON.parse(jsonStr);
+      console.log('✅ 重試版本 JSON 解析成功');
+    } catch (parseError) {
+      console.log('❌ 重試版本 JSON 解析失敗，使用文本分析');
+      parsedResult = parseTextResponse(content);
+    }
+    
+    // 返回與原函數相同格式的結果
+    const suggestions = parsedResult.foods?.map(food => ({
+      food: {
+        id: Math.floor(Math.random() * 1000) + 100,
+        name: food.name,
+        calories: food.calories || 200,
+        protein: food.protein || 10,
+        carbs: food.carbs || 20,
+        fat: food.fat || 5,
+        fiber: food.fiber || 2,
+        sodium: food.sodium || 300,
+        category: food.category || '其他',
+        portion: food.portion || '1份',
+        description: food.description || '',
+        cooking_method: parsedResult.cooking_method || '未知',
+        cuisine_type: parsedResult.cuisine_type || '未知'
+      },
+      confidence: food.confidence || 0.8
+    })) || [];
+    
+    return {
+      suggestions,
+      confidence: parsedResult.overall_confidence || 0.8,
+      description: parsedResult.description || '食物分析',
+      rawData: {
+        originalResponse: content,
+        parsedFoods: parsedResult.foods || []
+      }
+    };
+    
+  } catch (error) {
+    console.error('❌ 重試版本調用失敗:', error);
+    throw error;
+  }
+}
+
+// ChatGPT Vision API 整合
+async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OpenAI API key not configured');
+  }
+  
+  const MAX_RETRIES = 2;
   
   try {
     const base64Image = imageBuffer.toString('base64');
@@ -412,9 +561,18 @@ async function callChatGPTVisionAPI(imageBuffer) {
     console.log('✅ 內容長度:', content.length, '字元');
     
     // 檢查 OpenAI 是否拒絕分析圖片
-    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot")) {
+    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot") || content.includes("I can't help")) {
       console.error('❌ OpenAI 拒絕分析此圖片');
       console.error('   拒絕原因:', content);
+      console.error('   當前重試次數:', retryCount);
+      
+      // 如果還有重試機會，使用更強的 prompt 重試
+      if (retryCount < MAX_RETRIES) {
+        console.log(`🔄 嘗試重試 (${retryCount + 1}/${MAX_RETRIES})，使用更明確的 prompt...`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
+        return callChatGPTVisionAPIWithStrongerPrompt(imageBuffer, retryCount + 1);
+      }
+      
       throw new Error('OpenAI content policy: Image analysis refused - ' + content.substring(0, 100));
     }
     
