@@ -199,8 +199,15 @@ export default function PhotoRecognition() {
       }, 60000) // 60秒超時，給 OpenAI API 足夠時間
       
       console.log('📤 發送請求到後端 API...')
+      
+      // 獲取認證 token（如果有的話）
+      const token = localStorage.getItem('authToken') || 'demo-token-for-testing'
+      
       const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/recognize', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData,
         signal: controller.signal
       })

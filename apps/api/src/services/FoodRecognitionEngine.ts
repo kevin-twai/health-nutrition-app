@@ -176,11 +176,30 @@ If no food is detected, respond with {"foods": []}`;
       const processingTime = Date.now() - startTime;
 
       console.log(`⏱️ 處理時間: ${processingTime}ms, 信心度: ${overallConfidence.toFixed(2)}`);
+      console.log(`📋 返回 ${filteredFoods.length} 個食物建議`);
+
+      // 轉換為前端期望的格式
+      const suggestions = filteredFoods.map(food => ({
+        food: {
+          name: food.name,
+          portion: `${food.estimatedPortion}g`,
+          calories: Math.round(food.nutrition.calories * food.estimatedPortion / 100),
+          protein: Math.round(food.nutrition.protein * food.estimatedPortion / 100 * 10) / 10,
+          carbs: Math.round(food.nutrition.carbs * food.estimatedPortion / 100 * 10) / 10,
+          fat: Math.round(food.nutrition.fat * food.estimatedPortion / 100 * 10) / 10,
+          category: '主食類', // 可以根據食物類型動態設置
+          description: `使用 OpenAI Vision API 辨識`
+        },
+        confidence: food.confidence
+      }));
 
       return {
         foods: filteredFoods,
+        suggestions, // 添加前端期望的格式
         confidence: overallConfidence,
-        processingTime
+        processingTime,
+        description: `使用 OpenAI Vision API 辨識到 ${filteredFoods.length} 個食物項目`,
+        apiUsed: 'openai-vision'
       };
 
     } catch (error) {
