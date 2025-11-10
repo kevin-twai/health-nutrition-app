@@ -163,12 +163,12 @@ async function callChatGPTVisionAPI(imageBuffer) {
       "category": "食材分類",
       "confidence": 0.90,
       "portion": "估計份量（如：100g、1碗、1片等）",
-      "calories": 每份卡路里,
-      "protein": 蛋白質克數,
-      "carbs": 碳水化合物克數,
-      "fat": 脂肪克數,
-      "fiber": 膳食纖維克數,
-      "sodium": 鈉含量毫克,
+      "calories": 每份卡路里（數字，不要單位）,
+      "protein": 蛋白質克數（數字，不要單位如 g）,
+      "carbs": 碳水化合物克數（數字，不要單位如 g）,
+      "fat": 脂肪克數（數字，不要單位如 g）,
+      "fiber": 膳食纖維克數（數字，不要單位如 g）,
+      "sodium": 鈉含量毫克（數字，不要單位如 mg）,
       "description": "食材描述和特點"
     }
   ],
@@ -177,6 +177,12 @@ async function callChatGPTVisionAPI(imageBuffer) {
   "cooking_method": "烹飪方式",
   "cuisine_type": "料理類型"
 }
+
+⚠️ **JSON 格式重要提醒**：
+- 所有營養數值必須是**純數字**，不要包含單位（g、mg等）
+- 例如：`"protein": 3` ✅ 正確
+- 例如：`"protein": 3g` ❌ 錯誤
+- 例如：`"protein": "3g"` ❌ 錯誤
 
 🔍 **超詳細識別指南**：
 
