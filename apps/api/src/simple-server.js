@@ -384,6 +384,13 @@ async function callChatGPTVisionAPI(imageBuffer) {
     console.log('✅ ChatGPT Vision API 內容:', content);
     console.log('✅ 內容長度:', content.length, '字元');
     
+    // 檢查 OpenAI 是否拒絕分析圖片
+    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot")) {
+      console.error('❌ OpenAI 拒絕分析此圖片');
+      console.error('   拒絕原因:', content);
+      throw new Error('OpenAI content policy: Image analysis refused - ' + content.substring(0, 100));
+    }
+    
     // 嘗試解析 JSON 回應
     let parsedResult;
     try {
