@@ -180,9 +180,9 @@ async function callChatGPTVisionAPI(imageBuffer) {
 
 ⚠️ **JSON 格式重要提醒**：
 - 所有營養數值必須是**純數字**，不要包含單位（g、mg等）
-- 例如：`"protein": 3` ✅ 正確
-- 例如：`"protein": 3g` ❌ 錯誤
-- 例如：`"protein": "3g"` ❌ 錯誤
+- 例如："protein": 3 ✅ 正確
+- 例如："protein": 3g ❌ 錯誤
+- 例如："protein": "3g" ❌ 錯誤
 
 🔍 **超詳細識別指南**：
 
