@@ -2,6 +2,7 @@ services:
   - type: web
     name: health-nutrition-web
     env: node
+    rootDir: apps/web
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
@@ -9,3 +10,5 @@ services:
         value: production
       - key: NEXT_PUBLIC_API_URL
         value: https://health-nutrition-app-w3zm.onrender.com
+      - key: PORT
+        value: 10000
