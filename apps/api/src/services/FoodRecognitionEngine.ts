@@ -54,48 +54,61 @@ export class FoodRecognitionEngine {
       const imageUrl = `data:image/jpeg;base64,${base64Image}`;
 
       const prompt = language === 'zh-TW' 
-        ? `請仔細分析這張圖片中的所有食物。對於每個食物項目，請提供：
-1. 食物名稱（中文）
-2. 信心度（0-1之間的數字）
-3. 估計份量（公克）
+        ? `你是一個營養分析助手。請描述這張圖片中的食物和飲料，幫助用戶記錄他們的飲食。
 
-請以 JSON 格式回應，格式如下：
+請列出圖片中所有可見的食物項目，對於每個項目提供：
+1. 食物名稱（使用繁體中文）
+2. 辨識信心度（0到1之間的小數）
+3. 估計份量（以公克為單位）
+
+請以 JSON 格式回應：
 {
   "foods": [
-    {"name": "食物名稱", "confidence": 0.95, "portion": 150},
-    ...
+    {"name": "白飯", "confidence": 0.95, "portion": 150},
+    {"name": "炒青菜", "confidence": 0.90, "portion": 80}
   ]
 }
 
-如果圖片中沒有食物，請回應 {"foods": []}`
-        : `Please analyze all food items in this image. For each food item, provide:
+如果圖片中沒有食物，請回應：{"foods": []}
+
+注意：請只辨識食物和飲料，不要分析其他內容。`
+        : `You are a nutrition analysis assistant. Please describe the food and beverages in this image to help users track their diet.
+
+List all visible food items in the image. For each item, provide:
 1. Food name (in English)
-2. Confidence score (0-1)
-3. Estimated portion (grams)
+2. Recognition confidence (decimal between 0 and 1)
+3. Estimated portion (in grams)
 
 Respond in JSON format:
 {
   "foods": [
-    {"name": "food name", "confidence": 0.95, "portion": 150},
-    ...
+    {"name": "white rice", "confidence": 0.95, "portion": 150},
+    {"name": "stir-fried vegetables", "confidence": 0.90, "portion": 80}
   ]
 }
 
-If no food is detected, respond with {"foods": []}`;
+If no food is detected, respond with: {"foods": []}
 
-      console.log('🤖 調用 OpenAI Vision API...');
+Note: Only identify food and beverages, do not analyze other content.`;
+
+      console.log('🤖 調用 OpenAI Vision API (gpt-4o)...');
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
+          {
+            role: 'system',
+            content: 'You are a helpful nutrition tracking assistant that identifies food items in images to help users log their meals.'
+          },
           {
             role: 'user',
             content: [
               { type: 'text', text: prompt },
-              { type: 'image_url', image_url: { url: imageUrl } }
+              { type: 'image_url', image_url: { url: imageUrl, detail: 'high' } }
             ]
           }
         ],
-        max_tokens: 1000
+        max_tokens: 1000,
+        temperature: 0.3
       });
 
       const content = response.choices[0]?.message?.content || '{}';

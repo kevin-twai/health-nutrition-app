@@ -107,11 +107,15 @@ async function callChatGPTVisionAPI(imageBuffer) {
         model: "gpt-4o",
         messages: [
           {
+            role: "system",
+            content: "You are a helpful nutrition tracking assistant that identifies food items in meal photos to help users log their dietary intake for health monitoring purposes."
+          },
+          {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `你是一位專業的營養師和食物識別專家。
+                text: `你是一個營養追蹤助手，幫助用戶記錄他們的飲食。請分析這張食物照片，識別其中的食材和營養成分。
 
 🔍 **第一步：仔細觀察圖片（非常重要！）**
 在識別食材之前，請先**非常仔細地**觀察圖片，並用2-3句話描述你看到的內容：
