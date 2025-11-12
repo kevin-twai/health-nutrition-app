@@ -146,6 +146,17 @@ async function callChatGPTVisionAPIWithStrongerPrompt(imageBuffer, retryCount = 
                 type: "text",
                 text: `I need your help analyzing this meal photo for nutritional tracking purposes. This is for personal health monitoring and dietary logging.
 
+� ***⚠️ COUNTING ACCURACY WARNING (MOST IMPORTANT!) ⚠️** 🚨
+
+For countable items (oysters, eggs, dumplings, etc.), you **MUST**:
+1. **Count ONE BY ONE** - Do not estimate or guess
+2. **State your counting process in response** - e.g., "I see 5 oyster shells"
+3. **NEVER double the count** - If you see 5, report 5, NOT 10
+4. **Only count visible complete items** - Do not count partially hidden ones
+
+❌ **Common ERROR**: Reporting 10 when there are actually 5 (This is a SERIOUS mistake!)
+✅ **Correct approach**: Count each one carefully, verify, then report
+
 🔍 **STEP 1: CAREFULLY OBSERVE THE IMAGE (VERY IMPORTANT!)**
 Before identifying ingredients, please VERY CAREFULLY observe the image and describe what you see in 2-3 sentences:
 
@@ -506,6 +517,17 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
                 type: "text",
                 text: `你是一個營養追蹤助手，幫助用戶記錄他們的飲食。請分析這張食物照片，識別其中的食材和營養成分。
 
+� **⚠️ 數仔量計算警告（最重要！）⚠️** 🚨
+
+對於可數食材（如生蠔、蛋、餃子等），你**必須**：
+1. **逐個計數** - 一個一個數，不要估算
+2. **在回應中說明你的計數過程** - 例如："我看到5個生蠔殼"
+3. **絕對不要猜測或加倍數量** - 如果看到5個就是5個，不是10個
+4. **只數可見的完整食材** - 不要數部分遮擋的
+
+❌ **常見錯誤**：實際5個卻報告10個（這是嚴重錯誤！）
+✅ **正確做法**：仔細數每一個，確認後再報告
+
 🔍 **第一步：仔細觀察圖片（非常重要！）**
 在識別食材之前，請先**非常仔細地**觀察圖片，並用2-3句話描述你看到的內容：
 
@@ -576,7 +598,7 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
       "name": "具體食材名稱（中文）",
       "category": "食材分類",
       "confidence": 0.90,
-      "portion": "精確份量（繁體中文，必須包含具體數字和單位，如：150克、1碗 (約200克)、3片 (約50克)、半個 (約80克)）",
+      "portion": "精確份量（繁體中文，對於可數食材如生蠔/蛋/餃子，必須逐個計數後報告精確數量，例如：5個生蠔 (約250克)、2個蛋 (約100克)、8個餃子 (約160克)。不可數食材用重量，例如：150克、1碗 (約200克)）",
       "calories": 每份卡路里（數字，不要單位）,
       "protein": 蛋白質克數（數字，不要單位如 g）,
       "carbs": 碳水化合物克數（數字，不要單位如 g）,
