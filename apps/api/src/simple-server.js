@@ -199,8 +199,18 @@ Please analyze this meal photo now.`
     console.log('✅ ChatGPT Vision API 重試成功！');
     const content = result.choices[0].message.content;
     
-    // 再次檢查是否被拒絕
-    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot") || content.includes("I can't help")) {
+    // 再次檢查是否被拒絕（支援中英文拒絕訊息）
+    const isRejectedAgain = content.includes("I'm sorry") || 
+                            content.includes("I can't assist") || 
+                            content.includes("I cannot") || 
+                            content.includes("I can't help") ||
+                            content.includes("抱歉") ||
+                            content.includes("無法識別") ||
+                            content.includes("无法识别") ||
+                            content.includes("不能") ||
+                            content.includes("無法分析");
+    
+    if (isRejectedAgain) {
       console.error('❌ 重試後仍被拒絕');
       throw new Error('OpenAI content policy: Image analysis refused after retry - ' + content.substring(0, 100));
     }
@@ -619,8 +629,18 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
     console.log('✅ ChatGPT Vision API 內容:', content);
     console.log('✅ 內容長度:', content.length, '字元');
     
-    // 檢查 OpenAI 是否拒絕分析圖片
-    if (content.includes("I'm sorry") || content.includes("I can't assist") || content.includes("I cannot") || content.includes("I can't help")) {
+    // 檢查 OpenAI 是否拒絕分析圖片（支援中英文拒絕訊息）
+    const isRejected = content.includes("I'm sorry") || 
+                       content.includes("I can't assist") || 
+                       content.includes("I cannot") || 
+                       content.includes("I can't help") ||
+                       content.includes("抱歉") ||
+                       content.includes("無法識別") ||
+                       content.includes("无法识别") ||
+                       content.includes("不能") ||
+                       content.includes("無法分析");
+    
+    if (isRejected) {
       console.error('❌ OpenAI 拒絕分析此圖片');
       console.error('   拒絕原因:', content);
       console.error('   當前重試次數:', retryCount);
@@ -654,8 +674,15 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
       console.log('📝 原始內容長度:', content.length);
       console.log('⚠️ 使用文本分析作為回退');
       
-      // 檢查是否是 OpenAI 拒絕訊息
-      if (content.includes("I'm sorry") || content.includes("I can't") || content.includes("I cannot")) {
+      // 檢查是否是 OpenAI 拒絕訊息（支援中英文）
+      const isRejectionMessage = content.includes("I'm sorry") || 
+                                  content.includes("I can't") || 
+                                  content.includes("I cannot") ||
+                                  content.includes("抱歉") ||
+                                  content.includes("無法識別") ||
+                                  content.includes("无法识别");
+      
+      if (isRejectionMessage) {
         console.log('⚠️ 檢測到 OpenAI 拒絕訊息，但未被提前捕獲');
         console.log('   拒絕內容:', content.substring(0, 200));
       }
