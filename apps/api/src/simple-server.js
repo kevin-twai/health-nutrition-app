@@ -121,50 +121,83 @@ async function callChatGPTVisionAPIWithStrongerPrompt(imageBuffer, retryCount = 
                 type: "text",
                 text: `I need your help analyzing this meal photo for nutritional tracking purposes. This is for personal health monitoring and dietary logging.
 
-Please identify all visible food items in this image and provide their nutritional information in JSON format.
+🔍 **STEP 1: CAREFULLY OBSERVE THE IMAGE (VERY IMPORTANT!)**
+Before identifying ingredients, please VERY CAREFULLY observe the image and describe what you see in 2-3 sentences:
 
-IMPORTANT: All food names MUST be in Traditional Chinese (繁體中文).
+**You MUST answer these questions**:
+1. **Main ingredients appearance**:
+   - What colors do you see? (white, yellow, green, brown, etc.)
+   - What shapes? (elongated, round, chunky, granular, etc.)
+   - What texture? (crispy, soft, soupy, solid, etc.)
 
-Focus on:
-1. All visible ingredients and food items (names in Traditional Chinese)
-2. Estimated portion sizes (in Traditional Chinese, e.g., "1碗", "100克", "1片")
-3. Nutritional values (calories, protein, carbs, fat, fiber, sodium)
-4. Cooking method and cuisine type
+2. **Dish type judgment**:
+   - What type of cuisine does this look like? (Japanese, Chinese, Taiwanese, Western, Indigenous, etc.)
+   - Is it soup, stir-fry, grilled, or something else?
 
-IMPORTANT - DO NOT identify these non-food items:
-- Containers and utensils: bowls, plates, steamer baskets, bamboo steamers, cups, chopsticks, spoons, forks
-- Decorations: tablecloths, napkins, flower decorations
-- Background items: tables, chairs, walls, people's hands or faces
-- Packaging: plastic bags, boxes, aluminum foil, plastic wrap
-- Condiment containers: soy sauce bottles, salt shakers (only identify actual condiments used)
+3. **Container and presentation**:
+   - What container is the food in? (bowl, plate, bamboo tube, stone slab, leaf wrap, etc.)
 
-SPECIAL NOTE:
-- Steamer baskets/bamboo steamers are containers, NOT food! Do not identify them!
-- Empty bamboo tubes are containers, not food
-- If bamboo tube contains rice, identify as "bamboo tube rice", not "bamboo tube"
+🎯 **STEP 2: IDENTIFY ALL INGREDIENTS PRECISELY**
+Based on your careful observation in Step 1, now identify all visible ingredients and foods.
+**Ensure your identification matches your Step 1 description!**
 
-Return the analysis in this JSON format:
+🎯 **IMPORTANT REMINDERS**:
+- MUST identify **soups, sauces, curry** and other liquid ingredients (these are often missed but very important)
+- MUST identify **staple foods** (rice, noodles, etc., even if not in a bowl)
+- MUST identify **all vegetables**, including those submerged in soup (potatoes, onions, etc.)
+- Pay special attention to small details and partially obscured ingredients
+- **Use the most precise ingredient names**, avoid vague descriptions (e.g., use "baby corn" not "small corn", use "green pepper" not "green vegetable")
+- **Pay special attention to Taiwanese specialty dishes and indigenous ingredients** (millet, maqaw, abai, etc.)
+
+🚫 **ABSOLUTELY DO NOT identify these non-food items**:
+- **Containers and utensils**: bowls, plates, steamer baskets, bamboo steamers, empty bamboo tubes, cups, chopsticks, spoons, forks
+- **Decorations**: tablecloths, napkins, flower decorations, non-edible leaves
+- **Background items**: tables, chairs, walls, other people's hands or faces
+- **Packaging materials**: plastic bags, boxes, aluminum foil, plastic wrap
+- **Condiment containers**: soy sauce bottles, salt shakers (only identify actual condiments used)
+
+⚠️ **SPECIAL ATTENTION**:
+- **Steamer baskets/bamboo steamers**: These are containers, not food! Do not identify!
+- **Empty bamboo tubes**: If the bamboo tube is empty or just a container, do not identify
+- **Bamboo tube rice**: If the bamboo tube contains rice, identify as "bamboo tube rice", not "bamboo tube"
+- **Leaf wraps**: If leaves are used to wrap food (like zongzi leaves, pandan leaves), identify the wrapped food (like zongzi, abai), not the leaves themselves
+
+🚨 **MANDATORY CHECKLIST**:
+1. **Egg check**: Carefully look for any egg ingredients (boiled eggs, fried eggs, egg drop, etc.)
+2. **Cut ingredients**: Notice ingredients cut in half, especially eggs
+3. **White oval objects**: Could be boiled eggs
+4. **Yellow circles**: Could be egg yolks
+5. **Japanese curry**: Usually has boiled eggs as a side dish
+
+Please respond in JSON format and identify as many ingredients as possible:
+
 {
   "foods": [
     {
-      "name": "食材名稱（繁體中文）",
+      "name": "具體食材名稱（繁體中文）",
       "category": "食材分類（繁體中文）",
       "confidence": 0.90,
       "portion": "份量（繁體中文，如：1碗、100克、1片、半個等）",
-      "calories": number,
-      "protein": number,
-      "carbs": number,
-      "fat": number,
-      "fiber": number,
-      "sodium": number,
-      "description": "food description (can be in English or Chinese)"
+      "calories": 每份卡路里（數字，不要單位）,
+      "protein": 蛋白質克數（數字，不要單位如 g）,
+      "carbs": 碳水化合物克數（數字，不要單位如 g）,
+      "fat": 脂肪克數（數字，不要單位如 g）,
+      "fiber": 膳食纖維克數（數字，不要單位如 g）,
+      "sodium": 鈉含量毫克（數字，不要單位如 mg）,
+      "description": "食材描述和特點"
     }
   ],
   "overall_confidence": 0.85,
-  "description": "overall meal description (can be in English or Chinese)",
-  "cooking_method": "cooking method",
-  "cuisine_type": "cuisine type"
+  "description": "整體料理描述",
+  "cooking_method": "烹飪方式",
+  "cuisine_type": "料理類型"
 }
+
+⚠️ **JSON FORMAT IMPORTANT REMINDER**:
+- All nutritional values MUST be **pure numbers**, do not include units (g, mg, etc.)
+- Example: "protein": 3 ✅ Correct
+- Example: "protein": 3g ❌ Wrong
+- Example: "protein": "3g" ❌ Wrong
 
 CRITICAL: The "name" and "portion" fields MUST be in Traditional Chinese (繁體中文).
 
@@ -175,6 +208,15 @@ Name Examples:
 Portion Examples:
 - ✅ Correct: "1碗", "100克", "1片", "半個", "2塊", "1份 (150克)"
 - ❌ Wrong: "1 bowl", "100g", "1 piece", "half", "2 pieces", "1 serving (150g)"
+
+**IMPORTANT REQUIREMENTS**:
+- You MUST identify at least 5-10 different ingredients
+- **ABSOLUTELY DO NOT MISS**: soups/sauces, staple foods, potatoes, onions, curry, millet, indigenous specialty ingredients
+- Do not miss any visible food components
+- Even very small ingredients should be identified
+- Include soups, seasonings, spices, etc.
+- **If you see Taiwanese or indigenous specialty ingredients, you MUST identify and label them first**
+- If unsure, also list possible ingredients and explain the possibilities in the description
 
 Please analyze this meal photo now.`
               },
