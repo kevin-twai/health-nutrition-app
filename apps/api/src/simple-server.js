@@ -129,6 +129,18 @@ Focus on:
 3. Nutritional values (calories, protein, carbs, fat, fiber, sodium)
 4. Cooking method and cuisine type
 
+IMPORTANT - DO NOT identify these non-food items:
+- Containers and utensils: bowls, plates, steamer baskets, bamboo steamers, cups, chopsticks, spoons, forks
+- Decorations: tablecloths, napkins, flower decorations
+- Background items: tables, chairs, walls, people's hands or faces
+- Packaging: plastic bags, boxes, aluminum foil, plastic wrap
+- Condiment containers: soy sauce bottles, salt shakers (only identify actual condiments used)
+
+SPECIAL NOTE:
+- Steamer baskets/bamboo steamers are containers, NOT food! Do not identify them!
+- Empty bamboo tubes are containers, not food
+- If bamboo tube contains rice, identify as "bamboo tube rice", not "bamboo tube"
+
 Return the analysis in this JSON format:
 {
   "foods": [
@@ -299,6 +311,19 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
 - 請特別注意小細節和部分遮擋的食材
 - **使用最精確的食材名稱**，避免模糊描述（例如：用「玉米筍」而非「小玉米」，用「青椒」而非「綠色蔬菜」）
 - **特別注意台灣特色料理和原住民食材**（小米、馬告、刺蔥、阿粨等）
+
+🚫 **絕對不要識別以下非食物項目**：
+- **容器和餐具**：碗、盤子、蒸籠、竹籠、竹筒（空的）、杯子、筷子、湯匙、叉子
+- **裝飾物**：桌布、餐巾、花朵裝飾、葉片裝飾（非食用）
+- **背景物品**：桌子、椅子、牆壁、其他人的手或臉
+- **包裝材料**：塑膠袋、紙盒、鋁箔紙、保鮮膜
+- **調味料容器**：醬油瓶、鹽罐、胡椒罐（只識別實際使用的調味料）
+
+⚠️ **特別注意**：
+- **蒸籠/竹籠**：這是容器，不是食物！不要識別！
+- **空的竹筒**：如果竹筒是空的或只是容器，不要識別
+- **竹筒飯**：如果竹筒裡有米飯，識別「竹筒飯」而不是「竹筒」
+- **葉片包裹**：如果是用來包裹食物的葉片（如粽葉、月桃葉），識別包裹的食物（如粽子、阿粨），而不是葉片本身
 
 🚨 **強制檢查清單**：
 1. **蛋類檢查**：仔細尋找任何蛋類食材（水煮蛋、煎蛋、蛋花等）
