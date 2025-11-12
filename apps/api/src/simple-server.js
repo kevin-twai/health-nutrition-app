@@ -127,7 +127,7 @@ IMPORTANT: All food names MUST be in Traditional Chinese (繁體中文).
 
 Focus on:
 1. All visible ingredients and food items (names in Traditional Chinese)
-2. Estimated portion sizes
+2. Estimated portion sizes (in Traditional Chinese, e.g., "1碗", "100克", "1片")
 3. Nutritional values (calories, protein, carbs, fat, fiber, sodium)
 4. Cooking method and cuisine type
 
@@ -150,7 +150,7 @@ Return the analysis in this JSON format:
       "name": "食材名稱（繁體中文）",
       "category": "食材分類（繁體中文）",
       "confidence": 0.90,
-      "portion": "estimated portion",
+      "portion": "份量（繁體中文，如：1碗、100克、1片、半個等）",
       "calories": number,
       "protein": number,
       "carbs": number,
@@ -166,10 +166,15 @@ Return the analysis in this JSON format:
   "cuisine_type": "cuisine type"
 }
 
-CRITICAL: The "name" field MUST be in Traditional Chinese (繁體中文).
-Examples:
+CRITICAL: The "name" and "portion" fields MUST be in Traditional Chinese (繁體中文).
+
+Name Examples:
 - ✅ Correct: "小籠包", "青菜", "白飯", "雞肉"
 - ❌ Wrong: "xiao long bao", "steamed greens", "rice", "chicken"
+
+Portion Examples:
+- ✅ Correct: "1碗", "100克", "1片", "半個", "2塊", "1份 (150克)"
+- ❌ Wrong: "1 bowl", "100g", "1 piece", "half", "2 pieces", "1 serving (150g)"
 
 Please analyze this meal photo now.`
               },
