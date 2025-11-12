@@ -123,8 +123,10 @@ async function callChatGPTVisionAPIWithStrongerPrompt(imageBuffer, retryCount = 
 
 Please identify all visible food items in this image and provide their nutritional information in JSON format.
 
+IMPORTANT: All food names MUST be in Traditional Chinese (繁體中文).
+
 Focus on:
-1. All visible ingredients and food items
+1. All visible ingredients and food items (names in Traditional Chinese)
 2. Estimated portion sizes
 3. Nutritional values (calories, protein, carbs, fat, fiber, sodium)
 4. Cooking method and cuisine type
@@ -145,8 +147,8 @@ Return the analysis in this JSON format:
 {
   "foods": [
     {
-      "name": "food name",
-      "category": "food category",
+      "name": "食材名稱（繁體中文）",
+      "category": "食材分類（繁體中文）",
       "confidence": 0.90,
       "portion": "estimated portion",
       "calories": number,
@@ -155,14 +157,19 @@ Return the analysis in this JSON format:
       "fat": number,
       "fiber": number,
       "sodium": number,
-      "description": "food description"
+      "description": "food description (can be in English or Chinese)"
     }
   ],
   "overall_confidence": 0.85,
-  "description": "overall meal description",
+  "description": "overall meal description (can be in English or Chinese)",
   "cooking_method": "cooking method",
   "cuisine_type": "cuisine type"
 }
+
+CRITICAL: The "name" field MUST be in Traditional Chinese (繁體中文).
+Examples:
+- ✅ Correct: "小籠包", "青菜", "白飯", "雞肉"
+- ❌ Wrong: "xiao long bao", "steamed greens", "rice", "chicken"
 
 Please analyze this meal photo now.`
               },
