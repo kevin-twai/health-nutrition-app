@@ -177,7 +177,7 @@ Please respond in JSON format and identify as many ingredients as possible:
       "name": "具體食材名稱（繁體中文）",
       "category": "食材分類（繁體中文）",
       "confidence": 0.90,
-      "portion": "份量（繁體中文，如：1碗、100克、1片、半個等）",
+      "portion": "精確份量（繁體中文，必須包含具體數字和單位，如：150克、1碗 (約200克)、3片 (約50克)、半個 (約80克)）",
       "calories": 每份卡路里（數字，不要單位）,
       "protein": 蛋白質克數（數字，不要單位如 g）,
       "carbs": 碳水化合物克數（數字，不要單位如 g）,
@@ -206,8 +206,65 @@ Name Examples:
 - ❌ Wrong: "xiao long bao", "steamed greens", "rice", "chicken"
 
 Portion Examples:
-- ✅ Correct: "1碗", "100克", "1片", "半個", "2塊", "1份 (150克)"
-- ❌ Wrong: "1 bowl", "100g", "1 piece", "half", "2 pieces", "1 serving (150g)"
+- ✅ Correct: "150克", "1碗 (約200克)", "3片 (約50克)", "半個 (約80克)", "2塊 (約100克)"
+- ❌ Wrong: "1 bowl", "100g", "1 piece", "some", "a little", "適量"
+
+📏 **PORTION CALCULATION GUIDELINES (VERY IMPORTANT)**:
+
+You MUST provide PRECISE portion estimates with SPECIFIC NUMBERS and UNITS.
+
+**Standard Portion Sizes (參考標準份量)**:
+
+**Rice & Grains (米飯和穀物)**:
+- 1碗白飯 = 150-200克
+- 1碗糙米飯 = 150-200克
+- 1碗炒飯/油飯 = 200-250克
+- 1碗小米飯 = 150-180克
+- 1碗麵條 = 200-250克
+
+**Vegetables (蔬菜)**:
+- 1份炒青菜 = 80-100克
+- 1片黃瓜 = 15-20克
+- 1個番茄 = 100-150克
+- 1根玉米筍 = 20-30克
+- 1份沙拉 = 80-120克
+
+**Proteins (蛋白質)**:
+- 1片雞胸肉 = 100-120克
+- 1塊豬排 = 120-150克
+- 1片魚 = 100-130克
+- 1個水煮蛋 = 50-60克
+- 1湯匙肉鬆 = 10-15克
+
+**Soups & Sauces (湯汁和醬汁)**:
+- 1碗湯 = 200-300毫升
+- 1份咖喱醬 = 150-200毫升
+- 1湯匙醬油 = 15毫升
+
+**How to Estimate (如何估算)**:
+1. **Compare to standard objects (與標準物體比較)**:
+   - Golf ball size = 約40克
+   - Tennis ball size = 約100克
+   - Fist size = 約150-200克
+   - Palm size = 約80-100克
+
+2. **Use visual cues (使用視覺線索)**:
+   - Count individual pieces (數個別數量)
+   - Estimate bowl/plate coverage (估算碗/盤覆蓋率)
+   - Compare to other items in photo (與照片中其他物品比較)
+
+3. **Be specific (要具體)**:
+   - ✅ "150克" or "1碗 (約180克)"
+   - ❌ "一些" or "適量" or "1份"
+
+4. **Include weight estimates (包含重量估算)**:
+   - Even for countable items, add weight: "3片 (約50克)"
+   - For bowls/plates, add weight: "1碗 (約200克)"
+
+**CRITICAL**: Every portion MUST include either:
+- A specific weight in grams/milliliters (具體克數/毫升數)
+- OR a count with estimated weight (數量加估算重量)
+- Examples: "120克", "1碗 (約180克)", "3片 (約45克)", "半個 (約75克)"
 
 **IMPORTANT REQUIREMENTS**:
 - You MUST identify at least 5-10 different ingredients
@@ -431,7 +488,7 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
       "name": "具體食材名稱（中文）",
       "category": "食材分類",
       "confidence": 0.90,
-      "portion": "估計份量（如：100g、1碗、1片等）",
+      "portion": "精確份量（繁體中文，必須包含具體數字和單位，如：150克、1碗 (約200克)、3片 (約50克)、半個 (約80克)）",
       "calories": 每份卡路里（數字，不要單位）,
       "protein": 蛋白質克數（數字，不要單位如 g）,
       "carbs": 碳水化合物克數（數字，不要單位如 g）,
@@ -634,6 +691,48 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
 - 包括湯汁、調料、香料等
 - **如果看到台灣或原住民特色食材，必須優先識別並標註**
 - 如果不確定，也要列出可能的食材，並在 description 中說明可能性
+
+📏 **份量計算要求（非常重要）**：
+
+每個食材的份量必須提供**精確的數字和單位**。
+
+**標準份量參考**：
+
+**米飯和穀物**：
+- 1碗白飯 = 150-200克
+- 1碗炒飯/油飯 = 200-250克
+- 1碗小米飯 = 150-180克
+- 1碗麵條 = 200-250克
+
+**蔬菜**：
+- 1份炒青菜 = 80-100克
+- 1片黃瓜 = 15-20克
+- 1個番茄 = 100-150克
+- 1根玉米筍 = 20-30克
+
+**蛋白質**：
+- 1片雞胸肉 = 100-120克
+- 1個水煮蛋 = 50-60克
+- 1湯匙肉鬆 = 10-15克
+
+**湯汁和醬汁**：
+- 1碗湯 = 200-300毫升
+- 1份咖喱醬 = 150-200毫升
+
+**估算方法**：
+1. 與標準物體比較（高爾夫球 ≈ 40克，網球 ≈ 100克，拳頭 ≈ 150-200克）
+2. 數個別數量
+3. 估算碗/盤覆蓋率
+4. 與照片中其他物品比較
+
+**份量格式要求**：
+- ✅ 正確："150克"、"1碗 (約180克)"、"3片 (約50克)"、"半個 (約75克)"
+- ❌ 錯誤："一些"、"適量"、"1份"、"少許"
+
+**關鍵**：每個份量必須包含：
+- 具體克數/毫升數，或
+- 數量加估算重量
+- 例如："120克"、"1碗 (約180克)"、"3片 (約45克)"
 
 🎯 **特別提醒**：
 - 如果這是咖喱料理，"foods" 數組中必須包含「咖喱」或「咖喱湯汁」
