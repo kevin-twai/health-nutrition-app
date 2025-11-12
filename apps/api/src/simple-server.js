@@ -130,11 +130,19 @@ Before identifying ingredients, please VERY CAREFULLY observe the image and desc
    - What shapes? (elongated, round, chunky, granular, etc.)
    - What texture? (crispy, soft, soupy, solid, etc.)
 
-2. **Dish type judgment**:
+2. **🔢 ACCURATE QUANTITY COUNT (EXTREMELY IMPORTANT!)**:
+   - **Count carefully**: How many of each identical item do you see?
+   - **Count one by one**: From left to right, top to bottom, count each piece
+   - **Avoid double counting**: Make sure each item is counted only once
+   - **Check for hidden items**: Look for items that might be partially covered
+   - **Example**: If you see oysters, count carefully: 1, 2, 3, 4, 5... confirm the total
+   - **Verify**: Count again to ensure accuracy
+
+3. **Dish type judgment**:
    - What type of cuisine does this look like? (Japanese, Chinese, Taiwanese, Western, Indigenous, etc.)
    - Is it soup, stir-fry, grilled, or something else?
 
-3. **Container and presentation**:
+4. **Container and presentation**:
    - What container is the food in? (bowl, plate, bamboo tube, stone slab, leaf wrap, etc.)
 
 🎯 **STEP 2: IDENTIFY ALL INGREDIENTS PRECISELY**
@@ -242,29 +250,48 @@ You MUST provide PRECISE portion estimates with SPECIFIC NUMBERS and UNITS.
 - 1湯匙醬油 = 15毫升
 
 **How to Estimate (如何估算)**:
-1. **Compare to standard objects (與標準物體比較)**:
+1. **🔢 COUNT CAREFULLY (仔細計數 - 最重要！)**:
+   - **For countable items (可數食材)**:
+     * Count each piece individually (逐個計數)
+     * Double-check your count (再次確認數量)
+     * Do NOT guess or estimate quantity (不要猜測數量)
+     * Examples: "5個生蠔" NOT "10個生蠔", "3片肉" NOT "5片肉"
+   - **Counting method (計數方法)**:
+     * Look at the image carefully (仔細觀察圖片)
+     * Point and count: 1, 2, 3, 4, 5... (指著數：1、2、3、4、5...)
+     * Verify: Count again to confirm (驗證：再數一遍確認)
+     * If overlapping, trace each item's outline (如果重疊，追蹤每個食材的輪廓)
+
+2. **Compare to standard objects (與標準物體比較)**:
    - Golf ball size = 約40克
    - Tennis ball size = 約100克
    - Fist size = 約150-200克
    - Palm size = 約80-100克
 
-2. **Use visual cues (使用視覺線索)**:
-   - Count individual pieces (數個別數量)
+3. **Use visual cues (使用視覺線索)**:
+   - Count individual pieces ACCURATELY (精確數個別數量)
    - Estimate bowl/plate coverage (估算碗/盤覆蓋率)
    - Compare to other items in photo (與照片中其他物品比較)
 
-3. **Be specific (要具體)**:
-   - ✅ "150克" or "1碗 (約180克)"
-   - ❌ "一些" or "適量" or "1份"
+4. **Be specific (要具體)**:
+   - ✅ "150克" or "1碗 (約180克)" or "5個 (約250克)"
+   - ❌ "一些" or "適量" or "1份" or "很多個"
 
-4. **Include weight estimates (包含重量估算)**:
-   - Even for countable items, add weight: "3片 (約50克)"
+5. **Include weight estimates (包含重量估算)**:
+   - For countable items, MUST include accurate count AND weight: "5個生蠔 (約250克)" NOT "10個生蠔"
    - For bowls/plates, add weight: "1碗 (約200克)"
 
 **CRITICAL**: Every portion MUST include either:
 - A specific weight in grams/milliliters (具體克數/毫升數)
-- OR a count with estimated weight (數量加估算重量)
-- Examples: "120克", "1碗 (約180克)", "3片 (約45克)", "半個 (約75克)"
+- OR an ACCURATE count with estimated weight (精確數量加估算重量)
+- Examples: "120克", "1碗 (約180克)", "3片 (約45克)", "5個生蠔 (約250克)"
+
+**🚨 QUANTITY ACCURACY WARNING (數量準確性警告)**:
+- **DO NOT GUESS quantities (不要猜測數量)**
+- **COUNT each item visible in the photo (數圖片中可見的每一個食材)**
+- **If you see 5 oysters, write "5個" NOT "10個" (如果看到5個生蠔，寫"5個"不是"10個")**
+- **If you see 3 pieces of meat, write "3片" NOT "5片" (如果看到3片肉，寫"3片"不是"5片")**
+- **Accuracy is MORE important than estimation (準確性比估算更重要)**
 
 **IMPORTANT REQUIREMENTS**:
 - You MUST identify at least 5-10 different ingredients
@@ -435,11 +462,19 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
    - 形狀是什麼？（細長、圓形、塊狀、顆粒狀等）
    - 質地如何？（脆的、軟的、湯狀、固體等）
 
-2. **料理類型判斷**：
+2. **🔢 精確數量計算（極其重要！）**：
+   - **仔細數一數**：圖片中有多少個相同的食材？
+   - **逐個點數**：從左到右、從上到下，一個一個數
+   - **避免重複計算**：確保每個食材只數一次
+   - **避免遺漏**：檢查是否有被遮擋或重疊的食材
+   - **例如**：如果看到生蠔，請仔細數：1個、2個、3個...確認總數
+   - **再次確認**：數完後再數一遍，確保準確
+
+3. **料理類型判斷**：
    - 這看起來像什麼類型的料理？（日式、中式、台灣、西式、原住民料理等）
    - 是湯品、炒菜、烤物、還是其他？
 
-3. **容器和擺盤**：
+4. **容器和擺盤**：
    - 食物裝在什麼容器中？（碗、盤、竹筒、石板、葉片包裹等）
 
 ⚠️ **重要提醒**：
