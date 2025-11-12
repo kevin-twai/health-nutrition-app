@@ -9,38 +9,63 @@ const convert = require('heic-convert');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// 圖片格式轉換函數 - 將 HEIC 等格式轉換為 JPEG
+// 圖片格式轉換和優化函數 - 將 HEIC 等格式轉換為 JPEG 並壓縮大圖片
 async function convertImageToJpeg(buffer, originalName) {
   try {
     const ext = path.extname(originalName).toLowerCase();
     console.log(`📦 原始圖片格式: ${ext}`);
+    console.log(`📦 原始圖片大小: ${buffer.length} bytes (${(buffer.length / 1024 / 1024).toFixed(2)} MB)`);
+    
+    let processedBuffer = buffer;
     
     // 如果是 HEIC 格式，使用 heic-convert（純 JS 實現，無需系統依賴）
     if (ext === '.heic' || ext === '.heif') {
       console.log('🔄 使用 heic-convert 轉換 HEIC 格式到 JPEG...');
-      const outputBuffer = await convert({
+      processedBuffer = await convert({
         buffer: buffer,
         format: 'JPEG',
         quality: 0.9
       });
-      console.log(`✅ HEIC 轉換完成 (${buffer.length} bytes -> ${outputBuffer.length} bytes)`);
-      return outputBuffer;
+      console.log(`✅ HEIC 轉換完成 (${buffer.length} bytes -> ${processedBuffer.length} bytes)`);
     }
     
     // 如果是其他格式，使用 sharp 轉換為 JPEG
-    if (ext !== '.jpg' && ext !== '.jpeg') {
+    else if (ext !== '.jpg' && ext !== '.jpeg') {
       console.log(`🔄 使用 sharp 轉換 ${ext} 格式到 JPEG...`);
-      const convertedBuffer = await sharp(buffer)
+      processedBuffer = await sharp(buffer)
         .jpeg({ quality: 90 })
         .toBuffer();
-      console.log(`✅ 格式轉換完成 (${buffer.length} bytes -> ${convertedBuffer.length} bytes)`);
-      return convertedBuffer;
+      console.log(`✅ 格式轉換完成 (${buffer.length} bytes -> ${processedBuffer.length} bytes)`);
     }
     
-    console.log('✅ 已是 JPEG 格式，無需轉換');
-    return buffer;
+    // 檢查圖片大小，如果超過 2MB 則壓縮
+    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+    if (processedBuffer.length > MAX_SIZE) {
+      console.log(`⚠️ 圖片過大 (${(processedBuffer.length / 1024 / 1024).toFixed(2)} MB)，開始壓縮...`);
+      
+      // 使用 sharp 壓縮圖片
+      const metadata = await sharp(processedBuffer).metadata();
+      const targetWidth = Math.min(metadata.width, 1920); // 最大寬度 1920px
+      
+      processedBuffer = await sharp(processedBuffer)
+        .resize(targetWidth, null, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .jpeg({ 
+          quality: 85,
+          progressive: true
+        })
+        .toBuffer();
+      
+      console.log(`✅ 圖片壓縮完成 (${(processedBuffer.length / 1024 / 1024).toFixed(2)} MB)`);
+    } else {
+      console.log('✅ 圖片大小適中，無需壓縮');
+    }
+    
+    return processedBuffer;
   } catch (error) {
-    console.error('❌ 圖片轉換失敗:', error.message);
+    console.error('❌ 圖片處理失敗:', error.message);
     console.error('❌ 錯誤堆疊:', error.stack);
     throw error;
   }
@@ -269,9 +294,37 @@ You MUST provide PRECISE portion estimates with SPECIFIC NUMBERS and UNITS.
    - Palm size = 約80-100克
 
 3. **Use visual cues (使用視覺線索)**:
-   - Count individual pieces ACCURATELY (精確數個別數量)
+   - **COUNT VERY CAREFULLY** - Count each individual piece ONE BY ONE (非常仔細地數，一個一個數)
+   - Double-check your count (再次確認數量)
+   - If countable, MUST provide exact count (如果可數，必須提供精確數量)
    - Estimate bowl/plate coverage (估算碗/盤覆蓋率)
    - Compare to other items in photo (與照片中其他物品比較)
+
+🔢 **COUNTING ACCURACY (數量準確性) - CRITICAL**:
+
+**For countable items (可數食材)**:
+- **MUST count each piece individually** (必須逐個計數)
+- **DO NOT estimate or guess** (不要估算或猜測)
+- **Count visible items only** (只數可見的)
+- Examples:
+  * Oysters: Count each shell - "5個" NOT "10個"
+  * Eggs: Count each egg - "2個" NOT "幾個"
+  * Dumplings: Count each piece - "8個" NOT "一盤"
+  * Slices: Count each slice - "3片" NOT "數片"
+
+**Counting Method (計數方法)**:
+1. Identify all visible pieces (識別所有可見的)
+2. Count them ONE BY ONE (一個一個數)
+3. Double-check your count (再次確認)
+4. Report EXACT number (報告精確數字)
+
+**Common Mistakes to AVOID (常見錯誤)**:
+- ❌ Guessing "about 10" when there are 5
+- ❌ Doubling the count by mistake
+- ❌ Counting reflections or shadows
+- ❌ Including partially visible items in full count
+
+**CRITICAL**: For items like oysters, eggs, dumplings, etc., you MUST count accurately. Wrong counts are NOT acceptable.
 
 4. **Be specific (要具體)**:
    - ✅ "150克" or "1碗 (約180克)" or "5個 (約250克)"
@@ -756,9 +809,36 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
 
 **估算方法**：
 1. 與標準物體比較（高爾夫球 ≈ 40克，網球 ≈ 100克，拳頭 ≈ 150-200克）
-2. 數個別數量
-3. 估算碗/盤覆蓋率
-4. 與照片中其他物品比較
+2. **非常仔細地數個別數量** - 一個一個數，不要估算
+3. 再次確認數量是否正確
+4. 估算碗/盤覆蓋率
+5. 與照片中其他物品比較
+
+🔢 **數量準確性要求（非常重要）**：
+
+**可數食材（如生蠔、蛋、餃子等）**：
+- **必須逐個計數**，不要估算或猜測
+- **只數可見的**，不要猜測被遮擋的
+- **再次確認數量**，避免數錯
+- 例如：
+  * 生蠔：數每個殼 - "5個" 不是 "10個"
+  * 雞蛋：數每顆蛋 - "2個" 不是 "幾個"
+  * 餃子：數每個 - "8個" 不是 "一盤"
+  * 切片：數每片 - "3片" 不是 "數片"
+
+**計數方法**：
+1. 識別所有可見的食材
+2. 一個一個數
+3. 再次確認數量
+4. 報告精確數字
+
+**常見錯誤（必須避免）**：
+- ❌ 實際5個卻猜測"約10個"
+- ❌ 錯誤地將數量加倍
+- ❌ 把倒影或陰影也算進去
+- ❌ 把部分可見的也算成完整的
+
+**關鍵**：對於生蠔、蛋、餃子等可數食材，必須精確計數。數量錯誤是不可接受的。
 
 **份量格式要求**：
 - ✅ 正確："150克"、"1碗 (約180克)"、"3片 (約50克)"、"半個 (約75克)"
