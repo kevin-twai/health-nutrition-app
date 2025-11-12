@@ -213,8 +213,35 @@ Please analyze this meal photo now.`
       parsedResult = JSON.parse(jsonStr);
       console.log('✅ 重試版本 JSON 解析成功');
     } catch (parseError) {
-      console.log('❌ 重試版本 JSON 解析失敗，使用文本分析');
+      console.log('❌ 重試版本 JSON 解析失敗:', parseError.message);
+      console.log('📝 重試版本原始內容前500字元:', content.substring(0, 500));
+      console.log('⚠️ 使用文本分析');
       parsedResult = parseTextResponse(content);
+      
+      if (!parsedResult.foods || parsedResult.foods.length === 0) {
+        console.log('⚠️ 重試版本文本分析也失敗，使用通用回退');
+        parsedResult = {
+          foods: [
+            {
+              name: '無法識別的食物',
+              confidence: 0.5,
+              portion: '1份',
+              calories: 200,
+              protein: 10,
+              carbs: 25,
+              fat: 8,
+              fiber: 2,
+              sodium: 300,
+              category: '其他',
+              description: '重試後仍無法識別'
+            }
+          ],
+          overall_confidence: 0.5,
+          description: '圖片分析遇到困難',
+          cooking_method: '未知',
+          cuisine_type: '未知'
+        };
+      }
     }
     
     // 返回與原函數相同格式的結果
@@ -623,11 +650,44 @@ async function callChatGPTVisionAPI(imageBuffer, retryCount = 0) {
       }
     } catch (parseError) {
       console.log('❌ JSON 解析失敗:', parseError.message);
-      console.log('📝 原始內容:', content);
+      console.log('📝 原始內容前500字元:', content.substring(0, 500));
+      console.log('📝 原始內容長度:', content.length);
       console.log('⚠️ 使用文本分析作為回退');
+      
+      // 檢查是否是 OpenAI 拒絕訊息
+      if (content.includes("I'm sorry") || content.includes("I can't") || content.includes("I cannot")) {
+        console.log('⚠️ 檢測到 OpenAI 拒絕訊息，但未被提前捕獲');
+        console.log('   拒絕內容:', content.substring(0, 200));
+      }
+      
       // 如果 JSON 解析失敗，嘗試從文本中提取食物信息
       parsedResult = parseTextResponse(content);
       console.log('📊 文本分析結果 foods 數量:', parsedResult.foods?.length || 0);
+      
+      if (!parsedResult.foods || parsedResult.foods.length === 0) {
+        console.log('⚠️ 文本分析也沒有找到食材，使用通用回退數據');
+        parsedResult = {
+          foods: [
+            {
+              name: '無法識別的食物',
+              confidence: 0.5,
+              portion: '1份',
+              calories: 200,
+              protein: 10,
+              carbs: 25,
+              fat: 8,
+              fiber: 2,
+              sodium: 300,
+              category: '其他',
+              description: 'OpenAI 無法識別此圖片中的食物，可能是圖片質量、角度或內容問題'
+            }
+          ],
+          overall_confidence: 0.5,
+          description: '圖片分析遇到困難',
+          cooking_method: '未知',
+          cuisine_type: '未知'
+        };
+      }
     }
     
     // 轉換為我們的格式
