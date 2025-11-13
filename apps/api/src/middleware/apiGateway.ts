@@ -102,7 +102,8 @@ export const createSlowDown = (options: {
   return slowDown({
     windowMs: options.windowMs,
     delayAfter: options.delayAfter,
-    delayMs: options.delayMs,
+    delayMs: () => options.delayMs, // 修復 express-slow-down v2 警告
+    validate: { delayMs: false }, // 禁用警告
     keyGenerator: (req) => {
       const userId = req.user?.id || 'anonymous';
       return `${req.ip}-${userId}`;

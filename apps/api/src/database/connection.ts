@@ -1,32 +1,32 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool, PoolClient, PoolConfig } from 'pg';
 import fs from 'fs';
 import path from 'path';
 
-// 資料庫連接配置
-interface DatabaseConfig {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password: string;
-  ssl?: boolean;
-  max?: number;
-  idleTimeoutMillis?: number;
-  connectionTimeoutMillis?: number;
-}
-
 // 從環境變數獲取資料庫配置
-const getDatabaseConfig = (): DatabaseConfig => {
+const getDatabaseConfig = (): PoolConfig => {
+  // 優先使用 DATABASE_URL，這是 Render 提供的完整連接字串
+  if (process.env.DATABASE_URL) {
+    console.log('📊 使用 DATABASE_URL 連接到 PostgreSQL');
+    return {
+      connectionString: process.env.DATABASE_URL,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    };
+  }
+  
+  // 回退到單獨的環境變數（用於本地開發）
+  console.log('📊 使用單獨的環境變數連接到 PostgreSQL');
   return {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
     database: process.env.DB_NAME || 'health_nutrition_tracker',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'password',
-    ssl: process.env.NODE_ENV === 'production',
-    max: 20, // 最大連接數
-    idleTimeoutMillis: 30000, // 閒置超時
-    connectionTimeoutMillis: 2000, // 連接超時
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
   };
 };
 
@@ -110,10 +110,22 @@ class DatabaseConnection {
   public async testConnection(): Promise<boolean> {
     try {
       const result = await this.query('SELECT NOW()');
-      console.log('資料庫連接測試成功:', result.rows[0]);
+      console.log('✅ 資料庫連接測試成功:', result.rows[0]);
       return true;
     } catch (error) {
-      console.error('資料庫連接測試失敗:', error);
+      console.error('❌ 資料庫連接測試失敗:', error);
+      
+      // 提供更詳細的錯誤診斷
+      if (error instanceof Error) {
+        if (error.message.includes('ECONNREFUSED')) {
+          console.error('🔍 連接被拒絕 - 請檢查：');
+          console.error('   1. DATABASE_URL 環境變數是否正確設置');
+          console.error('   2. PostgreSQL 服務是否正在運行');
+          console.error('   3. 網絡連接是否正常');
+          console.error('   4. 連接字串格式: postgresql://user:password@host:port/database');
+        }
+      }
+      
       return false;
     }
   }

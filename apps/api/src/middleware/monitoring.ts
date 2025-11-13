@@ -137,8 +137,9 @@ export const requestMonitoring = (req: Request, res: Response, next: NextFunctio
 
 // CloudWatch 指標發送函數
 async function sendCloudWatchMetric(metricName: string, value: number, unit: string) {
-  if (process.env.NODE_ENV !== 'production') {
-    return; // 只在生產環境發送 CloudWatch 指標
+  // 只在生產環境且配置了 AWS 憑證時發送 CloudWatch 指標
+  if (process.env.NODE_ENV !== 'production' || !process.env.AWS_ACCESS_KEY_ID) {
+    return;
   }
   
   try {
@@ -154,11 +155,14 @@ async function sendCloudWatchMetric(metricName: string, value: number, unit: str
     
     await cloudWatch.putMetricData(params).promise();
   } catch (error) {
-    logger.error('CloudWatch 指標發送失敗', { 
-      error: error instanceof Error ? error.message : String(error), 
-      metricName, 
-      value 
-    });
+    // 靜默失敗，不記錄錯誤以避免日誌污染
+    if (process.env.DEBUG_CLOUDWATCH) {
+      logger.error('CloudWatch 指標發送失敗', { 
+        error: error instanceof Error ? error.message : String(error), 
+        metricName, 
+        value 
+      });
+    }
   }
 }
 
