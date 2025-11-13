@@ -41,9 +41,15 @@ class RedisConnection {
   }
 
   // 連接到 Redis
-  public async connect(): Promise<Redis> {
+  public async connect(): Promise<Redis | null> {
     if (this.client && this.isConnected) {
       return this.client;
+    }
+
+    // 如果沒有設置 REDIS_HOST，跳過 Redis 連接
+    if (!process.env.REDIS_HOST && !process.env.REDIS_URL) {
+      console.warn('⚠️  REDIS_HOST/REDIS_URL 未設置，跳過 Redis 連接');
+      return null;
     }
 
     try {
@@ -52,36 +58,54 @@ class RedisConnection {
 
       // 監聽連接事件
       this.client.on('connect', () => {
-        console.log('Redis 連接成功');
+        console.log('✅ Redis 連接成功');
         this.isConnected = true;
       });
 
       this.client.on('ready', () => {
-        console.log('Redis 準備就緒');
+        console.log('✅ Redis 準備就緒');
       });
 
       this.client.on('error', (error) => {
-        console.error('Redis 連接錯誤:', error);
+        console.error('❌ Redis 連接錯誤:', error.message);
         this.isConnected = false;
       });
 
       this.client.on('close', () => {
-        console.log('Redis 連接已關閉');
+        console.log('⚠️  Redis 連接已關閉');
         this.isConnected = false;
       });
 
       this.client.on('reconnecting', () => {
-        console.log('Redis 重新連接中...');
+        console.log('🔄 Redis 重新連接中...');
       });
 
-      // 測試連接
-      await this.client.ping();
+      // 測試連接（設置超時）
+      await Promise.race([
+        this.client.ping(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Redis 連接超時')), 5000)
+        )
+      ]);
+      
       this.isConnected = true;
-
       return this.client;
     } catch (error) {
-      console.error('Redis 連接失敗:', error);
-      throw error;
+      console.error('❌ Redis 連接失敗:', error instanceof Error ? error.message : String(error));
+      console.warn('⚠️  系統將在沒有 Redis 的情況下運行（無快取功能）');
+      
+      // 清理失敗的連接
+      if (this.client) {
+        try {
+          this.client.disconnect();
+        } catch (e) {
+          // 忽略斷開連接時的錯誤
+        }
+        this.client = null;
+      }
+      
+      this.isConnected = false;
+      return null;
     }
   }
 
@@ -415,10 +439,17 @@ export let redis: Redis | undefined = undefined;
 // 初始化 Redis 連接
 export async function initializeRedis(): Promise<void> {
   try {
-    redis = await redisConnection.connect();
-    console.log('Redis 初始化成功');
+    const client = await redisConnection.connect();
+    if (client) {
+      redis = client;
+      console.log('✅ Redis 初始化成功');
+    } else {
+      redis = undefined;
+      console.warn('⚠️  Redis 未初始化，系統將在沒有快取的情況下運行');
+    }
   } catch (error) {
-    console.error('Redis 初始化失敗:', error);
+    console.error('❌ Redis 初始化失敗:', error instanceof Error ? error.message : String(error));
+    console.warn('⚠️  系統將在沒有 Redis 的情況下運行（無快取功能）');
     redis = undefined;
   }
 }

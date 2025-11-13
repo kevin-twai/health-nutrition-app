@@ -202,9 +202,15 @@ async function initializeApp() {
       }
     });
     
-    // 初始化 Redis 連接
+    // 初始化 Redis 連接（可選）
     await performanceMonitor.measureFunction('redis-initialization', async () => {
-      await initializeRedis();
+      try {
+        await initializeRedis();
+      } catch (error) {
+        logger.warn('⚠️  Redis 初始化失敗，系統將在沒有快取的情況下運行', {
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
     });
     
     // 註冊所有路由 (在 MongoDB 連接之後)
@@ -240,7 +246,7 @@ async function initializeApp() {
       );
     });
     
-    // Redis 健康檢查
+    // Redis 健康檢查（可選）
     healthMonitor.registerHealthCheck('redis', async () => {
       try {
         const { redis } = await import('./database/redis');
@@ -248,12 +254,14 @@ async function initializeApp() {
           await redis.ping();
           return true;
         }
-        return false;
+        // Redis 未連接但不影響系統運行
+        return true;
       } catch (error) {
-        logger.error('Redis 健康檢查失敗', { 
+        logger.warn('Redis 健康檢查失敗（不影響系統運行）', { 
           error: error instanceof Error ? error.message : String(error) 
         });
-        return false;
+        // 返回 true 因為 Redis 是可選的
+        return true;
       }
     });
     
