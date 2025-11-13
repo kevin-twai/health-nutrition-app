@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import { initializeRedis } from './database/redis';
 import { db, MigrationManager } from './database/connection';
 import { gatewayConfig, getConfigSummary } from './config/gateway';
-import createAuthRoutes from './routes/auth';
+import { registerRoutes } from './routes';
 import {
   apiVersioning,
   requestId,
@@ -170,76 +170,7 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
-// 認證路由 (帶有嚴格的 Rate Limiting)
-app.use('/api/v1/auth', 
-  apiGatewayConfig.auth.rateLimit,
-  apiGatewayConfig.auth.slowDown,
-  createAuthRoutes()
-);
-
-// 用戶管理路由
-import createUserRoutes from './routes/users';
-app.use('/api/v1/users', 
-  apiGatewayConfig.general.rateLimit,
-  createUserRoutes()
-);
-
-// 照片上傳路由 (帶有特殊限制)
-import createPhotoRoutes from './routes/photo';
-app.use('/api/v1/photo', 
-  apiGatewayConfig.photo.rateLimit,
-  apiGatewayConfig.photo.sizeLimit,
-  createPhotoRoutes()
-);
-
-// 遊戲化系統路由
-import gamificationRoutes from './routes/gamification';
-app.use('/api/v1/gamification', 
-  apiGatewayConfig.general.rateLimit,
-  gamificationRoutes
-);
-
-// 反饋系統路由
-import feedbackRoutes from './routes/feedback';
-app.use('/api/v1/feedback', 
-  apiGatewayConfig.general.rateLimit,
-  feedbackRoutes
-);
-
-// 報告系統路由
-import reportsRoutes from './routes/reports';
-app.use('/api/v1/reports', 
-  apiGatewayConfig.general.rateLimit,
-  reportsRoutes
-);
-
-// 監控系統路由
-import monitoringRoutes from './routes/monitoring';
-app.use('/api/v1/monitoring', 
-  apiGatewayConfig.general.rateLimit,
-  monitoringRoutes
-);
-
-// 食物識別監控路由
-import foodRecognitionMonitoringRoutes from './routes/food-recognition-monitoring';
-app.use('/api/v1/food-recognition/monitoring', 
-  apiGatewayConfig.general.rateLimit,
-  foodRecognitionMonitoringRoutes
-);
-
-// Error handling middleware
-app.use(errorTracking);
-
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      code: 'NOT_FOUND',
-      message: 'Endpoint not found'
-    }
-  });
-});
+// Routes will be registered after MongoDB initialization in initializeApp()
 
 // 初始化應用程式
 async function initializeApp() {
@@ -264,6 +195,22 @@ async function initializeApp() {
     // 初始化 Redis 連接
     await performanceMonitor.measureFunction('redis-initialization', async () => {
       await initializeRedis();
+    });
+    
+    // 註冊所有路由 (在 MongoDB 連接之後)
+    await registerRoutes(app);
+    logger.info('✅ 所有路由已註冊');
+    
+    // 註冊錯誤處理和 404 handler
+    app.use(errorTracking);
+    app.use('*', (req, res) => {
+      res.status(404).json({
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Endpoint not found'
+        }
+      });
     });
     
     // 執行資料庫遷移
