@@ -254,6 +254,13 @@ async function initializeApp() {
       await initializeMonitoring();
     }
     
+    // 初始化 MongoDB 連接
+    await performanceMonitor.measureFunction('mongodb-initialization', async () => {
+      const { mongodb } = await import('./database/mongodb');
+      await mongodb.connect();
+      logger.info('✅ MongoDB 連接成功');
+    });
+    
     // 初始化 Redis 連接
     await performanceMonitor.measureFunction('redis-initialization', async () => {
       await initializeRedis();
