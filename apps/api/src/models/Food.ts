@@ -203,29 +203,29 @@ export class FoodModel {
       sugar: Math.round(nutritionPer100g.sugar * multiplier * 10) / 10,
       sodium: Math.round(nutritionPer100g.sodium * multiplier * 10) / 10,
       vitamins: {
-        vitaminA: Math.round(nutritionPer100g.vitamins?.vitaminA * multiplier * 100) / 100,
-        vitaminC: Math.round(nutritionPer100g.vitamins?.vitaminC * multiplier * 100) / 100,
-        vitaminD: Math.round(nutritionPer100g.vitamins?.vitaminD * multiplier * 100) / 100,
-        vitaminE: Math.round(nutritionPer100g.vitamins?.vitaminE * multiplier * 100) / 100,
-        vitaminK: Math.round(nutritionPer100g.vitamins?.vitaminK * multiplier * 100) / 100,
-        thiamine: Math.round(nutritionPer100g.vitamins?.thiamine * multiplier * 100) / 100,
-        riboflavin: Math.round(nutritionPer100g.vitamins?.riboflavin * multiplier * 100) / 100,
-        niacin: Math.round(nutritionPer100g.vitamins?.niacin * multiplier * 100) / 100,
-        vitaminB6: Math.round(nutritionPer100g.vitamins?.vitaminB6 * multiplier * 100) / 100,
-        folate: Math.round(nutritionPer100g.vitamins?.folate * multiplier * 100) / 100,
-        vitaminB12: Math.round(nutritionPer100g.vitamins?.vitaminB12 * multiplier * 100) / 100
+        vitaminA: Math.round(nutritionPer100g.vitamins?.vitaminA || 0 * multiplier * 100) / 100,
+        vitaminC: Math.round(nutritionPer100g.vitamins?.vitaminC || 0 * multiplier * 100) / 100,
+        vitaminD: Math.round(nutritionPer100g.vitamins?.vitaminD || 0 * multiplier * 100) / 100,
+        vitaminE: Math.round(nutritionPer100g.vitamins?.vitaminE || 0 * multiplier * 100) / 100,
+        vitaminK: Math.round(nutritionPer100g.vitamins?.vitaminK || 0 * multiplier * 100) / 100,
+        thiamine: Math.round(nutritionPer100g.vitamins?.thiamine || 0 * multiplier * 100) / 100,
+        riboflavin: Math.round(nutritionPer100g.vitamins?.riboflavin || 0 * multiplier * 100) / 100,
+        niacin: Math.round(nutritionPer100g.vitamins?.niacin || 0 * multiplier * 100) / 100,
+        vitaminB6: Math.round(nutritionPer100g.vitamins?.vitaminB6 || 0 * multiplier * 100) / 100,
+        folate: Math.round(nutritionPer100g.vitamins?.folate || 0 * multiplier * 100) / 100,
+        vitaminB12: Math.round(nutritionPer100g.vitamins?.vitaminB12 || 0 * multiplier * 100) / 100
       },
       minerals: {
-        calcium: Math.round(nutritionPer100g.minerals?.calcium * multiplier * 100) / 100,
-        iron: Math.round(nutritionPer100g.minerals?.iron * multiplier * 100) / 100,
-        magnesium: Math.round(nutritionPer100g.minerals?.magnesium * multiplier * 100) / 100,
-        phosphorus: Math.round(nutritionPer100g.minerals?.phosphorus * multiplier * 100) / 100,
-        potassium: Math.round(nutritionPer100g.minerals?.potassium * multiplier * 100) / 100,
-        sodium: Math.round(nutritionPer100g.minerals.sodium * multiplier * 100) / 100,
-        zinc: Math.round(nutritionPer100g.minerals?.zinc * multiplier * 100) / 100,
-        copper: Math.round(nutritionPer100g.minerals?.copper * multiplier * 100) / 100,
-        manganese: Math.round(nutritionPer100g.minerals?.manganese * multiplier * 100) / 100,
-        selenium: Math.round(nutritionPer100g.minerals?.selenium * multiplier * 100) / 100
+        calcium: Math.round(nutritionPer100g.minerals?.calcium || 0 * multiplier * 100) / 100,
+        iron: Math.round(nutritionPer100g.minerals?.iron || 0 * multiplier * 100) / 100,
+        magnesium: Math.round(nutritionPer100g.minerals?.magnesium || 0 * multiplier * 100) / 100,
+        phosphorus: Math.round(nutritionPer100g.minerals?.phosphorus || 0 * multiplier * 100) / 100,
+        potassium: Math.round(nutritionPer100g.minerals?.potassium || 0 * multiplier * 100) / 100,
+        sodium: Math.round((nutritionPer100g.minerals?.sodium || 0) * multiplier * 100) / 100,
+        zinc: Math.round(nutritionPer100g.minerals?.zinc || 0 * multiplier * 100) / 100,
+        copper: Math.round(nutritionPer100g.minerals?.copper || 0 * multiplier * 100) / 100,
+        manganese: Math.round(nutritionPer100g.minerals?.manganese || 0 * multiplier * 100) / 100,
+        selenium: Math.round(nutritionPer100g.minerals?.selenium || 0 * multiplier * 100) / 100
       }
     };
   }
@@ -244,30 +244,30 @@ export class FoodModel {
     
     // 計算維生素總量 (標準化)
     const vitaminScore = (
-      vitamins?.vitaminA / 900 + // RDA 比例
-      vitamins?.vitaminC / 90 +
-      vitamins?.vitaminD / 20 +
-      vitamins?.vitaminE / 15 +
-      vitamins?.vitaminK / 120 +
-      vitamins?.thiamine / 1.2 +
-      vitamins?.riboflavin / 1.3 +
-      vitamins?.niacin / 16 +
-      vitamins?.vitaminB6 / 1.7 +
-      vitamins?.folate / 400 +
-      vitamins?.vitaminB12 / 2.4
+      (vitamins?.vitaminA || 0) / 900 + // RDA 比例
+      (vitamins?.vitaminC || 0) / 90 +
+      (vitamins?.vitaminD || 0) / 20 +
+      (vitamins?.vitaminE || 0) / 15 +
+      (vitamins?.vitaminK || 0) / 120 +
+      (vitamins?.thiamine || 0) / 1.2 +
+      (vitamins?.riboflavin || 0) / 1.3 +
+      (vitamins?.niacin || 0) / 16 +
+      (vitamins?.vitaminB6 || 0) / 1.7 +
+      (vitamins?.folate || 0) / 400 +
+      (vitamins?.vitaminB12 || 0) / 2.4
     ) / 11 * 100;
     
     // 計算礦物質總量 (標準化)
     const mineralScore = (
-      minerals?.calcium / 1000 +
-      minerals?.iron / 18 +
-      minerals?.magnesium / 400 +
-      minerals?.phosphorus / 700 +
-      minerals?.potassium / 4700 +
-      minerals?.zinc / 11 +
-      minerals?.copper / 0.9 +
-      minerals?.manganese / 2.3 +
-      minerals?.selenium / 55
+      (minerals?.calcium || 0) / 1000 +
+      (minerals?.iron || 0) / 18 +
+      (minerals?.magnesium || 0) / 400 +
+      (minerals?.phosphorus || 0) / 700 +
+      (minerals?.potassium || 0) / 4700 +
+      (minerals?.zinc || 0) / 11 +
+      (minerals?.copper || 0) / 0.9 +
+      (minerals?.manganese || 0) / 2.3 +
+      (minerals?.selenium || 0) / 55
     ) / 9 * 100;
     
     // 綜合評分 (加權平均)

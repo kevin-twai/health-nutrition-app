@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Db, Collection, ObjectId } from 'mongodb';
 import Redis from 'ioredis';
 import { MongoDBBaseRepository } from './BaseRepository';

@@ -18,8 +18,11 @@ function getErrorMessage(error: unknown): string {
  * 對話資料庫存取層
  */
 export class ConversationRepository {
+  private pool: any;
+  private redis: any;
   constructor(pool: any, redis?: any) {
-    super(pool, 'conversations', redis);
+    this.pool = pool;
+    this.redis = redis;
   }
 
   /**
@@ -78,7 +81,7 @@ export class ConversationRepository {
     ];
 
     try {
-      const result = await this.query(query, values);
+      const result = await this.pool.query(query, values);
       return ConversationModel.serialize(result.rows[0]);
     } catch (error) {
       throw new Error(`建立對話失敗: ${getErrorMessage(error)}`);
@@ -108,7 +111,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query, [conversationId]);
+      const result = await this.pool.query(query, [conversationId]);
       
       if (result.rows.length === 0) {
         return null;
@@ -153,7 +156,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query, [userId, limit, offset]);
+      const result = await this.pool.query(query, [userId, limit, offset]);
       
       return result.rows.map(row => {
         const conversation = ConversationModel.serialize(row);
@@ -191,7 +194,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query, [userId]);
+      const result = await this.pool.query(query, [userId]);
       
       if (result.rows.length === 0) {
         return null;
@@ -245,16 +248,16 @@ export class ConversationRepository {
 
     try {
       // 使用事務確保資料一致性
-      await this.query('BEGIN');
+      await this.pool.query('BEGIN');
       
-      const messageResult = await this.query(messageQuery, messageValues);
-      await this.query(updateConversationQuery, [timestamp, conversationId]);
+      const messageResult = await this.pool.query(messageQuery, messageValues);
+      await this.pool.query(updateConversationQuery, [timestamp, conversationId]);
       
-      await this.query('COMMIT');
+      await this.pool.query('COMMIT');
       
       return ConversationModel.serializeMessage(messageResult.rows[0]);
     } catch (error) {
-      await this.query('ROLLBACK');
+      await this.pool.query('ROLLBACK');
       throw new Error(`添加訊息失敗: ${getErrorMessage(error)}`);
     }
   }
@@ -280,7 +283,7 @@ export class ConversationRepository {
     ];
 
     try {
-      const result = await this.query(query, values);
+      const result = await this.pool.query(query, values);
       
       if (result.rowCount === 0) {
         throw new Error(`找不到對話 ID: ${conversationId}`);
@@ -305,7 +308,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query, [conversationId, limit]);
+      const result = await this.pool.query(query, [conversationId, limit]);
       
       return result.rows
         .map(row => ConversationModel.serializeMessage(row))
@@ -325,7 +328,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query);
+      const result = await this.pool.query(query);
       return result.rowCount || 0;
     } catch (error) {
       throw new Error(`刪除過期對話失敗: ${getErrorMessage(error)}`);
@@ -352,7 +355,7 @@ export class ConversationRepository {
     `;
 
     try {
-      const result = await this.query(query, [userId]);
+      const result = await this.pool.query(query, [userId]);
       const row = result.rows[0];
       
       const totalConversations = parseInt(row.total_conversations) || 0;
@@ -405,7 +408,7 @@ export class ConversationRepository {
 
     try {
       const searchPattern = `%${searchTerm}%`;
-      const result = await this.query(query, [userId, searchPattern, limit]);
+      const result = await this.pool.query(query, [userId, searchPattern, limit]);
       
       return result.rows.map(row => {
         const conversation = ConversationModel.serialize(row);

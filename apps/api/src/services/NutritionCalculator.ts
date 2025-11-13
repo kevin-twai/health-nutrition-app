@@ -363,29 +363,29 @@ export class NutritionCalculator {
       sugar: Math.round(nutritionPer100g.sugar * ratio * 10) / 10,
       sodium: Math.round(nutritionPer100g.sodium * ratio * 10) / 10,
       vitamins: {
-        vitaminA: Math.round(nutritionPer100g.vitamins?.vitaminA * ratio * 10) / 10,
-        vitaminC: Math.round(nutritionPer100g.vitamins?.vitaminC * ratio * 10) / 10,
-        vitaminD: Math.round(nutritionPer100g.vitamins?.vitaminD * ratio * 10) / 10,
-        vitaminE: Math.round(nutritionPer100g.vitamins?.vitaminE * ratio * 10) / 10,
-        vitaminK: Math.round(nutritionPer100g.vitamins?.vitaminK * ratio * 10) / 10,
-        thiamine: Math.round(nutritionPer100g.vitamins?.thiamine * ratio * 10) / 10,
-        riboflavin: Math.round(nutritionPer100g.vitamins?.riboflavin * ratio * 10) / 10,
-        niacin: Math.round(nutritionPer100g.vitamins?.niacin * ratio * 10) / 10,
-        vitaminB6: Math.round(nutritionPer100g.vitamins?.vitaminB6 * ratio * 10) / 10,
-        folate: Math.round(nutritionPer100g.vitamins?.folate * ratio * 10) / 10,
-        vitaminB12: Math.round(nutritionPer100g.vitamins?.vitaminB12 * ratio * 10) / 10
+        vitaminA: Math.round(nutritionPer100g.vitamins?.vitaminA || 0 * ratio * 10) / 10,
+        vitaminC: Math.round(nutritionPer100g.vitamins?.vitaminC || 0 * ratio * 10) / 10,
+        vitaminD: Math.round(nutritionPer100g.vitamins?.vitaminD || 0 * ratio * 10) / 10,
+        vitaminE: Math.round(nutritionPer100g.vitamins?.vitaminE || 0 * ratio * 10) / 10,
+        vitaminK: Math.round(nutritionPer100g.vitamins?.vitaminK || 0 * ratio * 10) / 10,
+        thiamine: Math.round(nutritionPer100g.vitamins?.thiamine || 0 * ratio * 10) / 10,
+        riboflavin: Math.round(nutritionPer100g.vitamins?.riboflavin || 0 * ratio * 10) / 10,
+        niacin: Math.round(nutritionPer100g.vitamins?.niacin || 0 * ratio * 10) / 10,
+        vitaminB6: Math.round(nutritionPer100g.vitamins?.vitaminB6 || 0 * ratio * 10) / 10,
+        folate: Math.round(nutritionPer100g.vitamins?.folate || 0 * ratio * 10) / 10,
+        vitaminB12: Math.round(nutritionPer100g.vitamins?.vitaminB12 || 0 * ratio * 10) / 10
       },
       minerals: {
-        calcium: Math.round(nutritionPer100g.minerals?.calcium * ratio * 10) / 10,
-        iron: Math.round(nutritionPer100g.minerals?.iron * ratio * 10) / 10,
-        magnesium: Math.round(nutritionPer100g.minerals?.magnesium * ratio * 10) / 10,
-        phosphorus: Math.round(nutritionPer100g.minerals?.phosphorus * ratio * 10) / 10,
-        potassium: Math.round(nutritionPer100g.minerals?.potassium * ratio * 10) / 10,
+        calcium: Math.round(nutritionPer100g.minerals?.calcium || 0 * ratio * 10) / 10,
+        iron: Math.round(nutritionPer100g.minerals?.iron || 0 * ratio * 10) / 10,
+        magnesium: Math.round(nutritionPer100g.minerals?.magnesium || 0 * ratio * 10) / 10,
+        phosphorus: Math.round(nutritionPer100g.minerals?.phosphorus || 0 * ratio * 10) / 10,
+        potassium: Math.round(nutritionPer100g.minerals?.potassium || 0 * ratio * 10) / 10,
         sodium: Math.round(nutritionPer100g.minerals.sodium * ratio * 10) / 10,
-        zinc: Math.round(nutritionPer100g.minerals?.zinc * ratio * 10) / 10,
-        copper: Math.round(nutritionPer100g.minerals?.copper * ratio * 10) / 10,
-        manganese: Math.round(nutritionPer100g.minerals?.manganese * ratio * 10) / 10,
-        selenium: Math.round(nutritionPer100g.minerals?.selenium * ratio * 10) / 10
+        zinc: Math.round(nutritionPer100g.minerals?.zinc || 0 * ratio * 10) / 10,
+        copper: Math.round(nutritionPer100g.minerals?.copper || 0 * ratio * 10) / 10,
+        manganese: Math.round(nutritionPer100g.minerals?.manganese || 0 * ratio * 10) / 10,
+        selenium: Math.round(nutritionPer100g.minerals?.selenium || 0 * ratio * 10) / 10
       }
     };
   }
@@ -488,29 +488,29 @@ export class NutritionCalculator {
         sugar: Math.round((total.sugar + nutrition.sugar) * 10) / 10,
         sodium: Math.round((total.sodium + nutrition.sodium) * 10) / 10,
         vitamins: {
-          vitaminA: Math.round((total.vitamins?.vitaminA + nutrition.vitamins?.vitaminA) * 10) / 10,
-          vitaminC: Math.round((total.vitamins?.vitaminC + nutrition.vitamins?.vitaminC) * 10) / 10,
-          vitaminD: Math.round((total.vitamins?.vitaminD + nutrition.vitamins?.vitaminD) * 10) / 10,
-          vitaminE: Math.round((total.vitamins?.vitaminE + nutrition.vitamins?.vitaminE) * 10) / 10,
-          vitaminK: Math.round((total.vitamins?.vitaminK + nutrition.vitamins?.vitaminK) * 10) / 10,
-          thiamine: Math.round((total.vitamins?.thiamine + nutrition.vitamins?.thiamine) * 10) / 10,
-          riboflavin: Math.round((total.vitamins?.riboflavin + nutrition.vitamins?.riboflavin) * 10) / 10,
-          niacin: Math.round((total.vitamins?.niacin + nutrition.vitamins?.niacin) * 10) / 10,
-          vitaminB6: Math.round((total.vitamins?.vitaminB6 + nutrition.vitamins?.vitaminB6) * 10) / 10,
-          folate: Math.round((total.vitamins?.folate + nutrition.vitamins?.folate) * 10) / 10,
-          vitaminB12: Math.round((total.vitamins?.vitaminB12 + nutrition.vitamins?.vitaminB12) * 10) / 10
+          vitaminA: Math.round(((total.vitamins?.vitaminA || 0) + (nutrition.vitamins?.vitaminA || 0)) * 10) / 10,
+          vitaminC: Math.round(((total.vitamins?.vitaminC || 0) + (nutrition.vitamins?.vitaminC || 0)) * 10) / 10,
+          vitaminD: Math.round(((total.vitamins?.vitaminD || 0) + (nutrition.vitamins?.vitaminD || 0)) * 10) / 10,
+          vitaminE: Math.round(((total.vitamins?.vitaminE || 0) + (nutrition.vitamins?.vitaminE || 0)) * 10) / 10,
+          vitaminK: Math.round(((total.vitamins?.vitaminK || 0) + (nutrition.vitamins?.vitaminK || 0)) * 10) / 10,
+          thiamine: Math.round(((total.vitamins?.thiamine || 0) + (nutrition.vitamins?.thiamine || 0)) * 10) / 10,
+          riboflavin: Math.round(((total.vitamins?.riboflavin || 0) + (nutrition.vitamins?.riboflavin || 0)) * 10) / 10,
+          niacin: Math.round(((total.vitamins?.niacin || 0) + (nutrition.vitamins?.niacin || 0)) * 10) / 10,
+          vitaminB6: Math.round(((total.vitamins?.vitaminB6 || 0) + (nutrition.vitamins?.vitaminB6 || 0)) * 10) / 10,
+          folate: Math.round(((total.vitamins?.folate || 0) + (nutrition.vitamins?.folate || 0)) * 10) / 10,
+          vitaminB12: Math.round(((total.vitamins?.vitaminB12 || 0) + (nutrition.vitamins?.vitaminB12 || 0)) * 10) / 10
         },
         minerals: {
-          calcium: Math.round((total.minerals?.calcium + nutrition.minerals?.calcium) * 10) / 10,
-          iron: Math.round((total.minerals?.iron + nutrition.minerals?.iron) * 10) / 10,
-          magnesium: Math.round((total.minerals?.magnesium + nutrition.minerals?.magnesium) * 10) / 10,
-          phosphorus: Math.round((total.minerals?.phosphorus + nutrition.minerals?.phosphorus) * 10) / 10,
-          potassium: Math.round((total.minerals?.potassium + nutrition.minerals?.potassium) * 10) / 10,
-          sodium: Math.round((total.minerals.sodium + nutrition.minerals.sodium) * 10) / 10,
-          zinc: Math.round((total.minerals?.zinc + nutrition.minerals?.zinc) * 10) / 10,
-          copper: Math.round((total.minerals?.copper + nutrition.minerals?.copper) * 10) / 10,
-          manganese: Math.round((total.minerals?.manganese + nutrition.minerals?.manganese) * 10) / 10,
-          selenium: Math.round((total.minerals?.selenium + nutrition.minerals?.selenium) * 10) / 10
+          calcium: Math.round(((total.minerals?.calcium || 0) + (nutrition.minerals?.calcium || 0)) * 10) / 10,
+          iron: Math.round(((total.minerals?.iron || 0) + (nutrition.minerals?.iron || 0)) * 10) / 10,
+          magnesium: Math.round(((total.minerals?.magnesium || 0) + (nutrition.minerals?.magnesium || 0)) * 10) / 10,
+          phosphorus: Math.round(((total.minerals?.phosphorus || 0) + (nutrition.minerals?.phosphorus || 0)) * 10) / 10,
+          potassium: Math.round(((total.minerals?.potassium || 0) + (nutrition.minerals?.potassium || 0)) * 10) / 10,
+          sodium: Math.round(((total.minerals?.sodium || 0) + (nutrition.minerals?.sodium || 0)) * 10) / 10,
+          zinc: Math.round(((total.minerals?.zinc || 0) + (nutrition.minerals?.zinc || 0)) * 10) / 10,
+          copper: Math.round(((total.minerals?.copper || 0) + (nutrition.minerals?.copper || 0)) * 10) / 10,
+          manganese: Math.round(((total.minerals?.manganese || 0) + (nutrition.minerals?.manganese || 0)) * 10) / 10,
+          selenium: Math.round(((total.minerals?.selenium || 0) + (nutrition.minerals?.selenium || 0)) * 10) / 10
         }
       };
     }, {

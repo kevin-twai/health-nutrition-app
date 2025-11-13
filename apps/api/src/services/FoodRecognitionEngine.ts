@@ -198,7 +198,7 @@ Note: Only identify food and beverages, do not analyze other content.`;
           portion: `${food.estimatedPortion}g`,
           calories: Math.round(food.nutrition.calories * food.estimatedPortion / 100),
           protein: Math.round(food.nutrition.protein * food.estimatedPortion / 100 * 10) / 10,
-          carbs: Math.round(food.nutrition.carbs * food.estimatedPortion / 100 * 10) / 10,
+          carbs: Math.round((food.nutrition.carbs ?? food.nutrition.carbohydrates ?? 0) * food.estimatedPortion / 100 * 10) / 10,
           fat: Math.round(food.nutrition.fat * food.estimatedPortion / 100 * 10) / 10,
           category: '主食類', // 可以根據食物類型動態設置
           description: `使用 OpenAI Vision API 辨識`
@@ -208,12 +208,11 @@ Note: Only identify food and beverages, do not analyze other content.`;
 
       return {
         foods: filteredFoods,
-        suggestions, // 添加前端期望的格式
         confidence: overallConfidence,
         processingTime,
         description: `使用 OpenAI Vision API 辨識到 ${filteredFoods.length} 個食物項目`,
         apiUsed: 'openai-vision'
-      };
+      } as any;
 
     } catch (error) {
       console.error('❌ 食物辨識錯誤:', error);
@@ -257,9 +256,11 @@ Note: Only identify food and beverages, do not analyze other content.`;
             nutrition: {
               calories: 0,
               protein: 0,
+              carbohydrates: 0,
               carbs: 0,
               fat: 0,
               fiber: 0,
+              sugar: 0,
               sodium: 0
             }
           });

@@ -166,7 +166,7 @@ export class WebSocketService {
       // 處理錯誤
       socket.on('error', (error) => {
         console.error(`WebSocket 錯誤 (用戶 ${socket.userId}):`, error);
-        socket.emit('error', { message: '連接發生錯誤', error: error.message });
+        socket.emit('error', { message: '連接發生錯誤', error: (error as any)?.message || "Unknown error" });
       });
     });
   }
@@ -293,7 +293,7 @@ export class WebSocketService {
       console.error('處理訊息錯誤:', error);
       socket.emit('message_error', { 
         error: '處理訊息時發生錯誤',
-        details: error.message 
+        details: (error as any)?.message || "Unknown error" 
       });
     }
   }
@@ -332,7 +332,7 @@ export class WebSocketService {
       console.error('加入對話錯誤:', error);
       socket.emit('join_error', { 
         error: '加入對話時發生錯誤',
-        details: error.message 
+        details: (error as any)?.message || "Unknown error" 
       });
     }
   }

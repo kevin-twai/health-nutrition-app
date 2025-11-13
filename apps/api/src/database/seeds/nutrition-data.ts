@@ -48,8 +48,8 @@ export const taiwanFoodNutritionData: Omit<NutritionDatabaseDocument, '_id' | 'c
     phosphorus_mg: 83,
     potassium_mg: 86,
     zinc_mg: 0.8,
-    vitamin_b1_mg: 0.16,
-    vitamin_b2_mg: 0.04,
+    thiamine_mg: 0.16,
+    riboflavin_mg: 0.04,
     niacin_mg: 2.9,
     data_source: '台灣食品營養成分資料庫',
     reference_year: 2023
