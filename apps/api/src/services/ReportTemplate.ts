@@ -9,7 +9,7 @@ import {
   DeliveryMethod,
   AggregatedNutritionData,
   TrendAnalysisResult
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 /**
  * 報告模板基礎類別

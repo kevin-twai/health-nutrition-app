@@ -199,6 +199,13 @@ app.use('/api/v1/gamification',
   gamificationRoutes
 );
 
+// 反饋系統路由
+import feedbackRoutes from './routes/feedback';
+app.use('/api/v1/feedback', 
+  apiGatewayConfig.general.rateLimit,
+  feedbackRoutes
+);
+
 // 報告系統路由
 import reportsRoutes from './routes/reports';
 app.use('/api/v1/reports', 
@@ -211,6 +218,13 @@ import monitoringRoutes from './routes/monitoring';
 app.use('/api/v1/monitoring', 
   apiGatewayConfig.general.rateLimit,
   monitoringRoutes
+);
+
+// 食物識別監控路由
+import foodRecognitionMonitoringRoutes from './routes/food-recognition-monitoring';
+app.use('/api/v1/food-recognition/monitoring', 
+  apiGatewayConfig.general.rateLimit,
+  foodRecognitionMonitoringRoutes
 );
 
 // Error handling middleware

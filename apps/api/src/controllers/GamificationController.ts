@@ -9,7 +9,7 @@ import {
   Badge,
   Leaderboard,
   LeaderboardType 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class GamificationController {
   private gamificationService: GamificationService;

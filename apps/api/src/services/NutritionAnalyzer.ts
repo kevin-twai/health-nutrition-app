@@ -10,7 +10,7 @@ import {
   ActivityLevel,
   FoodLog,
   MealType
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { UserModel } from '../models/User';
 
 /**

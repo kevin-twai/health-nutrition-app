@@ -1,5 +1,5 @@
 import { UserModel } from '../User';
-import { ActivityLevel, GoalType, GoalStatus } from '@health-tracker/shared-types';
+import { ActivityLevel, GoalType, GoalStatus } from '../../types/shared';
 
 describe('UserModel', () => {
   describe('驗證功能', () => {

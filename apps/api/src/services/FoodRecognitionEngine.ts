@@ -1,4 +1,4 @@
-import { DetectedFood, RecognitionResult } from '@health-tracker/shared-types';
+import { DetectedFood, RecognitionResult } from '../types/shared';
 import { FoodRepository } from '../repositories/FoodRepository';
 import OpenAI from 'openai';
 

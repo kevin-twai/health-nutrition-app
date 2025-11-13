@@ -3,7 +3,7 @@ import { DataAggregator } from '../DataAggregator';
 import { TrendAnalyzer } from '../TrendAnalyzer';
 import { UserRepository } from '../../repositories/UserRepository';
 import { DeliveryManager } from '../DeliveryManager';
-import { ReportFrequency, DeliveryMethod } from '@health-tracker/shared-types';
+import { ReportFrequency, DeliveryMethod } from '../../types/shared';
 
 // Mock dependencies
 jest.mock('../DataAggregator');

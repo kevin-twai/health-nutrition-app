@@ -1,17 +1,27 @@
-import { BaseRepository } from './BaseRepository';
+import { PostgreSQLBaseRepository } from './BaseRepository';
 import { 
   Conversation, 
   ChatMessage, 
   ConversationContext,
   MessageRole 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { ConversationModel } from '../models/Conversation';
 import { v4 as uuidv4 } from 'uuid';
+
+// 輔助函數：安全獲取錯誤訊息
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return getErrorMessage(error);
+  return String(error);
+}
 
 /**
  * 對話資料庫存取層
  */
-export class ConversationRepository extends BaseRepository {
+export class ConversationRepository extends PostgreSQLBaseRepository<Conversation> {
+  constructor(pool: any, redis?: any) {
+    super(pool, 'conversations', redis);
+  }
+
   /**
    * 建立新對話
    */
@@ -71,7 +81,7 @@ export class ConversationRepository extends BaseRepository {
       const result = await this.query(query, values);
       return ConversationModel.serialize(result.rows[0]);
     } catch (error) {
-      throw new Error(`建立對話失敗: ${error.message}`);
+      throw new Error(`建立對話失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -110,7 +120,7 @@ export class ConversationRepository extends BaseRepository {
       
       return conversation;
     } catch (error) {
-      throw new Error(`獲取對話失敗: ${error.message}`);
+      throw new Error(`獲取對話失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -151,7 +161,7 @@ export class ConversationRepository extends BaseRepository {
         return conversation;
       });
     } catch (error) {
-      throw new Error(`獲取用戶對話失敗: ${error.message}`);
+      throw new Error(`獲取用戶對話失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -193,7 +203,7 @@ export class ConversationRepository extends BaseRepository {
       
       return conversation;
     } catch (error) {
-      throw new Error(`獲取活躍對話失敗: ${error.message}`);
+      throw new Error(`獲取活躍對話失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -245,7 +255,7 @@ export class ConversationRepository extends BaseRepository {
       return ConversationModel.serializeMessage(messageResult.rows[0]);
     } catch (error) {
       await this.query('ROLLBACK');
-      throw new Error(`添加訊息失敗: ${error.message}`);
+      throw new Error(`添加訊息失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -276,7 +286,7 @@ export class ConversationRepository extends BaseRepository {
         throw new Error(`找不到對話 ID: ${conversationId}`);
       }
     } catch (error) {
-      throw new Error(`更新對話上下文失敗: ${error.message}`);
+      throw new Error(`更新對話上下文失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -301,7 +311,7 @@ export class ConversationRepository extends BaseRepository {
         .map(row => ConversationModel.serializeMessage(row))
         .reverse(); // 按時間順序排列
     } catch (error) {
-      throw new Error(`獲取最近訊息失敗: ${error.message}`);
+      throw new Error(`獲取最近訊息失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -318,7 +328,7 @@ export class ConversationRepository extends BaseRepository {
       const result = await this.query(query);
       return result.rowCount || 0;
     } catch (error) {
-      throw new Error(`刪除過期對話失敗: ${error.message}`);
+      throw new Error(`刪除過期對話失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -357,7 +367,7 @@ export class ConversationRepository extends BaseRepository {
         lastInteractionAt: row.last_interaction_at ? new Date(row.last_interaction_at) : undefined
       };
     } catch (error) {
-      throw new Error(`獲取對話統計失敗: ${error.message}`);
+      throw new Error(`獲取對話統計失敗: ${getErrorMessage(error)}`);
     }
   }
 
@@ -403,7 +413,7 @@ export class ConversationRepository extends BaseRepository {
         return conversation;
       });
     } catch (error) {
-      throw new Error(`搜尋對話失敗: ${error.message}`);
+      throw new Error(`搜尋對話失敗: ${getErrorMessage(error)}`);
     }
   }
 }

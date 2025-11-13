@@ -4,7 +4,7 @@ import {
   DailyNutritionData,
   WeeklyNutritionData,
   MealType 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 /**
  * 圖表資料介面

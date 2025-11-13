@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { Db, ObjectId } from 'mongodb';
 import Redis from 'ioredis';
-import { FoodLog, MealType, LogSource, NutritionData } from '@health-tracker/shared-types';
+import { FoodLog, MealType, LogSource, NutritionData } from '../types/shared';
 import { 
   PostgreSQLBaseRepository, 
   QueryOptions, 

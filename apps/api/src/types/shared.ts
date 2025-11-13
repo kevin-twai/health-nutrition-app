@@ -1,4 +1,4 @@
-// 從 @health-tracker/shared-types 遷移過來的共享類型
+// 從 ../types/shared 遷移過來的共享類型
 // 用戶相關類型
 export interface User {
   id: string;

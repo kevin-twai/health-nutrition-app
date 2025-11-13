@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { FoodItem, NutritionData, FoodLog, FoodCategory, MealType, LogSource } from '@health-tracker/shared-types';
+import { FoodItem, NutritionData, FoodLog, FoodCategory, MealType, LogSource } from '../types/shared';
 import { FoodItemDocument, FoodLogDocument } from '../database/mongodb';
 
 // 營養資料驗證 Schema

@@ -1,7 +1,7 @@
 import { TrendAnalyzer } from '../TrendAnalyzer';
 import { DataAggregator } from '../DataAggregator';
 import { UserRepository } from '../../repositories/UserRepository';
-import { MealType, InsightType, RecommendationType } from '@health-tracker/shared-types';
+import { MealType, InsightType, RecommendationType } from '../../types/shared';
 
 // Mock dependencies
 jest.mock('../DataAggregator');

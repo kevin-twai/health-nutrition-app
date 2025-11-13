@@ -1,6 +1,6 @@
 import { NutritionCalculator } from '../NutritionCalculator';
 import { FoodRepository } from '../../repositories/FoodRepository';
-import { NutritionData } from '@health-tracker/shared-types';
+import { NutritionData } from '../../types/shared';
 
 // Mock FoodRepository
 jest.mock('../../repositories/FoodRepository');

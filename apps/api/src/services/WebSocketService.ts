@@ -6,12 +6,14 @@ import {
   MessageRole, 
   ChatResponse,
   Conversation
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { ConversationRepository } from '../repositories/ConversationRepository';
 import { UserRepository } from '../repositories/UserRepository';
 import { AIService } from './AIService';
 import { ContentFilterService } from './ContentFilterService';
 import { ConversationManager } from './ConversationManager';
+import { db } from '../database/connection';
+import { redisConnection } from '../database/redis';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -52,8 +54,11 @@ export class WebSocketService {
       transports: ['websocket', 'polling']
     });
 
-    this.conversationRepository = new ConversationRepository();
-    this.userRepository = new UserRepository();
+    const pool = db.getPool();
+    const redis = redisConnection.getClient();
+    
+    this.conversationRepository = new ConversationRepository(pool, redis);
+    this.userRepository = new UserRepository(pool, redis);
     this.aiService = new AIService();
     this.contentFilter = new ContentFilterService();
     this.conversationManager = new ConversationManager();

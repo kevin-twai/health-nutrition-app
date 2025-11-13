@@ -5,7 +5,7 @@ import {
   PointsRecord, 
   PointsSource,
   UserProgress 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class PointsCalculator {
   private db: Pool;

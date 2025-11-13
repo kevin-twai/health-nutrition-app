@@ -16,7 +16,7 @@ jest.mock('../../database/redis', () => ({
 import { TaskManager } from '../TaskManager';
 import { db } from '../../database/connection';
 import { redis } from '../../database/redis';
-import { TaskType, TaskStatus } from '@health-tracker/shared-types';
+import { TaskType, TaskStatus } from '../../types/shared';
 
 const mockDb = {
   query: jest.fn(),

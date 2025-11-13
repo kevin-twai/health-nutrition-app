@@ -11,7 +11,7 @@ import {
   DailyNutritionData,
   WeeklyNutritionData,
   AggregatedNutritionData
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { DataAggregator } from './DataAggregator';
 import { UserRepository } from '../repositories/UserRepository';
 

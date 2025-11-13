@@ -1,5 +1,5 @@
 import { ChartGenerator } from '../ChartGenerator';
-import { MealType } from '@health-tracker/shared-types';
+import { MealType } from '../../types/shared';
 
 describe('ChartGenerator', () => {
   let chartGenerator: ChartGenerator;

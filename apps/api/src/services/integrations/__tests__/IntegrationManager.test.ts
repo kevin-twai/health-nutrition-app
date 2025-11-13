@@ -5,7 +5,7 @@ import {
   ConnectionStatus,
   EncryptedCredentials,
   SyncFrequency
-} from '@health-tracker/shared-types';
+} from '../../../types/shared';
 
 // Mock 所有連接器
 jest.mock('../NotionConnector');

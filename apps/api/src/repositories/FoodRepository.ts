@@ -1,6 +1,6 @@
 import { Db, ObjectId } from 'mongodb';
 import Redis from 'ioredis';
-import { FoodItem, FoodCategory, NutritionData } from '@health-tracker/shared-types';
+import { FoodItem, FoodCategory, NutritionData } from '../types/shared';
 import { 
   MongoDBBaseRepository, 
   QueryOptions, 

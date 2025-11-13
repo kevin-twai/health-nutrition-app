@@ -10,7 +10,7 @@ import {
   Achievement,
   MealType,
   LogSource
-} from '@health-tracker/shared-types';
+} from '../../../types/shared';
 
 /**
  * 整合測試

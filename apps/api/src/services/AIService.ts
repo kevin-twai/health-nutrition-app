@@ -8,7 +8,7 @@ import {
   Priority,
   HealthGoal,
   UserProfile
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 /**
  * AI 服務 - 整合 OpenAI GPT API 進行智能對話

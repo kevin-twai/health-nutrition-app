@@ -1,5 +1,5 @@
 import { FoodModel } from '../Food';
-import { FoodCategory, MealType, LogSource } from '@health-tracker/shared-types';
+import { FoodCategory, MealType, LogSource } from '../../types/shared';
 
 describe('FoodModel', () => {
   const mockNutritionData = {

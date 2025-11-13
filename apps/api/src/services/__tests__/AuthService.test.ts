@@ -1,7 +1,7 @@
 import { AuthService, AuthError, RegisterRequest, LoginRequest } from '../AuthService';
 import { UserRepository } from '../../repositories/UserRepository';
 import { JWTUtils } from '../../utils/jwt';
-import { User } from '@health-tracker/shared-types';
+import { User } from '../../types/shared';
 import bcrypt from 'bcryptjs';
 
 // Mock dependencies

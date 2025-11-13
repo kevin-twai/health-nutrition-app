@@ -5,7 +5,7 @@ import {
   ReportSettings,
   HealthReport,
   DateRange
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { DataAggregator } from './DataAggregator';
 import { TrendAnalyzer } from './TrendAnalyzer';
 import { ReportTemplateFactory } from './ReportTemplate';

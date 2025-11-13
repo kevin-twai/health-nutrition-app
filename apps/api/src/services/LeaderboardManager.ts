@@ -6,7 +6,7 @@ import {
   LeaderboardEntry, 
   LeaderboardType,
   DateRange 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class LeaderboardManager {
   private db: Pool;

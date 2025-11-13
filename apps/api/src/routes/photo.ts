@@ -83,7 +83,7 @@ export default function createPhotoRoutes(): Router {
 
   /**
    * @route POST /api/v1/photo/recognize
-   * @desc 上傳照片並進行食物辨識
+   * @desc 上傳照片並進行食物辨識（使用多階段識別引擎）
    * @access Public (暫時開放以便測試)
    * @body multipart/form-data with 'photo' field
    * @body maxResults?: number (default: 5)
@@ -93,6 +93,9 @@ export default function createPhotoRoutes(): Router {
    * @body maxWidth?: number (default: 1024)
    * @body maxHeight?: number (default: 1024)
    * @body format?: 'jpeg' | 'png' | 'webp' (default: 'jpeg')
+   * @body enableSmartCrop?: boolean (default: false) - 啟用智能裁剪聚焦食物區域
+   * @body extractFeatures?: boolean (default: true) - 提取圖片特徵
+   * @body enhanceQuality?: boolean (default: false) - 增強圖片質量
    */
   router.post('/recognize',
     // requireAuth(), // 暫時註解掉以便測試
@@ -111,6 +114,20 @@ export default function createPhotoRoutes(): Router {
       next();
     },
     photoController.recognizeFood
+  );
+
+  /**
+   * @route POST /api/v1/photo/select-alternative
+   * @desc 用戶選擇替代選項
+   * @access Public (暫時開放以便測試)
+   * @body sessionId: string
+   * @body groupId?: string
+   * @body optionId?: string
+   * @body selectedFood: object
+   */
+  router.post('/select-alternative',
+    // requireAuth(), // 暫時註解掉以便測試
+    photoController.selectAlternative
   );
 
   /**

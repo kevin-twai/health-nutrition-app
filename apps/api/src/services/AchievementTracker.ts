@@ -7,7 +7,7 @@ import {
   AchievementType,
   AchievementRarity,
   PointsSource 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class AchievementTracker {
   private db: Pool;

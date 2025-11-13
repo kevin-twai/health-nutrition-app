@@ -10,7 +10,7 @@ import {
   HealthReport,
   Achievement,
   ConnectionStatus
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 import { BaseIntegrationService } from './BaseIntegrationService';
 import axios, { AxiosInstance } from 'axios';
 

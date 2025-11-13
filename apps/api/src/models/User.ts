@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { User, UserProfile, HealthGoal, ActivityLevel, GoalType, GoalStatus } from '@health-tracker/shared-types';
+import { User, UserProfile, HealthGoal, ActivityLevel, GoalType, GoalStatus } from '../types/shared';
 
 // 用戶驗證 Schema
 export const userValidationSchema = Joi.object({

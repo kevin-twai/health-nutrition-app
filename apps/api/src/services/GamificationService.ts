@@ -11,7 +11,7 @@ import {
   LeaderboardType,
   PointsSource,
   TaskType 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class GamificationService {
   private taskManager: TaskManager;

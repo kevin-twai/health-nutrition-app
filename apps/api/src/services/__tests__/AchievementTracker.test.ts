@@ -1,8 +1,8 @@
 import { AchievementTracker } from '../AchievementTracker';
 import { db } from '../../database/connection';
 import { redis } from '../../database/redis';
-import { AchievementRarity } from '@health-tracker/shared-types';
-import { AchievementType } from '@health-tracker/shared-types';
+import { AchievementRarity } from '../../types/shared';
+import { AchievementType } from '../../types/shared';
 
 // Mock dependencies
 jest.mock('../../database/connection');

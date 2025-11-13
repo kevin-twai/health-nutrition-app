@@ -1,5 +1,5 @@
 import { DeliveryManager, EmailConfig, PushNotificationConfig } from '../DeliveryManager';
-import { DeliveryMethod } from '@health-tracker/shared-types';
+import { DeliveryMethod } from '../../types/shared';
 
 // Mock nodemailer
 jest.mock('nodemailer', () => ({

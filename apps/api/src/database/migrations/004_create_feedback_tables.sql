@@ -1,0 +1,51 @@
+-- 創建反饋相關的索引（MongoDB 使用，但這裡記錄結構）
+-- 注意：實際的 MongoDB 索引會在應用啟動時創建
+
+-- 反饋集合結構說明
+-- Collection: feedbacks
+-- {
+--   _id: ObjectId,
+--   imageId: String (索引),
+--   userId: String (索引),
+--   sessionId: String (唯一索引),
+--   recognitionResult: {
+--     foods: Array,
+--     overallConfidence: Number,
+--     description: String,
+--     cookingMethod: String,
+--     cuisineType: String,
+--     recognitionStages: Number,
+--     processingTime: Number
+--   },
+--   userCorrection: {
+--     correctFoods: Array,
+--     incorrectFoods: Array,
+--     missingFoods: Array,
+--     portionCorrections: Array,
+--     cookingMethodCorrection: String,
+--     cuisineTypeCorrection: String
+--   },
+--   feedbackType: Array<String>,
+--   additionalComments: String,
+--   status: String (索引),
+--   reviewedBy: String,
+--   reviewedAt: Date,
+--   appliedAt: Date,
+--   createdAt: Date (索引),
+--   updatedAt: Date
+-- }
+
+-- 索引創建（在應用代碼中執行）:
+-- db.feedbacks.createIndex({ imageId: 1 })
+-- db.feedbacks.createIndex({ userId: 1 })
+-- db.feedbacks.createIndex({ sessionId: 1 }, { unique: true })
+-- db.feedbacks.createIndex({ status: 1 })
+-- db.feedbacks.createIndex({ createdAt: -1 })
+-- db.feedbacks.createIndex({ "recognitionResult.cuisineType": 1 })
+-- db.feedbacks.createIndex({ "recognitionResult.overallConfidence": 1 })
+-- db.feedbacks.createIndex({ "userCorrection.incorrectFoods.identifiedAs": 1 })
+-- db.feedbacks.createIndex({ "userCorrection.incorrectFoods.actualFood": 1 })
+
+-- 複合索引
+-- db.feedbacks.createIndex({ status: 1, createdAt: -1 })
+-- db.feedbacks.createIndex({ userId: 1, createdAt: -1 })

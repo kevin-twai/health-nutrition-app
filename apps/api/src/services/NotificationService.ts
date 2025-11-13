@@ -6,7 +6,7 @@ import {
   Badge,
   Task,
   UserProgress 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export interface NotificationData {
   id: string;

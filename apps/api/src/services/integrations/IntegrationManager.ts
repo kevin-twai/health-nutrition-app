@@ -6,7 +6,7 @@ import {
   EncryptedCredentials,
   ConnectionStatus,
   IntegrationSettings
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 import { NotionConnector } from './NotionConnector';
 import { LineConnector } from './LineConnector';
 import { HealthKitConnector } from './HealthKitConnector';

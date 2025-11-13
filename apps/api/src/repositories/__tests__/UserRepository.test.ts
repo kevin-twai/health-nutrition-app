@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 import { UserRepository } from '../UserRepository';
-import { ActivityLevel, GoalType, GoalStatus } from '@health-tracker/shared-types';
+import { ActivityLevel, GoalType, GoalStatus } from '../../types/shared';
 
 // Mock dependencies
 jest.mock('pg');

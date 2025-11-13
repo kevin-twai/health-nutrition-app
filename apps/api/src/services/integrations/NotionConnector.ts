@@ -10,7 +10,7 @@ import {
   NotionPageData,
   SyncError,
   ConnectionStatus
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 import { BaseIntegrationService } from './BaseIntegrationService';
 
 /**

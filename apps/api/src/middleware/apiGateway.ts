@@ -237,7 +237,7 @@ export const apiGatewayConfig = {
   }
 };
 
-import { User } from '@health-tracker/shared-types';
+import { User } from '../types/shared';
 
 // 擴展 Express Request 介面
 declare global {

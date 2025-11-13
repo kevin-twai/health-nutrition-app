@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { UserRepository } from '../repositories/UserRepository';
 import { UserModel } from '../models/User';
-import { User, UserProfile, UserPreferences, HealthGoal } from '@health-tracker/shared-types';
+import { User, UserProfile, UserPreferences, HealthGoal } from '../types/shared';
 import { db } from '../database/connection';
 import Redis from 'ioredis';
 

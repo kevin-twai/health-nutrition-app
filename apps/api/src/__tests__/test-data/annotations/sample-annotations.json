@@ -1,0 +1,340 @@
+{
+  "version": "1.0",
+  "description": "食物識別測試數據集標註範例",
+  "testCases": [
+    {
+      "imageId": "liangban-gansi-01",
+      "imagePath": "asian-cuisine/liangban-gansi/01.jpg",
+      "category": "涼拌菜",
+      "cuisineType": "台式",
+      "cookingMethod": "涼拌",
+      "difficulty": "medium",
+      "foods": [
+        {
+          "name": "豆腐干絲",
+          "category": "豆製品",
+          "portion": "100g",
+          "calories": 140,
+          "protein": 14,
+          "carbs": 8,
+          "fat": 6,
+          "confidence": 1.0,
+          "visualFeatures": ["淡黃色", "細長條狀", "有韌性", "不透明"],
+          "distinguishingFeatures": ["比麵條更粗", "表面有豆製品紋理", "顏色偏黃白色"]
+        },
+        {
+          "name": "芹菜絲",
+          "category": "蔬菜",
+          "portion": "30g",
+          "calories": 5,
+          "protein": 0.3,
+          "carbs": 1,
+          "fat": 0.1,
+          "confidence": 1.0,
+          "visualFeatures": ["綠色", "細絲狀", "有纖維感"]
+        },
+        {
+          "name": "胡蘿蔔絲",
+          "category": "蔬菜",
+          "portion": "30g",
+          "calories": 12,
+          "protein": 0.3,
+          "carbs": 3,
+          "fat": 0.1,
+          "confidence": 1.0,
+          "visualFeatures": ["橘紅色", "細絲狀"]
+        },
+        {
+          "name": "麻油",
+          "category": "調味料",
+          "portion": "5ml",
+          "calories": 45,
+          "protein": 0,
+          "carbs": 0,
+          "fat": 5,
+          "confidence": 0.8,
+          "visualFeatures": ["深褐色", "油狀", "有光澤"]
+        }
+      ],
+      "commonConfusions": ["麵條", "米粉"],
+      "tags": ["豆製品", "涼拌", "混合食材", "易混淆"],
+      "notes": "典型的涼拌干絲，容易被誤認為麵條"
+    },
+    {
+      "imageId": "tofu-strips-vs-noodles-01",
+      "imagePath": "confusing-pairs/tofu-vs-noodles/01.jpg",
+      "category": "易混淆對照",
+      "cuisineType": "中式",
+      "cookingMethod": "涼拌",
+      "difficulty": "hard",
+      "foods": [
+        {
+          "name": "豆腐干絲",
+          "category": "豆製品",
+          "portion": "80g",
+          "confidence": 1.0,
+          "visualFeatures": ["淡黃色", "細長條狀", "表面略粗糙", "有韌性"],
+          "distinguishingFeatures": [
+            "切面呈方形或長方形",
+            "表面有細微紋理",
+            "不像麵條那樣光滑",
+            "顏色偏黃白色而非純白"
+          ]
+        }
+      ],
+      "commonConfusions": ["麵條", "米粉", "粉絲"],
+      "tags": ["豆製品", "易混淆", "高難度"],
+      "notes": "專門用於測試豆腐干絲與麵條的區分能力",
+      "expectedChallenges": ["視覺相似度高", "需要仔細觀察質地"]
+    },
+    {
+      "imageId": "taiwanese-stir-fry-01",
+      "imagePath": "asian-cuisine/taiwanese-stir-fry/01.jpg",
+      "category": "台式熱炒",
+      "cuisineType": "台式",
+      "cookingMethod": "快炒",
+      "difficulty": "medium",
+      "foods": [
+        {
+          "name": "糯米椒",
+          "category": "蔬菜",
+          "portion": "60g",
+          "confidence": 1.0,
+          "visualFeatures": ["綠色", "細長形", "表面有皺褶", "略彎曲"],
+          "distinguishingFeatures": ["比青椒小且細長", "表面皺褶明顯", "通常整根烹調"]
+        },
+        {
+          "name": "豆乾",
+          "category": "豆製品",
+          "portion": "50g",
+          "confidence": 1.0,
+          "visualFeatures": ["褐色", "方塊狀", "表面有滷製痕跡"]
+        },
+        {
+          "name": "蒜片",
+          "category": "調味料",
+          "portion": "10g",
+          "confidence": 0.9,
+          "visualFeatures": ["淡黃色", "薄片狀", "略焦"]
+        }
+      ],
+      "commonConfusions": ["青椒", "辣椒"],
+      "tags": ["台式", "熱炒", "糯米椒"],
+      "notes": "典型的台式熱炒，糯米椒容易與青椒混淆"
+    },
+    {
+      "imageId": "rice-noodles-01",
+      "imagePath": "confusing-pairs/rice-noodles-vs-glass-noodles/01.jpg",
+      "category": "易混淆對照",
+      "cuisineType": "台式",
+      "cookingMethod": "炒",
+      "difficulty": "medium",
+      "foods": [
+        {
+          "name": "米粉",
+          "category": "米製品",
+          "portion": "120g",
+          "confidence": 1.0,
+          "visualFeatures": ["白色", "細長圓形", "表面光滑", "半透明"],
+          "distinguishingFeatures": [
+            "純白色，比麵條更白",
+            "質地較脆，容易斷",
+            "有米的香味",
+            "表面光滑但不如麵條有彈性"
+          ]
+        }
+      ],
+      "commonConfusions": ["粉絲", "麵條", "豆腐干絲"],
+      "tags": ["米製品", "易混淆"],
+      "notes": "用於測試米粉與粉絲的區分"
+    },
+    {
+      "imageId": "mixed-salad-01",
+      "imagePath": "mixed-dishes/01.jpg",
+      "category": "混合食材菜餚",
+      "cuisineType": "中式",
+      "cookingMethod": "涼拌",
+      "difficulty": "hard",
+      "foods": [
+        {
+          "name": "木耳",
+          "category": "菇類",
+          "portion": "40g",
+          "confidence": 1.0,
+          "visualFeatures": ["黑色", "片狀", "有光澤", "脆嫩"]
+        },
+        {
+          "name": "黃瓜絲",
+          "category": "蔬菜",
+          "portion": "50g",
+          "confidence": 1.0,
+          "visualFeatures": ["綠色", "細絲狀", "水分多"]
+        },
+        {
+          "name": "胡蘿蔔絲",
+          "category": "蔬菜",
+          "portion": "30g",
+          "confidence": 1.0,
+          "visualFeatures": ["橘紅色", "細絲狀"]
+        },
+        {
+          "name": "香菜",
+          "category": "蔬菜",
+          "portion": "10g",
+          "confidence": 0.9,
+          "visualFeatures": ["綠色", "葉狀", "細碎"]
+        },
+        {
+          "name": "蒜末",
+          "category": "調味料",
+          "portion": "5g",
+          "confidence": 0.8,
+          "visualFeatures": ["白色", "細碎"]
+        }
+      ],
+      "commonConfusions": [],
+      "tags": ["混合食材", "涼拌", "多種成分"],
+      "notes": "測試系統識別多種食材的能力",
+      "expectedChallenges": ["食材種類多", "需要識別所有可見成分"]
+    },
+    {
+      "imageId": "indigenous-food-01",
+      "imagePath": "indigenous-food/01.jpg",
+      "category": "原住民料理",
+      "cuisineType": "原住民料理",
+      "cookingMethod": "烤",
+      "difficulty": "hard",
+      "foods": [
+        {
+          "name": "山豬肉",
+          "category": "蛋白質",
+          "portion": "150g",
+          "confidence": 1.0,
+          "visualFeatures": ["深紅色", "肉質緊實", "有烤痕"]
+        },
+        {
+          "name": "馬告",
+          "category": "原住民食材",
+          "portion": "2g",
+          "confidence": 0.7,
+          "visualFeatures": ["黑色", "小顆粒", "類似黑胡椒"],
+          "distinguishingFeatures": ["有檸檬香氣", "比黑胡椒略大"]
+        },
+        {
+          "name": "刺蔥",
+          "category": "原住民食材",
+          "portion": "5g",
+          "confidence": 0.8,
+          "visualFeatures": ["綠色", "葉狀", "有特殊香氣"]
+        }
+      ],
+      "commonConfusions": ["一般豬肉", "黑胡椒"],
+      "tags": ["原住民", "特色食材", "高難度"],
+      "notes": "測試系統對原住民特色食材的識別能力",
+      "expectedChallenges": ["特殊食材", "知識庫覆蓋度"]
+    },
+    {
+      "imageId": "japanese-ramen-01",
+      "imagePath": "asian-cuisine/japanese-dishes/01.jpg",
+      "category": "日式料理",
+      "cuisineType": "日式",
+      "cookingMethod": "煮",
+      "difficulty": "medium",
+      "foods": [
+        {
+          "name": "拉麵",
+          "category": "麵食",
+          "portion": "200g",
+          "confidence": 1.0,
+          "visualFeatures": ["黃色", "捲曲", "有彈性"]
+        },
+        {
+          "name": "叉燒",
+          "category": "蛋白質",
+          "portion": "50g",
+          "confidence": 1.0,
+          "visualFeatures": ["紅褐色", "片狀", "有滷製痕跡"]
+        },
+        {
+          "name": "溏心蛋",
+          "category": "蛋白質",
+          "portion": "50g",
+          "confidence": 1.0,
+          "visualFeatures": ["白色蛋白", "半熟蛋黃", "對半切"]
+        },
+        {
+          "name": "筍乾",
+          "category": "蔬菜",
+          "portion": "20g",
+          "confidence": 0.9,
+          "visualFeatures": ["淡黃色", "片狀"]
+        },
+        {
+          "name": "海苔",
+          "category": "海鮮",
+          "portion": "2g",
+          "confidence": 1.0,
+          "visualFeatures": ["深綠色", "薄片狀"]
+        },
+        {
+          "name": "蔥花",
+          "category": "蔬菜",
+          "portion": "5g",
+          "confidence": 0.9,
+          "visualFeatures": ["綠色", "細碎"]
+        }
+      ],
+      "commonConfusions": [],
+      "tags": ["日式", "拉麵", "完整套餐"],
+      "notes": "測試日式料理的完整性識別"
+    },
+    {
+      "imageId": "baby-corn-01",
+      "imagePath": "confusing-pairs/vegetables/01.jpg",
+      "category": "易混淆對照",
+      "cuisineType": "中式",
+      "cookingMethod": "炒",
+      "difficulty": "medium",
+      "foods": [
+        {
+          "name": "玉米筍",
+          "category": "蔬菜",
+          "portion": "80g",
+          "confidence": 1.0,
+          "visualFeatures": ["淡黃色", "細長圓柱形", "筆直", "表面光滑"],
+          "distinguishingFeatures": [
+            "整根呈圓柱形，粗細均勻",
+            "頂端有玉米鬚",
+            "可以整根食用",
+            "切開後沒有明顯的玉米粒"
+          ]
+        }
+      ],
+      "commonConfusions": ["小玉米", "筍子"],
+      "tags": ["蔬菜", "易混淆"],
+      "notes": "測試玉米筍與筍子的區分"
+    }
+  ],
+  "statistics": {
+    "totalImages": 8,
+    "categories": {
+      "涼拌菜": 2,
+      "台式熱炒": 1,
+      "易混淆對照": 3,
+      "混合食材菜餚": 1,
+      "原住民料理": 1,
+      "日式料理": 1
+    },
+    "difficulty": {
+      "easy": 0,
+      "medium": 5,
+      "hard": 3
+    },
+    "cuisineTypes": {
+      "台式": 3,
+      "中式": 2,
+      "日式": 1,
+      "原住民料理": 1
+    }
+  }
+}

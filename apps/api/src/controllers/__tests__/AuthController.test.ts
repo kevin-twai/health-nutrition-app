@@ -2,7 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import { AuthController } from '../AuthController';
 import { AuthService, AuthError } from '../../services/AuthService';
-import { ActivityLevel } from '@health-tracker/shared-types';
+import { ActivityLevel } from '../../types/shared';
 
 // Mock AuthService
 jest.mock('../../services/AuthService');

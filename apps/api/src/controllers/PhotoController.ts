@@ -6,7 +6,7 @@ import { MultiStageRecognitionEngine } from '../services/MultiStageRecognitionEn
 import { ResultValidator } from '../services/ResultValidator';
 import { AsianCuisineKnowledgeBase } from '../services/AsianCuisineKnowledgeBase';
 import { EnhancedPromptGenerator } from '../services/EnhancedPromptGenerator';
-import { ApiResponse, RecognitionResult, NutritionData } from '@health-tracker/shared-types';
+import { ApiResponse, RecognitionResult, NutritionData } from '../types/shared';
 
 export interface PhotoUploadRequest extends Request {
   file?: Express.Multer.File;

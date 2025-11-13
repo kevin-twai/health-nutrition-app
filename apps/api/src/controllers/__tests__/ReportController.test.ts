@@ -5,7 +5,7 @@ import { DataAggregator } from '../../services/DataAggregator';
 import { TrendAnalyzer } from '../../services/TrendAnalyzer';
 import { ReportScheduler } from '../../services/ReportScheduler';
 import { DeliveryManager } from '../../services/DeliveryManager';
-import { ReportFrequency, DeliveryMethod } from '@health-tracker/shared-types';
+import { ReportFrequency, DeliveryMethod } from '../../types/shared';
 
 // Mock dependencies
 jest.mock('../../services/DataAggregator');

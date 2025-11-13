@@ -1,5 +1,5 @@
 import { JWTUtils, JWTPayload } from '../jwt';
-import { User } from '@health-tracker/shared-types';
+import { User } from '../../types/shared';
 import jwt from 'jsonwebtoken';
 
 // Mock jwt module

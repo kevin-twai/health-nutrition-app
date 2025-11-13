@@ -1,4 +1,4 @@
-import { DateRange } from '@health-tracker/shared-types';
+import { DateRange } from '../types/shared';
 
 /**
  * 統計計算工具類

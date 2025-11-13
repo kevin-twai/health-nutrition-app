@@ -3,7 +3,7 @@
  * Multi-Stage Recognition Engine for Enhanced Food Recognition
  */
 
-import { DetectedFood, RecognitionResult } from '@health-tracker/shared-types';
+import { DetectedFood, RecognitionResult } from '../types/shared';
 import { EnhancedPromptGenerator, PromptGeneratorConfig, PromptTemplateType } from './EnhancedPromptGenerator';
 import { AsianCuisineKnowledgeBase } from './AsianCuisineKnowledgeBase';
 import { knowledgeBaseQueryOptimizer } from './KnowledgeBaseQueryOptimizer';

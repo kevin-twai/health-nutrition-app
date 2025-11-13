@@ -1,5 +1,5 @@
 import { MongoClient, Db, Collection } from 'mongodb';
-import { FoodItem, NutritionData, FoodLog } from '@health-tracker/shared-types';
+import { FoodItem, NutritionData, FoodLog } from '../types/shared';
 
 // MongoDB 連接管理器
 class MongoDBConnection {

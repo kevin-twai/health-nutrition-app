@@ -9,7 +9,7 @@ import {
   RecommendationType,
   Priority,
   MealType
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 
 describe('RecommendationEngine', () => {
   let recommendationEngine: RecommendationEngine;

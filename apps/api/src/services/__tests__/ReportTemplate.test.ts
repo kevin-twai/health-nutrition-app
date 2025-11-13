@@ -12,7 +12,7 @@ import {
   Priority,
   AchievementType,
   AchievementRarity
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 
 describe('ReportTemplate', () => {
   const mockReportSettings = {

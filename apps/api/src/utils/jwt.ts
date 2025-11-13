@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '@health-tracker/shared-types';
+import { User } from '../types/shared';
 
 // JWT 配置
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';

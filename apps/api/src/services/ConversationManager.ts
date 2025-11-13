@@ -8,7 +8,7 @@ import {
   UserPreferences,
   FoodLog,
   MacronutrientBreakdown
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { v4 as uuidv4 } from 'uuid';
 
 /**

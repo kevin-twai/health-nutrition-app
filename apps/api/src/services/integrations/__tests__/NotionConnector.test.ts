@@ -8,7 +8,7 @@ import {
   HealthReport,
   MealType,
   LogSource
-} from '@health-tracker/shared-types';
+} from '../../../types/shared';
 
 // Mock Notion Client
 jest.mock('@notionhq/client', () => ({

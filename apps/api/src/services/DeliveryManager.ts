@@ -3,7 +3,7 @@ import {
   HealthReport, 
   DeliveryMethod, 
   ReportSettings 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { ReportTemplateFactory } from './ReportTemplate';
 
 /**

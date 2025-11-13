@@ -6,7 +6,7 @@ import {
   EncryptedCredentials,
   HealthKitData,
   HealthKitDataType
-} from '@health-tracker/shared-types';
+} from '../../../types/shared';
 
 describe('HealthKitConnector', () => {
   let healthKitConnector: HealthKitConnector;

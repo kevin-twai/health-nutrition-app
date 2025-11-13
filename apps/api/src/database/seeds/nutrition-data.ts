@@ -1,5 +1,5 @@
 import { mongodb, NutritionDatabaseDocument } from '../mongodb';
-import { FoodCategory } from '@health-tracker/shared-types';
+import { FoodCategory } from '../../types/shared';
 
 // 台灣常見食物營養資料庫 (基於台灣食品營養成分資料庫)
 export const taiwanFoodNutritionData: Omit<NutritionDatabaseDocument, '_id' | 'created_at' | 'updated_at'>[] = [
@@ -23,7 +23,7 @@ export const taiwanFoodNutritionData: Omit<NutritionDatabaseDocument, '_id' | 'c
     phosphorus_mg: 43,
     potassium_mg: 35,
     zinc_mg: 0.6,
-    vitamin_b1_mg: 0.02,
+    thiamine: 0.02,
     vitamin_b2_mg: 0.01,
     niacin_mg: 1.2,
     data_source: '台灣食品營養成分資料庫',

@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 import bcrypt from 'bcryptjs';
-import { User, UserProfile, HealthGoal, UserPreferences } from '@health-tracker/shared-types';
+import { User, UserProfile, HealthGoal, UserPreferences } from '../types/shared';
 import { 
   PostgreSQLBaseRepository, 
   QueryOptions, 

@@ -8,7 +8,7 @@ import {
   Achievement,
   AchievementType,
   AchievementRarity
-} from '@health-tracker/shared-types';
+} from '../../../types/shared';
 import axios from 'axios';
 
 // Mock axios

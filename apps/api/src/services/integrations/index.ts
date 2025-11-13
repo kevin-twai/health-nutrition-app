@@ -33,4 +33,4 @@ export {
   LineAction,
   HealthKitData,
   HealthKitDataType
-} from '@health-tracker/shared-types';
+} from '../../types/shared';

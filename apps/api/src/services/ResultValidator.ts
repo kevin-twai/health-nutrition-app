@@ -12,7 +12,7 @@ import {
   FoodItem
 } from '../types/AsianCuisineKnowledgeBase';
 import { AsianCuisineKnowledgeBase } from './AsianCuisineKnowledgeBase';
-import { DetectedFood } from '@health-tracker/shared-types';
+import { DetectedFood } from '../types/shared';
 
 /**
  * 驗證規則嚴重程度

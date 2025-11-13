@@ -9,7 +9,7 @@ import {
   GoalType,
   ActivityLevel,
   MealType
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { NutritionAnalyzer } from './NutritionAnalyzer';
 import { v4 as uuidv4 } from 'uuid';
 

@@ -1,5 +1,5 @@
 import { ConversationManager } from '../ConversationManager';
-import { MessageRole, ConversationContext } from '@health-tracker/shared-types';
+import { MessageRole, ConversationContext } from '../../types/shared';
 
 describe('ConversationManager', () => {
   let conversationManager: ConversationManager;

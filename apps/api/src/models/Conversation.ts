@@ -6,7 +6,7 @@ import {
   MessageRole,
   RecommendationType,
   Priority 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 // 聊天訊息驗證 Schema
 export const chatMessageValidationSchema = Joi.object({

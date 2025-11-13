@@ -5,7 +5,7 @@ import {
   DataType,
   EncryptedCredentials,
   IntegrationSettings
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 
 /**
  * 基礎整合服務抽象類別

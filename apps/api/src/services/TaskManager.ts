@@ -8,7 +8,7 @@ import {
   TaskStatus, 
   TaskDifficulty,
   PointsSource 
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 export class TaskManager {
   private db: Pool;

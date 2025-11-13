@@ -4,7 +4,7 @@ import { GamificationController } from '../GamificationController';
 import { GamificationService } from '../../services/GamificationService';
 import { NotificationService } from '../../services/NotificationService';
 import { requireAuth } from '../../middleware/auth';
-import { TaskType, TaskStatus } from '@health-tracker/shared-types';
+import { TaskType, TaskStatus } from '../../types/shared';
 
 // Mock services
 jest.mock('../../services/GamificationService');

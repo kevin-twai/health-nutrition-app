@@ -1,15 +1,17 @@
 import { Router } from 'express';
 import { ReportController } from '../controllers/ReportController';
-import { authMiddleware } from '../middleware/auth';
+import { createAuthMiddleware } from '../middleware/auth';
+
+const authMiddleware = createAuthMiddleware();
 import { DataAggregator } from '../services/DataAggregator';
 import { TrendAnalyzer } from '../services/TrendAnalyzer';
 import { ReportScheduler } from '../services/ReportScheduler';
 import { DeliveryManager } from '../services/DeliveryManager';
 import { LogRepository } from '../repositories/LogRepository';
 import { UserRepository } from '../repositories/UserRepository';
-import { getPostgreSQLConnection } from '../database/connection';
-import { getMongoDBConnection } from '../database/mongodb';
-import { getRedisConnection } from '../database/redis';
+import { db } from '../database/connection';
+import { mongoClient } from '../database/mongodb';
+import { redisConnection } from '../database/redis';
 
 const router = Router();
 

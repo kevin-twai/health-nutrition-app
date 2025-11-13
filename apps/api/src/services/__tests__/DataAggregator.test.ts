@@ -1,7 +1,7 @@
 import { DataAggregator } from '../DataAggregator';
 import { LogRepository } from '../../repositories/LogRepository';
 import { UserRepository } from '../../repositories/UserRepository';
-import { MealType, GroupByPeriod, LogSource, ActivityLevel } from '@health-tracker/shared-types';
+import { MealType, GroupByPeriod, LogSource, ActivityLevel } from '../../types/shared';
 
 // Mock repositories
 jest.mock('../../repositories/LogRepository');

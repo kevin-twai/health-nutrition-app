@@ -5,7 +5,7 @@ import {
   ApiResponse,
   Conversation,
   ChatMessage
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { ConversationManager } from '../services/ConversationManager';
 import { AIService } from '../services/AIService';
 import { ContentFilterService } from '../services/ContentFilterService';
@@ -14,6 +14,8 @@ import { RecommendationEngine } from '../services/RecommendationEngine';
 import { ConversationRepository } from '../repositories/ConversationRepository';
 import { UserRepository } from '../repositories/UserRepository';
 import { ConversationModel } from '../models/Conversation';
+import { db } from '../database/connection';
+import { redisConnection } from '../database/redis';
 
 /**
  * 聊天控制器 - 處理 AI 聊天相關的 API 請求
@@ -28,13 +30,16 @@ export class ChatController {
   private userRepository: UserRepository;
 
   constructor() {
+    const pool = db.getPool();
+    const redis = redisConnection.getClient();
+    
     this.conversationManager = new ConversationManager();
     this.aiService = new AIService();
     this.contentFilter = new ContentFilterService();
     this.nutritionAnalyzer = new NutritionAnalyzer();
     this.recommendationEngine = new RecommendationEngine();
-    this.conversationRepository = new ConversationRepository();
-    this.userRepository = new UserRepository();
+    this.conversationRepository = new ConversationRepository(pool, redis);
+    this.userRepository = new UserRepository(pool, redis);
   }
 
   /**

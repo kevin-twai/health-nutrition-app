@@ -9,7 +9,7 @@ import {
   MealType,
   DateRange,
   GroupByPeriod
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 import { LogRepository } from '../repositories/LogRepository';
 import { UserRepository } from '../repositories/UserRepository';
 

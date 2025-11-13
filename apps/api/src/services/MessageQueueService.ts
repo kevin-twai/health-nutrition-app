@@ -1,5 +1,11 @@
 import { EventEmitter } from 'events';
 
+// 輔助函數：安全獲取錯誤訊息
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return getErrorMessage(error);
+  return String(error);
+}
+
 interface QueueJob {
   id: string;
   type: string;
@@ -47,7 +53,7 @@ export class MessageQueueService extends EventEmitter {
         // 實際實作時會整合 AIService
         return { success: true, result: { message: '處理完成' } };
       } catch (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: getErrorMessage(error) };
       }
     });
 
@@ -58,7 +64,7 @@ export class MessageQueueService extends EventEmitter {
         // 這裡會呼叫營養分析服務
         return { success: true, result: { analysis: '分析完成' } };
       } catch (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: getErrorMessage(error) };
       }
     });
 
@@ -69,7 +75,7 @@ export class MessageQueueService extends EventEmitter {
         // 這裡會呼叫建議引擎
         return { success: true, result: { recommendations: [] } };
       } catch (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: getErrorMessage(error) };
       }
     });
 
@@ -80,7 +86,7 @@ export class MessageQueueService extends EventEmitter {
         // 這裡會發送通知
         return { success: true, result: { sent: true } };
       } catch (error) {
-        return { success: false, error: error.message };
+        return { success: false, error: getErrorMessage(error) };
       }
     });
   }
@@ -245,14 +251,14 @@ export class MessageQueueService extends EventEmitter {
           jobId: job.id, 
           type: job.type, 
           retries: job.retries,
-          error: error.message 
+          error: getErrorMessage(error) 
         });
       } else {
         // 工作失敗，發送失敗事件
         this.emit('job_failed', { 
           jobId: job.id, 
           type: job.type, 
-          error: error.message,
+          error: getErrorMessage(error),
           retries: job.retries 
         });
       }

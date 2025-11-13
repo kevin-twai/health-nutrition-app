@@ -1,5 +1,5 @@
 import { JWTUtils } from '../utils/jwt';
-import { User } from '@health-tracker/shared-types';
+import { User } from '../types/shared';
 
 describe('認證系統基本功能測試', () => {
   const mockUser: User = {

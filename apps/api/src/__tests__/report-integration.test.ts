@@ -13,7 +13,7 @@ import {
   InsightType,
   RecommendationType,
   Priority
-} from '@health-tracker/shared-types';
+} from '../types/shared';
 
 // Mock dependencies
 jest.mock('../repositories/LogRepository');

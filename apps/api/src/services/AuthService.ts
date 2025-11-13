@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { User, UserProfile, UserPreferences } from '@health-tracker/shared-types';
+import { User, UserProfile, UserPreferences } from '../types/shared';
 import { UserRepository } from '../repositories/UserRepository';
 import { JWTUtils, JWTPayload } from '../utils/jwt';
 import { UserModel } from '../models/User';

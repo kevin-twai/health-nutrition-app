@@ -1,4 +1,4 @@
-import { NutritionData, FoodItem, Portion } from '@health-tracker/shared-types';
+import { NutritionData, FoodItem, Portion } from '../types/shared';
 import { FoodRepository } from '../repositories/FoodRepository';
 
 export interface NutritionCalculationResult {

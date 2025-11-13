@@ -5,7 +5,7 @@ import {
   ConversationContext,
   UserProfile,
   ActivityLevel
-} from '@health-tracker/shared-types';
+} from '../../types/shared';
 
 // Mock fetch for OpenAI API calls
 global.fetch = jest.fn();
