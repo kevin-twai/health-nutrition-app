@@ -185,11 +185,21 @@ async function initializeApp() {
       await initializeMonitoring();
     }
     
-    // 初始化 MongoDB 連接
+    // 初始化 MongoDB 連接（可選）
     await performanceMonitor.measureFunction('mongodb-initialization', async () => {
-      const { mongodb } = await import('./database/mongodb');
-      await mongodb.connect();
-      logger.info('✅ MongoDB 連接成功');
+      try {
+        const { mongodb } = await import('./database/mongodb');
+        await mongodb.connect();
+        if (mongodb.isConnected()) {
+          logger.info('✅ MongoDB 連接成功');
+        } else {
+          logger.warn('⚠️  MongoDB 未連接，系統將僅使用 PostgreSQL');
+        }
+      } catch (error) {
+        logger.warn('⚠️  MongoDB 初始化失敗，系統將僅使用 PostgreSQL', {
+          error: error instanceof Error ? error.message : String(error)
+        });
+      }
     });
     
     // 初始化 Redis 連接

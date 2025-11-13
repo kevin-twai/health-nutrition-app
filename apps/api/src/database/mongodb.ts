@@ -20,20 +20,34 @@ class MongoDBConnection {
   // 連接到 MongoDB
   public async connect(): Promise<void> {
     try {
-      const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/health_nutrition_foods';
+      const uri = process.env.MONGODB_URI;
+      
+      // 如果沒有設置 MONGODB_URI，跳過 MongoDB 連接
+      if (!uri) {
+        console.warn('⚠️  MONGODB_URI 未設置，跳過 MongoDB 連接（僅使用 PostgreSQL）');
+        return;
+      }
+
       const dbName = process.env.MONGODB_DB_NAME || 'health_nutrition_foods';
 
-      this.client = new MongoClient(uri);
+      this.client = new MongoClient(uri, {
+        serverSelectionTimeoutMS: 5000, // 5秒超時
+        connectTimeoutMS: 10000,
+      });
+      
       await this.client.connect();
       this.db = this.client.db(dbName);
 
-      console.log('MongoDB 連接成功');
+      console.log('✅ MongoDB 連接成功');
 
       // 建立索引
       await this.createIndexes();
     } catch (error) {
-      console.error('MongoDB 連接失敗:', error);
-      throw error;
+      console.error('❌ MongoDB 連接失敗:', error);
+      console.warn('⚠️  系統將在沒有 MongoDB 的情況下運行（僅使用 PostgreSQL）');
+      // 不拋出錯誤，允許應用程式繼續運行
+      this.client = null;
+      this.db = null;
     }
   }
 
@@ -68,16 +82,22 @@ class MongoDBConnection {
   }
 
   // 獲取資料庫實例
-  public getDb(): Db {
-    if (!this.db) {
-      throw new Error('MongoDB 尚未連接');
-    }
+  public getDb(): Db | null {
     return this.db;
   }
 
   // 獲取集合
-  public getCollection<T extends Document = Document>(name: string): Collection<T> {
-    return this.getDb().collection<T>(name);
+  public getCollection<T extends Document = Document>(name: string): Collection<T> | null {
+    if (!this.db) {
+      console.warn('⚠️  MongoDB 未連接，無法獲取集合');
+      return null;
+    }
+    return this.db.collection<T>(name);
+  }
+  
+  // 檢查是否已連接
+  public isConnected(): boolean {
+    return this.db !== null && this.client !== null;
   }
 
   // 測試連接
