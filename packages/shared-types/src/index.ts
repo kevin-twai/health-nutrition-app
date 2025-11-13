@@ -48,12 +48,13 @@ export interface NutritionData {
   calories: number;
   protein: number;
   carbohydrates: number;
+  carbs?: number; // 別名，與 carbohydrates 相同
   fat: number;
   fiber: number;
   sugar: number;
   sodium: number;
-  vitamins: VitaminData;
-  minerals: MineralData;
+  vitamins?: VitaminData;
+  minerals?: MineralData;
 }
 
 export interface FoodLog {

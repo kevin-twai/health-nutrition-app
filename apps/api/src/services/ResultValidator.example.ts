@@ -26,7 +26,7 @@ async function example1_BasicValidation() {
         nutrition: {
           calories: 150,
           protein: 12,
-          carbs: 8,
+          carbohydrates: 8, carbs: 8, sugar: 0,
           fat: 6,
           fiber: 2,
           sodium: 300
@@ -40,7 +40,7 @@ async function example1_BasicValidation() {
         nutrition: {
           calories: 8,
           protein: 0.5,
-          carbs: 1.5,
+          carbohydrates: 1, carbs: 1, sugar: 0.5,
           fat: 0.1,
           fiber: 1,
           sodium: 50
@@ -54,7 +54,7 @@ async function example1_BasicValidation() {
         nutrition: {
           calories: 88,
           protein: 0,
-          carbs: 0,
+          carbohydrates: 0, carbs: 0, sugar: 0,
           fat: 10,
           fiber: 0,
           sodium: 0
@@ -92,7 +92,7 @@ async function example2_ConfusedFoods() {
         nutrition: {
           calories: 150,
           protein: 12,
-          carbs: 8,
+          carbohydrates: 8, carbs: 8, sugar: 0,
           fat: 6,
           fiber: 2,
           sodium: 300
@@ -106,7 +106,7 @@ async function example2_ConfusedFoods() {
         nutrition: {
           calories: 140,
           protein: 5,
-          carbs: 28,
+          carbohydrates: 28, carbs: 28, sugar: 0,
           fat: 1,
           fiber: 1,
           sodium: 10
@@ -141,7 +141,7 @@ async function example3_ColdDishCompleteness() {
         nutrition: {
           calories: 150,
           protein: 12,
-          carbs: 8,
+          carbohydrates: 8, carbs: 8, sugar: 0,
           fat: 6,
           fiber: 2,
           sodium: 300
@@ -155,7 +155,7 @@ async function example3_ColdDishCompleteness() {
         nutrition: {
           calories: 8,
           protein: 0.5,
-          carbs: 1.5,
+          carbohydrates: 1, carbs: 1, sugar: 0.5,
           fat: 0.1,
           fiber: 1,
           sodium: 50
@@ -191,7 +191,7 @@ async function example4_NutritionAnomalies() {
         nutrition: {
           calories: 1200, // 異常高
           protein: 25,
-          carbs: 15,
+          carbohydrates: 15, carbs: 15, sugar: 0,
           fat: 80,
           fiber: 0,
           sodium: 800
@@ -260,7 +260,7 @@ async function example5_CustomRule() {
         nutrition: {
           calories: 60,
           protein: 3,
-          carbs: 8,
+          carbohydrates: 8, carbs: 8, sugar: 0,
           fat: 2,
           fiber: 3,
           sodium: 200
@@ -274,7 +274,7 @@ async function example5_CustomRule() {
         nutrition: {
           calories: 80,
           protein: 8,
-          carbs: 2,
+          carbohydrates: 2, carbs: 2, sugar: 0,
           fat: 4,
           fiber: 1,
           sodium: 10

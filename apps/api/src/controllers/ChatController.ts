@@ -31,7 +31,7 @@ export class ChatController {
 
   constructor() {
     const pool = db.getPool();
-    const redis = redisConnection.getClient();
+    const redis = redisConnection.getClient() || undefined;
     
     this.conversationManager = new ConversationManager();
     this.aiService = new AIService();

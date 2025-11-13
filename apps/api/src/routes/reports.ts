@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import { ReportController } from '../controllers/ReportController';
 import { createAuthMiddleware } from '../middleware/auth';
-
-const authMiddleware = createAuthMiddleware();
 import { DataAggregator } from '../services/DataAggregator';
 import { TrendAnalyzer } from '../services/TrendAnalyzer';
 import { ReportScheduler } from '../services/ReportScheduler';
@@ -10,9 +8,10 @@ import { DeliveryManager } from '../services/DeliveryManager';
 import { LogRepository } from '../repositories/LogRepository';
 import { UserRepository } from '../repositories/UserRepository';
 import { db } from '../database/connection';
-import { mongoClient } from '../database/mongodb';
+import { mongodb } from '../database/mongodb';
 import { redisConnection } from '../database/redis';
 
+const authMiddleware = createAuthMiddleware();
 const router = Router();
 
 // 初始化依賴項（在實際應用中，這些應該通過依賴注入容器管理）
@@ -20,9 +19,9 @@ let reportController: ReportController;
 
 const initializeController = async () => {
   if (!reportController) {
-    const pgPool = await getPostgreSQLConnection();
-    const mongoDb = await getMongoDBConnection();
-    const redis = await getRedisConnection();
+    const pgPool = db.getPool();
+    const mongoDb = mongodb.getDb();
+    const redis = redisConnection.getClient() || undefined;
 
     const logRepository = new LogRepository(pgPool, mongoDb, redis);
     const userRepository = new UserRepository(pgPool, redis);

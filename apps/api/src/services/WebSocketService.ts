@@ -55,7 +55,7 @@ export class WebSocketService {
     });
 
     const pool = db.getPool();
-    const redis = redisConnection.getClient();
+    const redis = redisConnection.getClient() || undefined;
     
     this.conversationRepository = new ConversationRepository(pool, redis);
     this.userRepository = new UserRepository(pool, redis);

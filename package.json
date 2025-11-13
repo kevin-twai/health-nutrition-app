@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "AI-powered health and nutrition tracking system",
   "main": "apps/api/src/simple-server.js",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "start": "node apps/api/src/simple-server.js",
     "dev": "node apps/api/src/simple-server.js",
@@ -28,5 +32,8 @@
     "food-recognition"
   ],
   "author": "Kevin Twai",
-  "license": "MIT"
+  "license": "MIT",
+  "optionalDependencies": {
+    "@esbuild/darwin-arm64": "^0.27.0"
+  }
 }

@@ -1,4 +1,4 @@
-import { MongoClient, Db, Collection } from 'mongodb';
+import { MongoClient, Db, Collection, Document } from 'mongodb';
 import { FoodItem, NutritionData, FoodLog } from '../types/shared';
 
 // MongoDB 連接管理器

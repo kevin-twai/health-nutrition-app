@@ -17,7 +17,7 @@ function getErrorMessage(error: unknown): string {
 /**
  * 對話資料庫存取層
  */
-export class ConversationRepository extends PostgreSQLBaseRepository<Conversation> {
+export class ConversationRepository {
   constructor(pool: any, redis?: any) {
     super(pool, 'conversations', redis);
   }

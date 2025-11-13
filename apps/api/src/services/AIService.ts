@@ -182,7 +182,7 @@ export class AIService {
     }
 
     const data = await response.json();
-    return data.choices[0]?.message?.content || '';
+    return (data as any)?.choices[0]?.message?.content || '';
   }
 
   /**
@@ -349,7 +349,7 @@ export class AIService {
       }
 
       const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content || '';
+      const aiResponse = (data as any)?.choices[0]?.message?.content || '';
       
       return this.parseRecommendations(aiResponse);
     } catch (error) {

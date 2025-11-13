@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# 診斷圖片辨識問題的腳本
+
+echo "🔍 開始診斷圖片辨識問題..."
+echo ""
+
+# 檢查環境變數
+echo "1️⃣ 檢查環境變數配置"
+echo "================================"
+if [ -f .env ]; then
+    echo "✅ .env 文件存在"
+    if grep -q "OPENAI_API_KEY" .env; then
+        OPENAI_KEY=$(grep "OPENAI_API_KEY" .env | cut -d '=' -f2)
+        if [ "$OPENAI_KEY" != "your-openai-api-key-here" ] && [ ! -z "$OPENAI_KEY" ]; then
+            echo "✅ OpenAI API Key 已配置"
+            echo "   前10字元: ${OPENAI_KEY:0:10}..."
+        else
+            echo "❌ OpenAI API Key 未正確配置"
+        fi
+    else
+        echo "❌ .env 中沒有 OPENAI_API_KEY"
+    fi
+else
+    echo "❌ .env 文件不存在"
+fi
+echo ""
+
+# 檢查 Render 服務狀態
+echo "2️⃣ 檢查 Render 服務狀態"
+echo "================================"
+echo "請手動檢查以下項目："
+echo "1. 前往 https://dashboard.render.com"
+echo "2. 確認服務狀態為 'Live'"
+echo "3. 檢查環境變數中的 OPENAI_API_KEY 是否正確設置"
+echo ""
+
+# 提供日誌查看指引
+echo "3️⃣ 查看 Render 日誌"
+echo "================================"
+echo "請按照以下步驟查看詳細日誌："
+echo ""
+echo "步驟 1: 打開 Render Dashboard"
+echo "  → https://dashboard.render.com"
+echo ""
+echo "步驟 2: 找到您的服務並點擊"
+echo ""
+echo "步驟 3: 點擊 'Logs' 標籤"
+echo ""
+echo "步驟 4: 尋找以下關鍵訊息："
+echo ""
+echo "  🔍 成功的情況："
+echo "     ✅ ChatGPT Vision API 完整回應"
+echo "     ✅ JSON 解析成功"
+echo "     📊 辨識結果 suggestions 數量: X"
+echo ""
+echo "  🔍 被拒絕的情況："
+echo "     ❌ OpenAI 拒絕分析此圖片"
+echo "     拒絕原因: I'm sorry, I can't help with that."
+echo "     🔄 嘗試重試 (1/2)"
+echo ""
+echo "  🔍 解析失敗的情況:"
+echo "     ❌ JSON 解析失敗: [錯誤訊息]"
+echo "     📝 原始內容前500字元: [OpenAI 的回應]"
+echo "     ⚠️ 使用文本分析作為回退"
+echo ""
+
+# 常見問題和解決方案
+echo "4️⃣ 常見問題和解決方案"
+echo "================================"
+echo ""
+echo "問題 A: OpenAI 拒絕分析圖片"
+echo "  可能原因:"
+echo "    - 圖片中有人物或手部"
+echo "    - 圖片角度或光線問題"
+echo "    - 圖片內容不清晰"
+echo "    - OpenAI 的內容政策限制"
+echo ""
+echo "  解決方案:"
+echo "    1. 重新拍攝圖片："
+echo "       - 確保光線充足"
+echo "       - 從正上方拍攝"
+echo "       - 避免手部入鏡"
+echo "       - 確保食物清晰可見"
+echo ""
+echo "    2. 裁剪圖片："
+echo "       - 只保留食物部分"
+echo "       - 移除背景和其他物品"
+echo ""
+echo "問題 B: JSON 解析失敗"
+echo "  可能原因:"
+echo "    - OpenAI 返回的格式不正確"
+echo "    - 回應中包含額外的文字"
+echo ""
+echo "  解決方案:"
+echo "    - 系統會自動使用文本分析作為回退"
+echo "    - 如果持續失敗，請分享日誌內容"
+echo ""
+echo "問題 C: 返回「無法識別的食物」"
+echo "  可能原因:"
+echo "    - OpenAI 多次重試後仍然拒絕"
+echo "    - 圖片質量太差"
+echo ""
+echo "  解決方案:"
+echo "    - 使用更清晰的圖片"
+echo "    - 確保圖片符合 OpenAI 的內容政策"
+echo ""
+
+# 測試建議
+echo "5️⃣ 測試建議"
+echo "================================"
+echo ""
+echo "建議 1: 使用測試頁面"
+echo "  → 打開瀏覽器訪問: https://your-app.onrender.com/test-vision-api"
+echo "  → 上傳圖片並查看詳細的測試日誌"
+echo ""
+echo "建議 2: 測試不同類型的圖片"
+echo "  → 嘗試上傳簡單的食物圖片（如一碗白飯）"
+echo "  → 確認 API 是否正常工作"
+echo ""
+echo "建議 3: 檢查圖片格式"
+echo "  → 確保圖片是 JPEG、PNG 或 HEIC 格式"
+echo "  → 圖片大小不超過 10MB"
+echo ""
+
+echo "✅ 診斷完成！"
+echo ""
+echo "📋 下一步行動："
+echo "1. 查看 Render 日誌，找出具體錯誤訊息"
+echo "2. 根據錯誤訊息選擇對應的解決方案"
+echo "3. 如需進一步協助，請分享日誌內容"
+echo ""

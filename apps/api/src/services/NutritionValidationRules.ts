@@ -35,7 +35,7 @@ export const nutritionValueReasonablenessRule: ValidationRule = {
       const per100g = {
         calories: (nutrition.calories / portion) * 100,
         protein: (nutrition.protein / portion) * 100,
-        carbs: (nutrition.carbs / portion) * 100,
+        carbs: ((nutrition.carbs ?? nutrition.carbohydrates ?? 0) / portion) * 100,
         fat: (nutrition.fat / portion) * 100,
         fiber: (nutrition.fiber / portion) * 100,
         sodium: (nutrition.sodium / portion) * 100

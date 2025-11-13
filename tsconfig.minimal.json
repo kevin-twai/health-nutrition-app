@@ -1,0 +1,40 @@
+{
+  "extends": "./apps/api/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./apps/api/dist-minimal",
+    "rootDir": "./apps/api/src",
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "apps/api/src/services/AsianCuisineKnowledgeBase.ts",
+    "apps/api/src/services/EnhancedPromptGenerator.ts",
+    "apps/api/src/services/MultiStageRecognitionEngine.ts",
+    "apps/api/src/services/ResultValidator.ts",
+    "apps/api/src/services/AsianCuisineValidationRules.ts",
+    "apps/api/src/services/NutritionValidationRules.ts",
+    "apps/api/src/services/FeedbackCollector.ts",
+    "apps/api/src/services/FeedbackAnalyzer.ts",
+    "apps/api/src/services/FeedbackImprover.ts",
+    "apps/api/src/services/FoodRecognitionPerformanceMonitor.ts",
+    "apps/api/src/services/FoodRecognitionLogger.ts",
+    "apps/api/src/services/RecognitionResultCache.ts",
+    "apps/api/src/services/KnowledgeBaseQueryOptimizer.ts",
+    "apps/api/src/data/**/*.ts",
+    "apps/api/src/types/**/*.ts",
+    "apps/api/src/models/Feedback.ts",
+    "apps/api/src/repositories/FeedbackRepository.ts",
+    "apps/api/src/scripts/verifyKnowledgeBase.ts",
+    "apps/api/src/__tests__/test-data/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "apps/api/src/routes/**",
+    "apps/api/src/controllers/**",
+    "apps/api/src/services/WebSocketService.ts",
+    "apps/api/src/services/MessageQueueService.ts",
+    "apps/api/src/repositories/ConversationRepository.ts"
+  ]
+}
