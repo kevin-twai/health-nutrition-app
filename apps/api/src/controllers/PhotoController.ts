@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { ImageProcessingService, ImageProcessingOptions } from '../services/ImageProcessingService';
 import { FoodRecognitionEngine, FoodRecognitionOptions } from '../services/FoodRecognitionEngine';
 import { NutritionCalculator, PortionEstimationOptions } from '../services/NutritionCalculator';
+import { MultiStageRecognitionEngine } from '../services/MultiStageRecognitionEngine';
+import { ResultValidator } from '../services/ResultValidator';
+import { AsianCuisineKnowledgeBase } from '../services/AsianCuisineKnowledgeBase';
+import { EnhancedPromptGenerator } from '../services/EnhancedPromptGenerator';
 import { ApiResponse, RecognitionResult, NutritionData } from '@health-tracker/shared-types';
 
 export interface PhotoUploadRequest extends Request {
@@ -15,6 +19,9 @@ export interface PhotoUploadRequest extends Request {
     minConfidence?: string;
     language?: string;
     photo?: any;
+    enableSmartCrop?: string | boolean;
+    extractFeatures?: string | boolean;
+    enhanceQuality?: string | boolean;
   };
 }
 
@@ -35,12 +42,35 @@ export interface PhotoUploadResponse {
 export class PhotoController {
   private imageProcessingService: ImageProcessingService;
   private foodRecognitionEngine: FoodRecognitionEngine;
+  private multiStageEngine: MultiStageRecognitionEngine;
+  private resultValidator: ResultValidator;
   private nutritionCalculator: NutritionCalculator;
+  private knowledgeBase: AsianCuisineKnowledgeBase;
+  private promptGenerator: EnhancedPromptGenerator;
 
   constructor() {
     this.imageProcessingService = new ImageProcessingService();
     this.foodRecognitionEngine = new FoodRecognitionEngine();
+    
+    // 初始化知識庫和 Prompt 生成器
+    this.knowledgeBase = new AsianCuisineKnowledgeBase();
+    this.promptGenerator = new EnhancedPromptGenerator('zh-TW');
+    
+    // 使用配置初始化多階段識別引擎
+    this.multiStageEngine = new MultiStageRecognitionEngine({
+      maxStages: 3,
+      minConfidenceThreshold: 0.85,
+      enableKnowledgeBase: true,
+      language: 'zh-TW'
+    });
+    
+    this.resultValidator = new ResultValidator();
     this.nutritionCalculator = new NutritionCalculator();
+    
+    console.log('✓ PhotoController 初始化完成 - 使用增強型識別引擎');
+    console.log('  - 多階段識別引擎已啟用');
+    console.log('  - 亞洲料理知識庫已載入');
+    console.log('  - 結果驗證器已啟用');
   }
 
   /**
@@ -217,10 +247,13 @@ export class PhotoController {
   };
 
   /**
-   * 完整的照片上傳和食物辨識流程
+   * 完整的照片上傳和食物辨識流程（使用多階段識別引擎）
    * POST /api/v1/photo/recognize
    */
   recognizeFood = async (req: PhotoUploadRequest, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     try {
       if (!req.file) {
         res.status(400).json({
@@ -246,42 +279,325 @@ export class PhotoController {
         quality: req.body.quality ? parseInt(req.body.quality) : 85,
         maxWidth: req.body.maxWidth ? parseInt(req.body.maxWidth) : 1024,
         maxHeight: req.body.maxHeight ? parseInt(req.body.maxHeight) : 1024,
-        format: req.body.format || 'jpeg'
+        format: req.body.format || 'jpeg',
+        enableSmartCrop: req.body.enableSmartCrop === 'true' || req.body.enableSmartCrop === true,
+        extractFeatures: true, // 總是提取特徵以改進識別
+        enhanceQuality: req.body.enhanceQuality === 'true' || req.body.enhanceQuality === true
       };
 
-      // 並行處理：上傳圖片和辨識食物
-      const [uploadResult, recognitionResult] = await Promise.all([
+      console.log(`[${sessionId}] 開始多階段食物識別流程`);
+
+      // 並行處理：上傳圖片和辨識食物（使用多階段引擎）
+      const [uploadResult, multiStageResult] = await Promise.all([
         this.imageProcessingService.uploadAndProcessImage(req.file, imageOptions),
-        this.foodRecognitionEngine.recognizeFood(req.file.buffer, recognitionOptions)
+        this.multiStageEngine.recognize(req.file.buffer)
       ]);
 
-      // 驗證辨識品質
-      const qualityCheck = this.foodRecognitionEngine.validateRecognitionQuality(recognitionResult);
+      console.log(`[${sessionId}] 多階段識別完成，階段數: ${multiStageResult.stages.length}`);
+
+      // 驗證識別結果
+      const validationReport = this.resultValidator.validate(multiStageResult);
+      const hasWarnings = validationReport.warnings.length > 0;
+      const hasErrors = validationReport.errors.length > 0;
+
+      console.log(`[${sessionId}] 驗證完成 - 警告: ${hasWarnings}, 錯誤: ${hasErrors}`);
+
+      // 計算總處理時間
+      const totalProcessingTime = Date.now() - startTime;
+
+      // 判斷是否需要返回替代選項
+      const needsAlternatives = multiStageResult.confidence < 0.85;
+      const hasAlternatives = multiStageResult.alternatives && multiStageResult.alternatives.length > 0;
+
+      // 構建回應
+      const response = {
+        sessionId,
+        imageInfo: uploadResult,
+        recognition: {
+          foods: multiStageResult.foods,
+          confidence: multiStageResult.confidence,
+          description: multiStageResult.description,
+          suggestions: multiStageResult.suggestions,
+          processingTime: totalProcessingTime,
+          // 當信心度低時，提供額外的說明
+          confidenceLevel: this.getConfidenceLevel(multiStageResult.confidence),
+          needsUserConfirmation: needsAlternatives
+        },
+        multiStageInfo: {
+          totalStages: multiStageResult.stages.length,
+          stagesExecuted: multiStageResult.stages.map(s => ({
+            stage: s.attempt,
+            promptType: s.promptType,
+            confidence: s.confidence,
+            timestamp: s.timestamp
+          })),
+          finalConfidence: multiStageResult.confidence,
+          finalStage: multiStageResult.finalStage
+        },
+        validation: {
+          passed: !hasErrors,
+          hasWarnings,
+          errors: validationReport.errors,
+          warnings: validationReport.warnings,
+          infos: validationReport.infos
+        },
+        // 替代選項：當信心度低時提供
+        alternatives: needsAlternatives && hasAlternatives ? {
+          available: true,
+          message: '識別信心度較低，為您提供以下可能的選項，請選擇最符合的食物：',
+          options: this.formatAlternativesForUser(multiStageResult.alternatives || []),
+          selectionRequired: multiStageResult.confidence < 0.75
+        } : {
+          available: false,
+          message: '識別信心度足夠，無需提供替代選項'
+        },
+        processingTime: totalProcessingTime
+      };
+
+      // 記錄識別會話（用於後續分析和改進）
+      this.logRecognitionSession({
+        sessionId,
+        imageId: uploadResult.imageId,
+        imageMetadata: {
+          originalName: req.file.originalname,
+          size: req.file.size,
+          format: req.file.mimetype
+        },
+        stages: multiStageResult.stages,
+        finalResult: multiStageResult,
+        validationResults: validationReport,
+        processingTime: totalProcessingTime,
+        createdAt: new Date()
+      });
 
       res.status(200).json({
         success: true,
-        data: {
-          imageInfo: uploadResult,
-          recognition: recognitionResult,
-          qualityCheck,
-          processingTime: recognitionResult.processingTime
-        },
+        data: response,
         timestamp: new Date()
-      } as ApiResponse<{
-        imageInfo: PhotoUploadResponse;
-        recognition: RecognitionResult;
-        qualityCheck: any;
-        processingTime: number;
-      }>);
+      } as ApiResponse<typeof response>);
 
     } catch (error) {
-      console.error('食物辨識錯誤:', error);
+      console.error(`[${sessionId}] 食物辨識錯誤:`, error);
       
+      // 記錄錯誤
+      this.logRecognitionError({
+        sessionId,
+        error: error instanceof Error ? error.message : '未知錯誤',
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date()
+      });
+
       res.status(500).json({
         success: false,
         error: {
           code: 'RECOGNITION_FAILED',
-          message: error instanceof Error ? error.message : '食物辨識失敗'
+          message: error instanceof Error ? error.message : '食物辨識失敗',
+          sessionId
+        },
+        timestamp: new Date()
+      } as ApiResponse<null>);
+    }
+  };
+
+  /**
+   * 獲取信心度等級描述
+   */
+  private getConfidenceLevel(confidence: number): string {
+    if (confidence >= 0.9) return 'very_high';
+    if (confidence >= 0.85) return 'high';
+    if (confidence >= 0.75) return 'medium';
+    if (confidence >= 0.6) return 'low';
+    return 'very_low';
+  }
+
+  /**
+   * 格式化替代選項供用戶選擇
+   */
+  private formatAlternativesForUser(alternatives: any[]): any[] {
+    return alternatives.map((altGroup, groupIndex) => ({
+      groupId: `alt_group_${groupIndex}`,
+      originalFood: altGroup[0]?.food?.name || '未知食物',
+      options: altGroup.map((alt: any, optIndex: number) => ({
+        optionId: `${groupIndex}_${optIndex}`,
+        food: {
+          id: alt.food.id,
+          name: alt.food.name,
+          portion: alt.food.portion,
+          calories: alt.food.calories,
+          protein: alt.food.protein,
+          carbs: alt.food.carbs,
+          fat: alt.food.fat,
+          description: alt.food.description
+        },
+        confidence: alt.confidence,
+        confidencePercentage: Math.round(alt.confidence * 100),
+        reason: this.generateSelectionReason(alt),
+        recognitionStage: alt.recognitionStage,
+        isRecommended: optIndex === 0 // 第一個選項為推薦
+      }))
+    }));
+  }
+
+  /**
+   * 生成選擇理由
+   */
+  private generateSelectionReason(alternative: any): string {
+    const confidence = alternative.confidence;
+    const stage = alternative.recognitionStage;
+    const reasons: string[] = [];
+
+    // 根據信心度生成理由
+    if (confidence >= 0.8) {
+      reasons.push('高信心度識別');
+    } else if (confidence >= 0.6) {
+      reasons.push('中等信心度識別');
+    } else {
+      reasons.push('可能的匹配項');
+    }
+
+    // 根據識別階段生成理由
+    if (stage === 1) {
+      reasons.push('標準識別結果');
+    } else if (stage === 2) {
+      reasons.push('增強識別結果');
+    } else if (stage === 3) {
+      reasons.push('知識庫匹配結果');
+    }
+
+    // 添加特徵匹配信息
+    if (alternative.matchedFeatures && alternative.matchedFeatures.length > 0) {
+      reasons.push(`匹配特徵: ${alternative.matchedFeatures.slice(0, 2).join('、')}`);
+    }
+
+    // 添加不確定性原因
+    if (alternative.uncertaintyReasons && alternative.uncertaintyReasons.length > 0) {
+      reasons.push(`注意: ${alternative.uncertaintyReasons[0]}`);
+    }
+
+    return reasons.join(' | ');
+  }
+
+  /**
+   * 記錄識別會話（用於分析和改進）
+   */
+  private logRecognitionSession(session: any): void {
+    try {
+      // TODO: 實現會話記錄到資料庫或日誌系統
+      console.log(`[RecognitionSession] ${session.sessionId}:`, {
+        imageId: session.imageId,
+        stages: session.stages.length,
+        confidence: session.finalResult.confidence,
+        processingTime: session.processingTime,
+        hasAlternatives: session.finalResult.alternatives?.length > 0
+      });
+    } catch (error) {
+      console.error('記錄識別會話失敗:', error);
+    }
+  }
+
+  /**
+   * 記錄識別錯誤
+   */
+  private logRecognitionError(errorInfo: any): void {
+    try {
+      // TODO: 實現錯誤記錄到資料庫或日誌系統
+      console.error(`[RecognitionError] ${errorInfo.sessionId}:`, errorInfo.error);
+    } catch (error) {
+      console.error('記錄識別錯誤失敗:', error);
+    }
+  }
+
+  /**
+   * 記錄用戶選擇（用於改進識別系統）
+   */
+  private logUserSelection(selection: any): void {
+    try {
+      // TODO: 實現用戶選擇記錄到資料庫或日誌系統
+      // 這些數據可用於：
+      // 1. 分析常見的識別錯誤
+      // 2. 改進 prompt 模板
+      // 3. 更新知識庫
+      // 4. 調整驗證規則
+      console.log(`[UserSelection] ${selection.sessionId}:`, {
+        groupId: selection.groupId,
+        optionId: selection.optionId,
+        selectedFood: selection.selectedFood.name,
+        timestamp: selection.timestamp
+      });
+    } catch (error) {
+      console.error('記錄用戶選擇失敗:', error);
+    }
+  }
+
+  /**
+   * 用戶選擇替代選項
+   * POST /api/v1/photo/select-alternative
+   */
+  selectAlternative = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const {
+        sessionId,
+        groupId,
+        optionId,
+        selectedFood
+      } = req.body;
+
+      if (!sessionId || !selectedFood) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: 'MISSING_PARAMETERS',
+            message: '請提供 sessionId 和 selectedFood'
+          },
+          timestamp: new Date()
+        } as ApiResponse<null>);
+        return;
+      }
+
+      console.log(`[${sessionId}] 用戶選擇替代選項:`, {
+        groupId,
+        optionId,
+        foodName: selectedFood.name
+      });
+
+      // 記錄用戶選擇（用於改進識別系統）
+      this.logUserSelection({
+        sessionId,
+        groupId,
+        optionId,
+        selectedFood,
+        timestamp: new Date()
+      });
+
+      // 返回確認信息
+      res.status(200).json({
+        success: true,
+        data: {
+          message: '已記錄您的選擇',
+          sessionId,
+          selectedFood: {
+            id: selectedFood.id,
+            name: selectedFood.name,
+            portion: selectedFood.portion,
+            nutrition: {
+              calories: selectedFood.calories,
+              protein: selectedFood.protein,
+              carbs: selectedFood.carbs,
+              fat: selectedFood.fat
+            }
+          }
+        },
+        timestamp: new Date()
+      } as ApiResponse<any>);
+
+    } catch (error) {
+      console.error('選擇替代選項錯誤:', error);
+      
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'SELECTION_FAILED',
+          message: error instanceof Error ? error.message : '選擇失敗'
         },
         timestamp: new Date()
       } as ApiResponse<null>);
