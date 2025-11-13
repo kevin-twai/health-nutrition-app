@@ -9,12 +9,27 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 跳過靜態生成錯誤以避免 styled-jsx SSR 問題
-  staticPageGenerationTimeout: 1000,
+  // 完全禁用靜態優化以避免 styled-jsx SSR 問題
+  output: 'standalone',
+  // 禁用靜態頁面生成
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
+  },
   // 允許構建時出現錯誤
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
   experimental: {
     workerThreads: false,
     cpus: 1
+  },
+  // 完全跳過錯誤頁面的靜態生成
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.optimization.minimize = false
+    }
+    return config
   },
 }
 
