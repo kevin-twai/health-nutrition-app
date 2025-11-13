@@ -178,7 +178,7 @@ export class AIService {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(`OpenAI API 錯誤: ${error.error?.message || response.statusText}`);
+      throw new Error(`OpenAI API 錯誤: ${(error as any)?.error?.message || response.statusText}`);
     }
 
     const data = await response.json();
