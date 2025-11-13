@@ -118,15 +118,16 @@ export abstract class PostgreSQLBaseRepository<T> implements IBaseRepository<T> 
 
 // MongoDB 基礎 Repository
 export abstract class MongoDBBaseRepository<T extends Document> implements IBaseRepository<T> {
-  protected db: Db;
-  protected collection: Collection<T>;
+  protected db: Db | null;
+  protected collection: Collection<T> | null;
   protected collectionName: string;
   protected redis?: Redis;
 
-  constructor(db: Db, collectionName: string, redis?: Redis) {
+  constructor(db: Db | null, collectionName: string, redis?: Redis) {
     this.db = db;
     this.collectionName = collectionName;
-    this.collection = db.collection<T>(collectionName);
+    // 只有在 db 存在時才初始化 collection
+    this.collection = db ? db.collection<T>(collectionName) : null;
     this.redis = redis;
   }
 

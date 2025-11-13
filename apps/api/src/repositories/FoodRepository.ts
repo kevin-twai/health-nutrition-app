@@ -34,13 +34,28 @@ interface FoodSearchOptions {
 export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
   private nutritionDbCollection: any;
 
-  constructor(db: Db, redis?: Redis) {
+  constructor(db: Db | null, redis?: Redis) {
     super(db, 'food_items', redis);
-    this.nutritionDbCollection = db.collection<NutritionDatabaseDocument>('nutrition_database');
+    // 只有在 db 存在時才初始化 collection
+    if (db) {
+      this.nutritionDbCollection = db.collection<NutritionDatabaseDocument>('nutrition_database');
+    } else {
+      this.nutritionDbCollection = null;
+    }
+  }
+
+  // 檢查 MongoDB 是否可用
+  private isMongoDBAvailable(): boolean {
+    return this.collection !== null && this.nutritionDbCollection !== null;
   }
 
   // 根據 ID 查找食物
   async findById(id: string): Promise<FoodItem | null> {
+    // 如果 MongoDB 不可用，返回 null
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，無法查找食物');
+      return null;
+    }
     // 先檢查快取
     const cached = await this.getFromCache(`food:${id}`);
     if (cached) {
@@ -53,7 +68,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
         objectId = new ObjectId(id);
       } catch {
         // 如果不是有效的 ObjectId，嘗試作為字串查詢
-        const result = await this.collection.findOne({ id: id });
+        const result = await this.collection!.findOne({ id: id });
         if (!result) return null;
         
         const foodItem = this.mapToFoodItem(result);
@@ -61,7 +76,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
         return foodItem;
       }
 
-      const result = await this.collection.findOne({ _id: objectId });
+      const result = await this.collection!.findOne({ _id: objectId });
       if (!result) return null;
 
       const foodItem = this.mapToFoodItem(result);
@@ -75,13 +90,18 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 查找所有食物
   async findAll(limit: number = 50, offset: number = 0): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const cacheKey = `foods:all:${limit}:${offset}`;
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
       return cached as FoodItem[];
     }
 
-    const results = await this.collection
+    const results = await this.collection!
       .find({})
       .sort({ created_at: -1 })
       .skip(offset)
@@ -96,6 +116,10 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 建立新食物
   async create(foodData: Omit<FoodItem, 'id'>): Promise<FoodItem> {
+    if (!this.isMongoDBAvailable()) {
+      throw new Error('MongoDB 不可用，無法建立食物');
+    }
+
     const document: Omit<FoodItemDocument, '_id'> = {
       ...foodData,
       id: new ObjectId().toString(),
@@ -105,8 +129,8 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
       updated_at: new Date()
     };
 
-    const result = await this.collection.insertOne(document as FoodItemDocument);
-    const newFood = await this.collection.findOne({ _id: result.insertedId });
+    const result = await this.collection!.insertOne(document as FoodItemDocument);
+    const newFood = await this.collection!.findOne({ _id: result.insertedId });
     
     if (!newFood) {
       throw new Error('建立食物失敗');
@@ -120,6 +144,11 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 更新食物
   async update(id: string, updateData: Partial<FoodItem>): Promise<FoodItem | null> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，無法更新食物');
+      return null;
+    }
+
     try {
       const objectId = new ObjectId(id);
       
@@ -128,7 +157,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
         updated_at: new Date()
       };
 
-      const result = await this.collection.findOneAndUpdate(
+      const result = await this.collection!.findOneAndUpdate(
         { _id: objectId },
         { $set: updateDoc },
         { returnDocument: 'after' }
@@ -151,9 +180,14 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 刪除食物
   async delete(id: string): Promise<boolean> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，無法刪除食物');
+      return false;
+    }
+
     try {
       const objectId = new ObjectId(id);
-      const result = await this.collection.deleteOne({ _id: objectId });
+      const result = await this.collection!.deleteOne({ _id: objectId });
       
       if (result.deletedCount === 0) {
         return false;

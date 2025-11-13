@@ -38,7 +38,8 @@ export class FoodRecognitionEngine {
       console.warn('⚠️ OPENAI_API_KEY 未設定，將使用本地分析');
     }
     
-    this.foodRepository = new FoodRepository(null as any, null as any);
+    // 初始化 FoodRepository，傳入 null 表示沒有 MongoDB
+    this.foodRepository = new FoodRepository(null, undefined);
   }
 
   /**
