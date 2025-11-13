@@ -58,6 +58,20 @@ app.use(autoMonitoring());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Root endpoint - 處理 Render 的健康檢查
+app.get('/', (req, res) => {
+  res.json({
+    service: 'health-nutrition-tracker-api',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.head('/', (req, res) => {
+  res.status(200).end();
+});
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {
@@ -186,36 +200,56 @@ async function initializeApp() {
     }
     
     // 初始化 MongoDB 連接（可選）
-    await performanceMonitor.measureFunction('mongodb-initialization', async () => {
-      try {
-        const { mongodb } = await import('./database/mongodb');
-        await mongodb.connect();
-        if (mongodb.isConnected()) {
-          logger.info('✅ MongoDB 連接成功');
-        } else {
-          logger.warn('⚠️  MongoDB 未連接，系統將僅使用 PostgreSQL');
+    try {
+      await performanceMonitor.measureFunction('mongodb-initialization', async () => {
+        try {
+          const { mongodb } = await import('./database/mongodb');
+          await mongodb.connect();
+          if (mongodb.isConnected()) {
+            logger.info('✅ MongoDB 連接成功');
+          } else {
+            logger.warn('⚠️  MONGODB_URI 未設置，跳過 MongoDB 連接（僅使用 PostgreSQL）');
+          }
+        } catch (error) {
+          logger.warn('⚠️  MongoDB 初始化失敗，系統將僅使用 PostgreSQL', {
+            error: error instanceof Error ? error.message : String(error)
+          });
         }
-      } catch (error) {
-        logger.warn('⚠️  MongoDB 初始化失敗，系統將僅使用 PostgreSQL', {
-          error: error instanceof Error ? error.message : String(error)
-        });
-      }
-    });
+      });
+    } catch (error) {
+      logger.warn('⚠️  MongoDB 模組載入失敗，系統將僅使用 PostgreSQL', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
     
     // 初始化 Redis 連接（可選）
-    await performanceMonitor.measureFunction('redis-initialization', async () => {
-      try {
-        await initializeRedis();
-      } catch (error) {
-        logger.warn('⚠️  Redis 初始化失敗，系統將在沒有快取的情況下運行', {
-          error: error instanceof Error ? error.message : String(error)
-        });
-      }
-    });
+    try {
+      await performanceMonitor.measureFunction('redis-initialization', async () => {
+        try {
+          await initializeRedis();
+        } catch (error) {
+          logger.warn('⚠️  Redis 初始化失敗，系統將在沒有快取的情況下運行', {
+            error: error instanceof Error ? error.message : String(error)
+          });
+        }
+      });
+    } catch (error) {
+      logger.warn('⚠️  Redis 模組載入失敗，系統將在沒有快取的情況下運行', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
     
     // 註冊所有路由 (在 MongoDB 連接之後)
-    await registerRoutes(app);
-    logger.info('✅ 所有路由已註冊');
+    try {
+      await registerRoutes(app);
+      logger.info('✅ 所有路由已註冊');
+    } catch (error) {
+      logger.error('❌ 路由註冊失敗', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      throw error;
+    }
     
     // 註冊錯誤處理和 404 handler
     app.use(errorTracking);
@@ -224,16 +258,26 @@ async function initializeApp() {
         success: false,
         error: {
           code: 'NOT_FOUND',
-          message: 'Endpoint not found'
+          message: 'Endpoint not found',
+          path: req.path
         }
       });
     });
     
     // 執行資料庫遷移
-    await performanceMonitor.measureFunction('database-migration', async () => {
-      const migrationManager = new MigrationManager();
-      await migrationManager.runMigrations();
-    });
+    try {
+      await performanceMonitor.measureFunction('database-migration', async () => {
+        const migrationManager = new MigrationManager();
+        await migrationManager.runMigrations();
+      });
+    } catch (error) {
+      logger.error('❌ 資料庫遷移失敗', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      // 遷移失敗不應該導致應用程式崩潰
+      logger.warn('⚠️  繼續啟動應用程式，但某些功能可能無法使用');
+    }
     
     // 註冊健康檢查
     const healthMonitor = HealthMonitor.getInstance();
