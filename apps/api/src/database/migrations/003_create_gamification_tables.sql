@@ -234,16 +234,16 @@ GROUP BY u.id, u.email, up.name, ul.level, ul.experience_points, ul.total_points
 
 -- 建立函數來計算等級所需經驗值
 CREATE OR REPLACE FUNCTION calculate_level_requirement(level INTEGER)
-RETURNS INTEGER AS $
+RETURNS INTEGER AS $$
 BEGIN
     -- 使用指數增長公式：每級所需經驗 = 100 * level^1.5
     RETURN ROUND(100 * POWER(level, 1.5));
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- 建立函數來根據經驗值計算等級
 CREATE OR REPLACE FUNCTION calculate_level_from_experience(experience_points INTEGER)
-RETURNS INTEGER AS $
+RETURNS INTEGER AS $$
 DECLARE
     level INTEGER := 1;
     required_exp INTEGER;
@@ -258,7 +258,7 @@ BEGIN
     
     RETURN level;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- 插入預設的任務模板
 INSERT INTO task_templates (title, description, type, category, points, difficulty, requirements) VALUES
