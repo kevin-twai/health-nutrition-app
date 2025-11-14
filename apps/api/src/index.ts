@@ -191,6 +191,25 @@ async function initializeApp() {
   try {
     logger.info('🚀 正在初始化健康營養追蹤系統 API Gateway...');
     
+    // 首先連接 PostgreSQL 並執行遷移
+    try {
+      logger.info('📊 正在連接 PostgreSQL...');
+      await db.testConnection();
+      logger.info('✅ PostgreSQL 連接成功');
+      
+      // 立即執行資料庫遷移
+      logger.info('🔧 開始執行資料庫遷移...');
+      const migrationManager = new MigrationManager();
+      await migrationManager.runMigrations();
+      logger.info('✅ 資料庫遷移完成');
+    } catch (error) {
+      logger.error('❌ PostgreSQL 初始化失敗', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      throw error;
+    }
+    
     // 初始化應用程式生命週期監控
     applicationLifecycleMonitoring();
     
@@ -263,21 +282,6 @@ async function initializeApp() {
         }
       });
     });
-    
-    // 執行資料庫遷移
-    try {
-      await performanceMonitor.measureFunction('database-migration', async () => {
-        const migrationManager = new MigrationManager();
-        await migrationManager.runMigrations();
-      });
-    } catch (error) {
-      logger.error('❌ 資料庫遷移失敗', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      // 遷移失敗不應該導致應用程式崩潰
-      logger.warn('⚠️  繼續啟動應用程式，但某些功能可能無法使用');
-    }
     
     // 註冊健康檢查
     const healthMonitor = HealthMonitor.getInstance();

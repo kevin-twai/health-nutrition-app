@@ -218,29 +218,34 @@ export class MigrationManager {
   // 執行所有待執行的遷移
   public async runMigrations(): Promise<void> {
     try {
-      console.log('開始執行資料庫遷移...');
+      console.log('🔧 開始執行資料庫遷移...');
       
       const executedMigrations = await this.getExecutedMigrations();
+      console.log(`📋 已執行的遷移數量: ${executedMigrations.length}`);
+      
       const migrationFiles = this.getMigrationFiles();
+      console.log(`📁 發現遷移文件數量: ${migrationFiles.length}`);
       
       const pendingMigrations = migrationFiles.filter(
         migration => !executedMigrations.includes(migration.version)
       );
 
       if (pendingMigrations.length === 0) {
-        console.log('沒有待執行的遷移');
+        console.log('✅ 沒有待執行的遷移，資料庫已是最新狀態');
         return;
       }
 
-      console.log(`發現 ${pendingMigrations.length} 個待執行的遷移`);
+      console.log(`🚀 發現 ${pendingMigrations.length} 個待執行的遷移`);
 
       for (const migration of pendingMigrations) {
+        console.log(`⏳ 正在執行遷移: ${migration.version}_${migration.name}`);
         await this.executeMigration(migration);
+        console.log(`✅ 遷移完成: ${migration.version}_${migration.name}`);
       }
 
-      console.log('所有遷移執行完成');
+      console.log('🎉 所有資料庫遷移執行完成！');
     } catch (error) {
-      console.error('遷移執行失敗:', error);
+      console.error('❌ 遷移執行失敗:', error);
       throw error;
     }
   }
