@@ -29,7 +29,30 @@ async function runMigrations() {
     const executedMigrations = result.rows.map(row => row.version);
     
     // 讀取遷移文件
-    const migrationsDir = path.join(__dirname, 'src', 'database', 'migrations');
+    // 嘗試多個可能的路徑
+    let migrationsDir;
+    const possiblePaths = [
+      path.join(__dirname, 'src', 'database', 'migrations'),
+      path.join(__dirname, 'dist', 'database', 'migrations'),
+      path.join(__dirname, '..', 'src', 'database', 'migrations'),
+      path.join(process.cwd(), 'apps', 'api', 'src', 'database', 'migrations'),
+      path.join(process.cwd(), 'src', 'database', 'migrations')
+    ];
+    
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        migrationsDir = testPath;
+        console.log(`找到遷移目錄: ${migrationsDir}`);
+        break;
+      }
+    }
+    
+    if (!migrationsDir) {
+      console.error('找不到遷移目錄！嘗試的路徑：');
+      possiblePaths.forEach(p => console.error(`  - ${p}`));
+      throw new Error('遷移目錄不存在');
+    }
+    
     const files = fs.readdirSync(migrationsDir)
       .filter(file => file.endsWith('.sql'))
       .sort();
