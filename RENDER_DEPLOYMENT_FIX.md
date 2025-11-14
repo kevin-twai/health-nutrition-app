@@ -1,17 +1,13 @@
 # Render 部署錯誤修正
 
-## 🐛 問題
+## 🐛 問題 1：缺少 openai 套件
 
 Render 建置失敗，錯誤訊息：
 ```
 error TS2307: Cannot find module 'openai' or its corresponding type declarations.
 ```
 
-## ✅ 解決方案
-
-**問題原因：** `openai` 套件沒有在 `apps/api/package.json` 的 dependencies 中。
-
-**修正：** 已加入 `openai` 套件到 dependencies：
+**解決方案：** 已加入 `openai` 套件到 dependencies：
 
 ```json
 "dependencies": {
@@ -19,6 +15,28 @@ error TS2307: Cannot find module 'openai' or its corresponding type declarations
   "openai": "^4.20.0",
   ...
 }
+```
+
+## 🐛 問題 2：缺少 start:render 腳本
+
+Render 啟動失敗，錯誤訊息：
+```
+npm error Missing script: "start:render"
+```
+
+**解決方案：** 已加入 `start:render` 腳本到 package.json：
+
+```json
+"scripts": {
+  ...
+  "start:render": "node dist/index.js",
+  ...
+}
+```
+
+**或者更簡單：** 在 Render 的 Start Command 直接使用：
+```bash
+cd apps/api && npm start
 ```
 
 ## 🚀 重新部署

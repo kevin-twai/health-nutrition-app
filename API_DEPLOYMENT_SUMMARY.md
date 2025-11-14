@@ -48,7 +48,7 @@ Build Command:
 cd apps/api && npm install && npm run build
 
 Start Command:
-cd apps/api && npm run start:render
+cd apps/api && npm start
 ```
 
 ### 第三步：環境變數（最少需要）
