@@ -130,10 +130,13 @@ export class AuthService {
         expiresIn: this.getTokenExpirationTime()
       };
     } catch (error: any) {
+      console.error('註冊錯誤詳情:', error);
       if (error.code === 'DUPLICATE_ERROR') {
         throw new AuthError('此電子郵件已被註冊', 'EMAIL_ALREADY_EXISTS', 409);
       }
-      throw new AuthError('註冊失敗', 'REGISTRATION_FAILED', 500);
+      // 保留原始錯誤訊息以便調試
+      const errorMessage = error.message || '註冊失敗';
+      throw new AuthError(errorMessage, 'REGISTRATION_FAILED', 500);
     }
   }
 
