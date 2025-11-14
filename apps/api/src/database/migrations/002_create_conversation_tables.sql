@@ -28,8 +28,8 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_role ON chat_messages(role);
 CREATE INDEX IF NOT EXISTS idx_conversations_context_gin ON conversations USING GIN (context);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_metadata_gin ON chat_messages USING GIN (metadata);
 
--- 建立全文搜尋索引
-CREATE INDEX IF NOT EXISTS idx_chat_messages_content_fulltext ON chat_messages USING GIN (to_tsvector('chinese', content));
+-- 建立全文搜尋索引（使用 simple 配置以確保跨平台兼容性）
+CREATE INDEX IF NOT EXISTS idx_chat_messages_content_fulltext ON chat_messages USING GIN (to_tsvector('simple', content));
 
 -- 建立觸發器以自動更新 updated_at 欄位
 CREATE OR REPLACE FUNCTION update_updated_at_column()
