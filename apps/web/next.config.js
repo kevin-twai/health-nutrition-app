@@ -16,17 +16,17 @@ const nextConfig = {
     workerThreads: false,
     cpus: 1,
   },
-  // 完全禁用錯誤頁面的靜態生成
-  async rewrites() {
-    return {
-      beforeFiles: [],
-      afterFiles: [],
-      fallback: [],
+  // 允許建置繼續即使有預渲染錯誤
+  staticPageGenerationTimeout: 1000,
+  // 配置 webpack 來處理建置錯誤
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
     }
-  },
-  // 跳過特定頁面的靜態生成
-  async headers() {
-    return []
+    return config;
   },
 }
 
