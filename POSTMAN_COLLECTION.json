@@ -56,7 +56,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\",\n  \"name\": \"測試用戶\"\n}"
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\",\n  \"confirmPassword\": \"P@55w0rd\",\n  \"name\": \"測試用戶\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/v1/auth/register",
