@@ -265,13 +265,13 @@ export class UserRepository extends PostgreSQLBaseRepository<User> {
         'private'
       ]);
 
-      // 建立用戶進度記錄
-      const progressQuery = `
-        INSERT INTO user_progress (user_id, level, points, streak_days, last_activity_date)
-        VALUES ($1, 1, 0, 0, CURRENT_DATE)
+      // 建立用戶等級記錄
+      const levelQuery = `
+        INSERT INTO user_levels (user_id, level, experience_points, total_points, streak_days, last_activity_date)
+        VALUES ($1, 1, 0, 0, 0, CURRENT_DATE)
       `;
       
-      await client.query(progressQuery, [newUser.id]);
+      await client.query(levelQuery, [newUser.id]);
 
       return await this.findById(newUser.id) as User;
     });
