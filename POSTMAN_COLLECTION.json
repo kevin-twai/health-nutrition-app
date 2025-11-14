@@ -1,0 +1,299 @@
+{
+  "info": {
+    "name": "Health Nutrition API",
+    "description": "健康營養追蹤系統 API 測試集合",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://health-nutrition-api.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "檢查 API 服務狀態"
+      }
+    },
+    {
+      "name": "2. Register User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201 || pm.response.code === 200) {",
+              "    console.log('✅ 用戶註冊成功');",
+              "} else {",
+              "    console.log('⚠️ 註冊失敗或用戶已存在');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"測試用戶\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "註冊新用戶"
+      }
+    },
+    {
+      "name": "3. Login User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    if (jsonData.token) {",
+              "        pm.environment.set('jwt_token', jsonData.token);",
+              "        pm.collectionVariables.set('jwt_token', jsonData.token);",
+              "        console.log('✅ 登入成功，Token 已儲存');",
+              "        console.log('Token:', jsonData.token.substring(0, 20) + '...');",
+              "    } else if (jsonData.accessToken) {",
+              "        pm.environment.set('jwt_token', jsonData.accessToken);",
+              "        pm.collectionVariables.set('jwt_token', jsonData.accessToken);",
+              "        console.log('✅ 登入成功，Token 已儲存');",
+              "    }",
+              "} else {",
+              "    console.log('❌ 登入失敗');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "用戶登入並獲取 JWT Token"
+      }
+    },
+    {
+      "name": "4. Get User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/users/profile",
+          "host": ["{{base_url}}"],
+          "path": ["api", "users", "profile"]
+        },
+        "description": "獲取當前用戶資料（需要登入）"
+      }
+    },
+    {
+      "name": "5. Upload Food Image",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "image",
+              "type": "file",
+              "src": "",
+              "description": "選擇一張食物圖片"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/photo/recognize",
+          "host": ["{{base_url}}"],
+          "path": ["api", "photo", "recognize"]
+        },
+        "description": "上傳食物圖片進行識別（需要登入）"
+      }
+    },
+    {
+      "name": "6. Get Food Recognition History",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/photo/history",
+          "host": ["{{base_url}}"],
+          "path": ["api", "photo", "history"]
+        },
+        "description": "獲取食物識別歷史記錄"
+      }
+    },
+    {
+      "name": "7. Send Chat Message",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"我今天吃了什麼？營養均衡嗎？\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/chat/message",
+          "host": ["{{base_url}}"],
+          "path": ["api", "chat", "message"]
+        },
+        "description": "發送訊息給 AI 營養顧問"
+      }
+    },
+    {
+      "name": "8. Get Nutrition Report",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/reports/nutrition?period=week",
+          "host": ["{{base_url}}"],
+          "path": ["api", "reports", "nutrition"],
+          "query": [
+            {
+              "key": "period",
+              "value": "week",
+              "description": "可選: day, week, month"
+            }
+          ]
+        },
+        "description": "獲取營養報告"
+      }
+    },
+    {
+      "name": "9. Get Gamification Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/gamification/profile",
+          "host": ["{{base_url}}"],
+          "path": ["api", "gamification", "profile"]
+        },
+        "description": "獲取遊戲化資料（積分、成就等）"
+      }
+    },
+    {
+      "name": "10. Get Achievements",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/gamification/achievements",
+          "host": ["{{base_url}}"],
+          "path": ["api", "gamification", "achievements"]
+        },
+        "description": "獲取成就列表"
+      }
+    },
+    {
+      "name": "11. Get Leaderboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/gamification/leaderboard",
+          "host": ["{{base_url}}"],
+          "path": ["api", "gamification", "leaderboard"]
+        },
+        "description": "獲取排行榜"
+      }
+    },
+    {
+      "name": "12. System Status",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/monitoring/status",
+          "host": ["{{base_url}}"],
+          "path": ["api", "monitoring", "status"]
+        },
+        "description": "獲取系統狀態"
+      }
+    }
+  ]
+}
