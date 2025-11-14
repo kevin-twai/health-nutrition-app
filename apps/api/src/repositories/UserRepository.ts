@@ -273,7 +273,15 @@ export class UserRepository extends PostgreSQLBaseRepository<User> {
       
       await client.query(levelQuery, [newUser.id]);
 
-      return await this.findById(newUser.id) as User;
+      // 返回用戶 ID，事務提交後再查詢完整數據
+      return newUser.id;
+    }).then(async (userId) => {
+      // 事務提交後查詢完整的用戶數據
+      const user = await this.findById(userId);
+      if (!user) {
+        throw new Error('Failed to retrieve created user');
+      }
+      return user;
     });
   }
 
