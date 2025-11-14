@@ -59,9 +59,9 @@
           "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"測試用戶\"\n}"
         },
         "url": {
-          "raw": "{{base_url}}/api/auth/register",
+          "raw": "{{base_url}}/api/v1/auth/register",
           "host": ["{{base_url}}"],
-          "path": ["api", "auth", "register"]
+          "path": ["api", "v1", "auth", "register"]
         },
         "description": "註冊新用戶"
       }
@@ -105,9 +105,9 @@
           "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
         },
         "url": {
-          "raw": "{{base_url}}/api/auth/login",
+          "raw": "{{base_url}}/api/v1/auth/login",
           "host": ["{{base_url}}"],
-          "path": ["api", "auth", "login"]
+          "path": ["api", "v1", "auth", "login"]
         },
         "description": "用戶登入並獲取 JWT Token"
       }
@@ -123,9 +123,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/users/profile",
+          "raw": "{{base_url}}/api/v1/users/profile",
           "host": ["{{base_url}}"],
-          "path": ["api", "users", "profile"]
+          "path": ["api", "v1", "users", "profile"]
         },
         "description": "獲取當前用戶資料（需要登入）"
       }
@@ -152,9 +152,9 @@
           ]
         },
         "url": {
-          "raw": "{{base_url}}/api/photo/recognize",
+          "raw": "{{base_url}}/api/v1/photo/recognize",
           "host": ["{{base_url}}"],
-          "path": ["api", "photo", "recognize"]
+          "path": ["api", "v1", "photo", "recognize"]
         },
         "description": "上傳食物圖片進行識別（需要登入）"
       }
@@ -170,9 +170,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/photo/history",
+          "raw": "{{base_url}}/api/v1/photo/history",
           "host": ["{{base_url}}"],
-          "path": ["api", "photo", "history"]
+          "path": ["api", "v1", "photo", "history"]
         },
         "description": "獲取食物識別歷史記錄"
       }
@@ -196,9 +196,9 @@
           "raw": "{\n  \"message\": \"我今天吃了什麼？營養均衡嗎？\"\n}"
         },
         "url": {
-          "raw": "{{base_url}}/api/chat/message",
+          "raw": "{{base_url}}/api/v1/chat/message",
           "host": ["{{base_url}}"],
-          "path": ["api", "chat", "message"]
+          "path": ["api", "v1", "chat", "message"]
         },
         "description": "發送訊息給 AI 營養顧問"
       }
@@ -214,9 +214,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/reports/nutrition?period=week",
+          "raw": "{{base_url}}/api/v1/reports/nutrition?period=week",
           "host": ["{{base_url}}"],
-          "path": ["api", "reports", "nutrition"],
+          "path": ["api", "v1", "reports", "nutrition"],
           "query": [
             {
               "key": "period",
@@ -239,9 +239,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/gamification/profile",
+          "raw": "{{base_url}}/api/v1/gamification/profile",
           "host": ["{{base_url}}"],
-          "path": ["api", "gamification", "profile"]
+          "path": ["api", "v1", "gamification", "profile"]
         },
         "description": "獲取遊戲化資料（積分、成就等）"
       }
@@ -257,9 +257,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/gamification/achievements",
+          "raw": "{{base_url}}/api/v1/gamification/achievements",
           "host": ["{{base_url}}"],
-          "path": ["api", "gamification", "achievements"]
+          "path": ["api", "v1", "gamification", "achievements"]
         },
         "description": "獲取成就列表"
       }
@@ -275,9 +275,9 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/gamification/leaderboard",
+          "raw": "{{base_url}}/api/v1/gamification/leaderboard",
           "host": ["{{base_url}}"],
-          "path": ["api", "gamification", "leaderboard"]
+          "path": ["api", "v1", "gamification", "leaderboard"]
         },
         "description": "獲取排行榜"
       }
@@ -288,9 +288,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{base_url}}/api/monitoring/status",
+          "raw": "{{base_url}}/api/v1/monitoring/status",
           "host": ["{{base_url}}"],
-          "path": ["api", "monitoring", "status"]
+          "path": ["api", "v1", "monitoring", "status"]
         },
         "description": "獲取系統狀態"
       }
