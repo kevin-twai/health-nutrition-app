@@ -1,7 +1,4 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: '健康營養追蹤系統',
@@ -19,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW">
-      <body className={inter.className}>{children}</body>
+      <body style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>{children}</body>
     </html>
   )
 }

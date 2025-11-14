@@ -16,24 +16,6 @@ const nextConfig = {
     workerThreads: false,
     cpus: 1,
   },
-  generateBuildId: async () => {
-    return 'build-id'
-  },
-  // Disable static optimization completely
-  staticPageGenerationTimeout: 0,
-  // Custom webpack config to handle styled-jsx
-  webpack: (config, { isServer, webpack }) => {
-    if (isServer) {
-      config.externals = config.externals || []
-    }
-    // Ignore styled-jsx errors during build
-    config.plugins.push(
-      new webpack.DefinePlugin({
-        'process.env.NEXT_IGNORE_PRERENDER_ERROR': JSON.stringify('true'),
-      })
-    )
-    return config
-  },
 }
 
 module.exports = nextConfig
