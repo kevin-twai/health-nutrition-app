@@ -336,8 +336,10 @@ async function initializeApp() {
       performanceMonitor.cleanupOldMetrics();
     }, 30 * 60 * 1000); // 每 30 分鐘清理一次
     
-    // 啟動記憶體監控
-    memoryMonitor.startMonitoring(60000); // 每分鐘監控一次
+    // 啟動記憶體監控（降低頻率以減少開銷）
+    if (process.env.ENABLE_MEMORY_MONITORING === 'true') {
+      memoryMonitor.startMonitoring(300000); // 每 5 分鐘監控一次
+    }
     
     logger.info('✅ API Gateway 初始化完成');
     logger.info('📊 監控系統已啟動');

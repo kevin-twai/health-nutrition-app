@@ -207,7 +207,9 @@ class CloudWatchBatcher {
   }
   
   private async sendBatch() {
-    if (this.metricQueue.length === 0 || process.env.NODE_ENV !== 'production') {
+    // 只在生產環境且配置了 AWS 憑證時發送
+    if (this.metricQueue.length === 0 || process.env.NODE_ENV !== 'production' || !process.env.AWS_ACCESS_KEY_ID) {
+      this.metricQueue = []; // 清空隊列
       return;
     }
     
@@ -220,12 +222,17 @@ class CloudWatchBatcher {
       };
       
       await cloudWatch.putMetricData(params).promise();
-      logger.info('CloudWatch 批量指標發送成功', { count: batch.length });
+      if (process.env.DEBUG_CLOUDWATCH) {
+        logger.info('CloudWatch 批量指標發送成功', { count: batch.length });
+      }
     } catch (error) {
-      logger.error('CloudWatch 批量指標發送失敗', { 
-        error: error instanceof Error ? error.message : String(error), 
-        count: batch.length 
-      });
+      // 靜默失敗，不記錄錯誤以避免日誌污染
+      if (process.env.DEBUG_CLOUDWATCH) {
+        logger.error('CloudWatch 批量指標發送失敗', { 
+          error: error instanceof Error ? error.message : String(error), 
+          count: batch.length 
+        });
+      }
     }
     
     this.batchTimer = null;
