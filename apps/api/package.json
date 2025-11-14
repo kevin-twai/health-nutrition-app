@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && mkdir -p dist/database/migrations && cp -r src/database/migrations/*.sql dist/database/migrations/",
     "start": "node init-db.js && node dist/index.js",
     "start:render": "node init-db.js && node dist/index.js",
     "test": "jest",
