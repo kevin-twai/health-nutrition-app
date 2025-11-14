@@ -16,6 +16,18 @@ const nextConfig = {
     workerThreads: false,
     cpus: 1,
   },
+  // 完全禁用錯誤頁面的靜態生成
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [],
+    }
+  },
+  // 跳過特定頁面的靜態生成
+  async headers() {
+    return []
+  },
 }
 
 module.exports = nextConfig
