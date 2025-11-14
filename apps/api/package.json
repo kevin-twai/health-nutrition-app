@@ -14,6 +14,7 @@
     "test:performance": "jest --testPathPattern=performance --runInBand --detectOpenHandles",
     "test:security": "jest --testPathPattern=security --runInBand --detectOpenHandles",
     "test:coverage": "jest --coverage",
+    "db:migrate": "node run-migrations.js",
     "db:migrate:test": "node scripts/test-db-setup.js",
     "db:seed:test": "node scripts/test-db-setup.js",
     "lint": "eslint src/**/*.ts",
