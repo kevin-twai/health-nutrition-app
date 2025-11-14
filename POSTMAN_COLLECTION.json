@@ -56,7 +56,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\",\n  \"confirmPassword\": \"P@55w0rd\",\n  \"profile\": {\n    \"name\": \"測試用戶\",\n    \"age\": 30,\n    \"gender\": \"male\",\n    \"height\": 170,\n    \"weight\": 70,\n    \"activityLevel\": \"moderate\"\n  }\n}"
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\",\n  \"confirmPassword\": \"P@55w0rd\",\n  \"profile\": {\n    \"name\": \"測試用戶\",\n    \"age\": 30,\n    \"gender\": \"male\",\n    \"height\": 170,\n    \"weight\": 70,\n    \"activityLevel\": \"moderately_active\"\n  }\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/v1/auth/register",
