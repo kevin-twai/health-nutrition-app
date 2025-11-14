@@ -521,9 +521,9 @@ export const autoMonitoring = () => {
       alertSystem.sendAlert('warning', `回應時間過慢: 平均 ${metrics.performance.averageResponseTime.toFixed(2)}ms`);
     }
     
-    // 檢查記憶體使用
+    // 檢查記憶體使用（只在明確啟用時）
     const memoryUsagePercent = (metrics.memory.used / metrics.memory.total) * 100;
-    if (memoryUsagePercent > 80) {
+    if (memoryUsagePercent > 95 && process.env.ENABLE_MEMORY_ALERTS === 'true') {
       alertSystem.sendAlert('warning', `記憶體使用率過高: ${memoryUsagePercent.toFixed(2)}%`);
     }
     
@@ -644,23 +644,21 @@ setInterval(() => {
     requestMetricsCount: requestMetrics.length
   });
   
-  // 記憶體使用率過高警報
-  if (usagePercent > 85) {
+  // 記憶體使用率過高警報（只在開發環境或明確啟用時）
+  if (usagePercent > 95 && process.env.ENABLE_MEMORY_ALERTS === 'true') {
     const alertSystem = AlertSystem.getInstance();
     alertSystem.sendAlert('error', `記憶體使用率危險: ${usagePercent.toFixed(2)}% (${heapUsedMB}MB/${heapTotalMB}MB)`);
-    
-    // 強制清理更多指標
-    if (requestMetrics.length > 100) {
-      const removeCount = Math.floor(requestMetrics.length * 0.5);
-      requestMetrics.splice(0, removeCount);
-      logger.warn(`記憶體壓力過大，強制清理了 ${removeCount} 個請求指標`);
-    }
-    
-    // 建議垃圾回收
-    if (global.gc) {
-      global.gc();
-      logger.info('執行了手動垃圾回收');
-    }
+  }
+  
+  // 靜默清理指標（不記錄警告）
+  if (usagePercent > 90 && requestMetrics.length > 100) {
+    const removeCount = Math.floor(requestMetrics.length * 0.5);
+    requestMetrics.splice(0, removeCount);
+  }
+  
+  // 自動垃圾回收（不記錄日誌）
+  if (usagePercent > 90 && global.gc) {
+    global.gc();
   }
 }, 60 * 1000); // 每分鐘檢查一次
 
