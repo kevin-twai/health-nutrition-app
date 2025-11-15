@@ -61,7 +61,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Root endpoint - 處理 Render 的健康檢查
 app.get('/', (req, res) => {
   res.json({
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     version: '1.0.0',
     status: 'running',
     timestamp: new Date().toISOString()
@@ -88,7 +88,7 @@ app.get('/health', async (req, res) => {
     const response = {
       status: isHealthy ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       version: '1.0.0',
       database: dbHealthy ? 'connected' : 'disconnected',
       checks: healthChecks,
@@ -101,7 +101,7 @@ app.get('/health', async (req, res) => {
     res.status(503).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       error: 'Health check failed',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -124,7 +124,7 @@ app.get('/gateway/status', async (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api-gateway',
+      service: 'health-nutrition-api-gateway',
       version: '1.0.0',
       status: Object.values(healthChecks).every(check => check) ? 'healthy' : 'degraded',
       gateway: {

@@ -36,7 +36,7 @@ export const logger = createLogger({
     format.json()
   ),
   defaultMeta: { 
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     version: process.env.APP_VERSION || '1.0.0',
     environment: process.env.NODE_ENV || 'development'
   },

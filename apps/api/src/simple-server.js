@@ -1279,7 +1279,7 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     version: '1.0.0',
     database: 'connected',
     uptime: process.uptime(),
