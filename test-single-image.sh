@@ -90,9 +90,9 @@ if [ "$http_code" = "200" ]; then
     echo ""
     
     # 解析結果
-    confidence=$(echo "$body" | jq -r '.confidence // 0')
-    food_count=$(echo "$body" | jq -r '.foods | length')
-    processing_time=$(echo "$body" | jq -r '.processingTime // 0')
+    confidence=$(echo "$body" | jq -r '.data.recognition.confidence // 0')
+    food_count=$(echo "$body" | jq -r '.data.recognition.foods | length')
+    processing_time=$(echo "$body" | jq -r '.data.processingTime // 0')
     
     echo -e "${BLUE}📊 識別結果:${NC}"
     echo "  信心度: $(echo "scale=0; $confidence * 100" | bc)%"
@@ -105,13 +105,13 @@ if [ "$http_code" = "200" ]; then
     echo ""
     
     for i in $(seq 0 $((food_count - 1))); do
-        name=$(echo "$body" | jq -r ".foods[$i].name")
-        portion=$(echo "$body" | jq -r ".foods[$i].portion.amount")
-        unit=$(echo "$body" | jq -r ".foods[$i].portion.unit")
-        calories=$(echo "$body" | jq -r ".foods[$i].nutrition.calories")
-        protein=$(echo "$body" | jq -r ".foods[$i].nutrition.protein")
-        carbs=$(echo "$body" | jq -r ".foods[$i].nutrition.carbohydrates")
-        fat=$(echo "$body" | jq -r ".foods[$i].nutrition.fat")
+        name=$(echo "$body" | jq -r ".data.recognition.foods[$i].name")
+        portion=$(echo "$body" | jq -r ".data.recognition.foods[$i].estimatedPortion // 0")
+        unit="g"
+        calories=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.calories")
+        protein=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.protein")
+        carbs=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.carbohydrates")
+        fat=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.fat")
         
         echo -e "${CYAN}$((i + 1)). $name${NC}"
         echo "   份量: $portion $unit"
@@ -121,10 +121,10 @@ if [ "$http_code" = "200" ]; then
     done
     
     # 總營養
-    total_calories=$(echo "$body" | jq '[.foods[].nutrition.calories] | add')
-    total_protein=$(echo "$body" | jq '[.foods[].nutrition.protein] | add')
-    total_carbs=$(echo "$body" | jq '[.foods[].nutrition.carbohydrates] | add')
-    total_fat=$(echo "$body" | jq '[.foods[].nutrition.fat] | add')
+    total_calories=$(echo "$body" | jq '[.data.recognition.foods[].nutrition.calories] | add')
+    total_protein=$(echo "$body" | jq '[.data.recognition.foods[].nutrition.protein] | add')
+    total_carbs=$(echo "$body" | jq '[.data.recognition.foods[].nutrition.carbohydrates] | add')
+    total_fat=$(echo "$body" | jq '[.data.recognition.foods[].nutrition.fat] | add')
     
     echo "================================"
     echo -e "${BLUE}📈 總營養成分:${NC}"

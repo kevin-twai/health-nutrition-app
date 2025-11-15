@@ -146,19 +146,19 @@ find "$IMAGE_FOLDER" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.p
     
     if [ "$http_code" = "200" ]; then
         # 檢查是否有 foods 陣列
-        has_foods=$(echo "$body" | jq -r 'has("foods")')
+        has_foods=$(echo "$body" | jq -r '.data.recognition.foods != null')
         
         if [ "$has_foods" = "true" ]; then
             # 解析結果
-            confidence=$(echo "$body" | jq -r '.confidence // 0')
-            food_count=$(echo "$body" | jq -r '.foods | length // 0')
-            processing_time=$(echo "$body" | jq -r '.processingTime // 0')
+            confidence=$(echo "$body" | jq -r '.data.recognition.confidence // 0')
+            food_count=$(echo "$body" | jq -r '.data.recognition.foods | length // 0')
+            processing_time=$(echo "$body" | jq -r '.data.processingTime // 0')
             
             # 計算總熱量
-            calories=$(echo "$body" | jq '[.foods[]?.nutrition?.calories // 0] | add // 0')
+            calories=$(echo "$body" | jq '[.data.recognition.foods[]?.nutrition?.calories // 0] | add // 0')
             
             # 取得食物清單
-            foods=$(echo "$body" | jq -r '.foods[]?.name // empty' | tr '\n' '; ' | sed 's/;$//')
+            foods=$(echo "$body" | jq -r '.data.recognition.foods[]?.name // empty' | tr '\n' '; ' | sed 's/;$//')
             
             # 顯示結果
             if [ -n "$confidence" ] && [ "$confidence" != "null" ] && [ "$confidence" != "0" ]; then
@@ -221,13 +221,13 @@ find "$IMAGE_FOLDER" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.p
         
         # 列出每個食物的詳細資訊
         for i in $(seq 0 $((food_count - 1))); do
-            name=$(echo "$body" | jq -r ".foods[$i].name")
-            portion=$(echo "$body" | jq -r ".foods[$i].portion.amount")
-            unit=$(echo "$body" | jq -r ".foods[$i].portion.unit")
-            cal=$(echo "$body" | jq -r ".foods[$i].nutrition.calories")
-            protein=$(echo "$body" | jq -r ".foods[$i].nutrition.protein")
-            carbs=$(echo "$body" | jq -r ".foods[$i].nutrition.carbohydrates")
-            fat=$(echo "$body" | jq -r ".foods[$i].nutrition.fat")
+            name=$(echo "$body" | jq -r ".data.recognition.foods[$i].name")
+            portion=$(echo "$body" | jq -r ".data.recognition.foods[$i].estimatedPortion // 0")
+            unit="g"
+            cal=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.calories")
+            protein=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.protein")
+            carbs=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.carbohydrates")
+            fat=$(echo "$body" | jq -r ".data.recognition.foods[$i].nutrition.fat")
             
             echo "$((i + 1)). **$name**" >> "$REPORT_FILE"
             echo "   - 份量: $portion $unit" >> "$REPORT_FILE"
