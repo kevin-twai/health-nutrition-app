@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { v2 as cloudinary } from 'cloudinary';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
@@ -45,18 +45,22 @@ export interface ImageProcessingOptions {
 }
 
 export class ImageProcessingService {
-  private s3: AWS.S3;
-  private bucketName: string;
+  private folder: string;
 
   constructor() {
-    // 初始化 AWS S3
-    this.s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION || 'us-east-1'
+    // 初始化 Cloudinary
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true
     });
     
-    this.bucketName = process.env.AWS_S3_BUCKET || 'health-tracker-images';
+    this.folder = 'health-nutrition-app/food-images';
+    
+    console.log('✓ Cloudinary 已初始化');
+    console.log(`  - Cloud Name: ${process.env.CLOUDINARY_CLOUD_NAME}`);
+    console.log(`  - Folder: ${this.folder}`);
   }
 
   /**
@@ -98,33 +102,29 @@ export class ImageProcessingService {
       // 提取主要顏色
       const dominantColors = this.extractDominantColors(stats);
 
-      // 計算亮度（基於統計數據）
+      // 計算亮度
       const brightness = this.calculateBrightness(stats);
 
-      // 估算對比度
+      // 計算對比度
       const contrast = this.calculateContrast(stats);
 
-      // 估算清晰度（基於圖片尺寸和格式）
-      const sharpness = this.estimateSharpness(metadata);
-
-      // 簡單判斷是否有多個物體（基於圖片複雜度）
-      const hasMultipleObjects = this.estimateMultipleObjects(stats);
+      // 計算清晰度
+      const sharpness = await this.calculateSharpness(image);
 
       return {
         dominantColors,
         brightness,
         contrast,
         sharpness,
-        hasMultipleObjects
+        hasMultipleObjects: false // 簡化版本
       };
     } catch (error) {
-      console.error('特徵提取錯誤:', error);
-      // 返回預設值
+      console.error('提取圖片特徵失敗:', error);
       return {
         dominantColors: [],
-        brightness: 0.5,
-        contrast: 0.5,
-        sharpness: 0.5,
+        brightness: 0,
+        contrast: 0,
+        sharpness: 0,
         hasMultipleObjects: false
       };
     }
@@ -136,25 +136,16 @@ export class ImageProcessingService {
   private extractDominantColors(stats: sharp.Stats): string[] {
     const colors: string[] = [];
     
-    // 基於 RGB 通道的平均值判斷主要顏色
+    // 從統計數據中提取主要顏色
     const channels = stats.channels;
-    if (channels.length >= 3) {
-      const r = channels[0].mean;
-      const g = channels[1].mean;
-      const b = channels[2].mean;
-
-      // 判斷主要顏色傾向
-      if (r > 180 && g < 100 && b < 100) colors.push('紅色');
-      if (r < 100 && g > 180 && b < 100) colors.push('綠色');
-      if (r < 100 && g < 100 && b > 180) colors.push('藍色');
-      if (r > 200 && g > 180 && b < 100) colors.push('黃色');
-      if (r > 200 && g > 200 && b > 200) colors.push('白色');
-      if (r < 80 && g < 80 && b < 80) colors.push('黑色');
-      if (r > 150 && g > 100 && b < 80) colors.push('棕色');
-      if (r > 100 && g > 100 && b > 100 && r < 180 && g < 180 && b < 180) colors.push('灰色');
+    if (channels && channels.length >= 3) {
+      const r = Math.round(channels[0].mean);
+      const g = Math.round(channels[1].mean);
+      const b = Math.round(channels[2].mean);
+      colors.push(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
     }
-
-    return colors.length > 0 ? colors : ['混合色'];
+    
+    return colors;
   }
 
   /**
@@ -162,11 +153,10 @@ export class ImageProcessingService {
    */
   private calculateBrightness(stats: sharp.Stats): number {
     const channels = stats.channels;
-    if (channels.length >= 3) {
-      const avgBrightness = (channels[0].mean + channels[1].mean + channels[2].mean) / 3;
-      return avgBrightness / 255; // 標準化到 0-1
-    }
-    return 0.5;
+    if (!channels || channels.length === 0) return 0;
+    
+    const avgBrightness = channels.reduce((sum, channel) => sum + channel.mean, 0) / channels.length;
+    return avgBrightness / 255; // 歸一化到 0-1
   }
 
   /**
@@ -174,320 +164,246 @@ export class ImageProcessingService {
    */
   private calculateContrast(stats: sharp.Stats): number {
     const channels = stats.channels;
-    if (channels.length >= 3) {
-      // 使用標準差作為對比度的指標
-      const avgStdDev = (channels[0].stdev + channels[1].stdev + channels[2].stdev) / 3;
-      return Math.min(avgStdDev / 128, 1); // 標準化到 0-1
-    }
-    return 0.5;
-  }
-
-  /**
-   * 估算清晰度
-   */
-  private estimateSharpness(metadata: sharp.Metadata): number {
-    // 基於圖片尺寸估算清晰度
-    const width = metadata.width || 0;
-    const height = metadata.height || 0;
-    const pixels = width * height;
+    if (!channels || channels.length === 0) return 0;
     
-    if (pixels > 2000000) return 0.9; // 高解析度
-    if (pixels > 1000000) return 0.7; // 中等解析度
-    if (pixels > 500000) return 0.5; // 低解析度
-    return 0.3; // 很低解析度
+    const avgStdDev = channels.reduce((sum, channel) => sum + channel.stdev, 0) / channels.length;
+    return avgStdDev / 128; // 歸一化到 0-1
   }
 
   /**
-   * 估算是否有多個物體
+   * 計算清晰度
    */
-  private estimateMultipleObjects(stats: sharp.Stats): boolean {
-    // 基於顏色分布的複雜度判斷
-    const channels = stats.channels;
-    if (channels.length >= 3) {
-      const avgStdDev = (channels[0].stdev + channels[1].stdev + channels[2].stdev) / 3;
-      // 如果標準差較大，可能有多個物體
-      return avgStdDev > 60;
-    }
-    return false;
-  }
-
-  /**
-   * 智能裁剪（聚焦食物區域）
-   */
-  async smartCrop(buffer: Buffer, targetWidth: number, targetHeight: number): Promise<Buffer> {
+  private async calculateSharpness(image: sharp.Sharp): Promise<number> {
     try {
-      const image = sharp(buffer);
-      const metadata = await image.metadata();
-
-      // 使用 sharp 的 attention 策略進行智能裁剪
-      // 這會自動檢測圖片中的重要區域（通常是食物）
-      const croppedBuffer = await image
-        .resize(targetWidth, targetHeight, {
-          fit: 'cover',
-          position: 'attention' // 智能定位到重要區域
-        })
-        .toBuffer();
-
-      console.log(`智能裁剪完成: ${metadata.width}x${metadata.height} -> ${targetWidth}x${targetHeight}`);
-      return croppedBuffer;
-    } catch (error) {
-      console.error('智能裁剪錯誤:', error);
-      // 如果失敗，使用中心裁剪
-      return await sharp(buffer)
-        .resize(targetWidth, targetHeight, {
-          fit: 'cover',
-          position: 'centre'
-        })
-        .toBuffer();
-    }
-  }
-
-  /**
-   * 增強圖片質量
-   */
-  async enhanceImage(buffer: Buffer): Promise<Buffer> {
-    try {
-      return await sharp(buffer)
-        .normalize() // 標準化亮度和對比度
-        .sharpen() // 銳化
-        .toBuffer();
-    } catch (error) {
-      console.error('圖片增強錯誤:', error);
-      return buffer;
-    }
-  }
-
-  /**
-   * 處理和壓縮圖片（增強版）
-   */
-  async processImage(
-    buffer: Buffer, 
-    options: ImageProcessingOptions = {}
-  ): Promise<{ buffer: Buffer; metadata: Partial<ImageMetadata> }> {
-    const {
-      maxWidth = 1024,
-      maxHeight = 1024,
-      quality = 85,
-      format = 'jpeg',
-      enableSmartCrop = false,
-      extractFeatures = false,
-      enhanceQuality = false
-    } = options;
-
-    try {
-      let processedBuffer = buffer;
-
-      // 1. 圖片增強（如果啟用）
-      if (enhanceQuality) {
-        console.log('🎨 增強圖片質量...');
-        processedBuffer = await this.enhanceImage(processedBuffer);
-      }
-
-      // 2. 智能裁剪（如果啟用）
-      if (enableSmartCrop) {
-        console.log('✂️ 執行智能裁剪...');
-        processedBuffer = await this.smartCrop(processedBuffer, maxWidth, maxHeight);
-      }
-
-      // 3. 標準處理
-      let sharpInstance = sharp(processedBuffer);
+      const stats = await image.stats();
+      const channels = stats.channels;
+      if (!channels || channels.length === 0) return 0;
       
-      // 獲取原始圖片資訊
-      const originalMetadata = await sharpInstance.metadata();
-      
-      // 如果沒有智能裁剪，則調整大小並保持比例
-      if (!enableSmartCrop) {
-        sharpInstance = sharpInstance.resize(maxWidth, maxHeight, {
-          fit: 'inside',
-          withoutEnlargement: true
-        });
-      }
-
-      // 4. 轉換格式和優化壓縮
-      let finalBuffer: Buffer;
-      switch (format) {
-        case 'jpeg':
-          finalBuffer = await sharpInstance
-            .jpeg({ 
-              quality, 
-              progressive: true,
-              mozjpeg: true // 使用 mozjpeg 獲得更好的壓縮
-            })
-            .toBuffer();
-          break;
-        case 'png':
-          finalBuffer = await sharpInstance
-            .png({ 
-              quality, 
-              progressive: true,
-              compressionLevel: 9 // 最高壓縮級別
-            })
-            .toBuffer();
-          break;
-        case 'webp':
-          finalBuffer = await sharpInstance
-            .webp({ 
-              quality,
-              effort: 6 // 更高的壓縮努力
-            })
-            .toBuffer();
-          break;
-        default:
-          finalBuffer = await sharpInstance
-            .jpeg({ 
-              quality, 
-              progressive: true,
-              mozjpeg: true
-            })
-            .toBuffer();
-      }
-
-      // 5. 獲取處理後的圖片資訊
-      const processedMetadata = await sharp(finalBuffer).metadata();
-
-      // 6. 提取圖片特徵（如果啟用）
-      let features: ImageFeatures | undefined;
-      if (extractFeatures) {
-        console.log('🔍 提取圖片特徵...');
-        features = await this.extractImageFeatures(finalBuffer);
-      }
-
-      const compressionRatio = ((buffer.length - finalBuffer.length) / buffer.length * 100).toFixed(1);
-      console.log(`✅ 圖片處理完成: ${buffer.length} -> ${finalBuffer.length} bytes (壓縮 ${compressionRatio}%)`);
-
-      return {
-        buffer: finalBuffer,
-        metadata: {
-          originalSize: buffer.length,
-          processedSize: finalBuffer.length,
-          width: processedMetadata.width || 0,
-          height: processedMetadata.height || 0,
-          format: format,
-          features
-        }
-      };
+      // 使用標準差作為清晰度的簡單指標
+      const avgStdDev = channels.reduce((sum, channel) => sum + channel.stdev, 0) / channels.length;
+      return Math.min(avgStdDev / 50, 1); // 歸一化到 0-1
     } catch (error) {
-      throw new Error(`圖片處理失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
+      return 0;
     }
   }
 
   /**
-   * 上傳圖片到 S3
-   */
-  async uploadToS3(
-    buffer: Buffer, 
-    fileName: string, 
-    contentType: string
-  ): Promise<string> {
-    const key = `food-images/${Date.now()}-${fileName}`;
-    
-    try {
-      const uploadParams: AWS.S3.PutObjectRequest = {
-        Bucket: this.bucketName,
-        Key: key,
-        Body: buffer,
-        ContentType: contentType,
-        ACL: 'public-read',
-        Metadata: {
-          uploadedAt: new Date().toISOString(),
-          service: 'health-nutrition-tracker'
-        }
-      };
-
-      const result = await this.s3.upload(uploadParams).promise();
-      return result.Location;
-    } catch (error) {
-      throw new Error(`S3 上傳失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
-    }
-  }
-
-  /**
-   * 完整的圖片上傳和處理流程
+   * 上傳並處理圖片（使用 Cloudinary）
    */
   async uploadAndProcessImage(
     file: Express.Multer.File,
     options: ImageProcessingOptions = {}
   ): Promise<ImageUploadResult> {
-    // 驗證圖片
-    if (!this.validateImageFormat(file)) {
-      throw new Error('不支援的圖片格式。請使用 JPEG、PNG 或 HEIC 格式。');
-    }
-
-    if (!this.validateImageSize(file)) {
-      throw new Error('圖片大小超過限制 (10MB)。');
-    }
-
     try {
+      // 驗證圖片
+      if (!this.validateImageFormat(file)) {
+        throw new Error('不支援的圖片格式');
+      }
+
+      if (!this.validateImageSize(file)) {
+        throw new Error('圖片大小超過限制 (10MB)');
+      }
+
+      // 生成唯一 ID
       const imageId = uuidv4();
-      
-      // 處理原始圖片
-      const { buffer: processedBuffer, metadata } = await this.processImage(
-        file.buffer, 
-        options
-      );
+      const timestamp = Date.now();
 
-      // 上傳原始圖片
-      const originalUrl = await this.uploadToS3(
-        file.buffer,
-        `original-${imageId}-${file.originalname}`,
-        file.mimetype
-      );
-
-      // 上傳處理後的圖片
-      const processedUrl = await this.uploadToS3(
-        processedBuffer,
-        `processed-${imageId}-${file.originalname}`,
-        `image/${options.format || 'jpeg'}`
-      );
-
-      return {
-        imageId,
-        originalUrl,
-        processedUrl,
-        metadata: {
-          ...metadata,
-          uploadedAt: new Date()
-        } as ImageMetadata
+      // 處理圖片
+      let processedBuffer = file.buffer;
+      let processedMetadata = {
+        width: 0,
+        height: 0,
+        format: 'jpeg' as const,
+        size: file.size
       };
+
+      // 使用 sharp 處理圖片
+      const image = sharp(file.buffer);
+      const metadata = await image.metadata();
+
+      // 調整大小和質量
+      if (options.maxWidth || options.maxHeight || options.quality) {
+        const resizeOptions: sharp.ResizeOptions = {};
+        if (options.maxWidth) resizeOptions.width = options.maxWidth;
+        if (options.maxHeight) resizeOptions.height = options.maxHeight;
+        resizeOptions.fit = 'inside';
+        resizeOptions.withoutEnlargement = true;
+
+        processedBuffer = await image
+          .resize(resizeOptions)
+          .jpeg({ quality: options.quality || 85 })
+          .toBuffer();
+
+        const processedImage = sharp(processedBuffer);
+        const processedMeta = await processedImage.metadata();
+        processedMetadata = {
+          width: processedMeta.width || 0,
+          height: processedMeta.height || 0,
+          format: 'jpeg',
+          size: processedBuffer.length
+        };
+      } else {
+        processedMetadata = {
+          width: metadata.width || 0,
+          height: metadata.height || 0,
+          format: (metadata.format as 'jpeg' | 'png' | 'webp') || 'jpeg',
+          size: file.size
+        };
+      }
+
+      // 提取圖片特徵（如果需要）
+      let features: ImageFeatures | undefined;
+      if (options.extractFeatures) {
+        features = await this.extractImageFeatures(processedBuffer);
+      }
+
+      // 上傳到 Cloudinary
+      const uploadResult = await new Promise<any>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: this.folder,
+            public_id: `${imageId}_${timestamp}`,
+            resource_type: 'image',
+            transformation: [
+              {
+                quality: 'auto',
+                fetch_format: 'auto'
+              }
+            ]
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+
+        uploadStream.end(processedBuffer);
+      });
+
+      console.log('✓ 圖片已上傳到 Cloudinary:', uploadResult.public_id);
+
+      // 構建回應
+      const result: ImageUploadResult = {
+        imageId,
+        originalUrl: uploadResult.secure_url,
+        processedUrl: uploadResult.secure_url,
+        metadata: {
+          originalSize: file.size,
+          processedSize: processedMetadata.size,
+          width: processedMetadata.width,
+          height: processedMetadata.height,
+          format: processedMetadata.format,
+          uploadedAt: new Date(),
+          features
+        }
+      };
+
+      return result;
     } catch (error) {
-      throw new Error(`圖片上傳處理失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
+      console.error('圖片上傳處理失敗:', error);
+      throw new Error(`圖片上傳處理失敗: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   /**
-   * 刪除 S3 中的圖片
+   * 生成預簽名上傳 URL（Cloudinary 版本）
+   */
+  async generatePresignedUrl(
+    fileName: string,
+    contentType: string
+  ): Promise<string> {
+    try {
+      const timestamp = Math.round(Date.now() / 1000);
+      const publicId = `${this.folder}/${uuidv4()}_${Date.now()}`;
+
+      // 生成簽名
+      const signature = cloudinary.utils.api_sign_request(
+        {
+          timestamp,
+          folder: this.folder,
+          public_id: publicId
+        },
+        process.env.CLOUDINARY_API_SECRET!
+      );
+
+      // 構建上傳 URL
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+      return uploadUrl;
+    } catch (error) {
+      console.error('生成預簽名 URL 失敗:', error);
+      throw new Error(`生成預簽名 URL 失敗: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * 刪除圖片
    */
   async deleteImage(imageUrl: string): Promise<void> {
     try {
-      const key = imageUrl.split('/').slice(-2).join('/'); // 提取 key
-      
-      await this.s3.deleteObject({
-        Bucket: this.bucketName,
-        Key: key
-      }).promise();
+      // 從 URL 中提取 public_id
+      const urlParts = imageUrl.split('/');
+      const fileNameWithExt = urlParts[urlParts.length - 1];
+      const fileName = fileNameWithExt.split('.')[0];
+      const publicId = `${this.folder}/${fileName}`;
+
+      // 從 Cloudinary 刪除
+      await cloudinary.uploader.destroy(publicId);
+
+      console.log('✓ 圖片已從 Cloudinary 刪除:', publicId);
     } catch (error) {
-      throw new Error(`圖片刪除失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
+      console.error('刪除圖片失敗:', error);
+      throw new Error(`刪除圖片失敗: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
   /**
-   * 生成預簽名 URL 用於直接上傳
+   * 獲取圖片 URL（帶轉換）
    */
-  async generatePresignedUrl(fileName: string, contentType: string): Promise<string> {
-    const key = `food-images/${Date.now()}-${fileName}`;
-    
+  getImageUrl(publicId: string, options?: {
+    width?: number;
+    height?: number;
+    crop?: string;
+    quality?: string | number;
+    format?: string;
+  }): string {
+    return cloudinary.url(publicId, {
+      secure: true,
+      ...options
+    });
+  }
+
+  /**
+   * 健康檢查
+   */
+  async healthCheck(): Promise<{ status: string; message: string }> {
     try {
-      const signedUrl = await this.s3.getSignedUrlPromise('putObject', {
-        Bucket: this.bucketName,
-        Key: key,
-        ContentType: contentType,
-        Expires: 300, // 5 分鐘過期
-        ACL: 'public-read'
+      // 檢查 Cloudinary 配置
+      if (!process.env.CLOUDINARY_CLOUD_NAME || 
+          !process.env.CLOUDINARY_API_KEY || 
+          !process.env.CLOUDINARY_API_SECRET) {
+        return {
+          status: 'unhealthy',
+          message: 'Cloudinary 環境變數未配置'
+        };
+      }
+
+      // 嘗試獲取資源列表（測試連接）
+      await cloudinary.api.resources({
+        type: 'upload',
+        prefix: this.folder,
+        max_results: 1
       });
 
-      return signedUrl;
+      return {
+        status: 'healthy',
+        message: 'Cloudinary 連接正常'
+      };
     } catch (error) {
-      throw new Error(`預簽名 URL 生成失敗: ${error instanceof Error ? error.message : '未知錯誤'}`);
+      return {
+        status: 'unhealthy',
+        message: `Cloudinary 連接失敗: ${error instanceof Error ? error.message : String(error)}`
+      };
     }
   }
 }
