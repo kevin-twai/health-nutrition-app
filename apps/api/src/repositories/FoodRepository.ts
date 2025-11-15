@@ -206,6 +206,18 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 搜尋食物
   async search(options: FoodSearchOptions): Promise<SearchResult<FoodItem>> {
+    // 檢查 MongoDB 是否可用
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空搜尋結果');
+      return {
+        items: [],
+        total: 0,
+        query: options.query || '',
+        filters: {},
+        suggestions: []
+      };
+    }
+
     const {
       query = '',
       category,
@@ -301,13 +313,18 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 根據分類查找食物
   async findByCategory(category: FoodCategory, limit: number = 50, offset: number = 0): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const cacheKey = `foods:category:${category}:${limit}:${offset}`;
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
       return cached as FoodItem[];
     }
 
-    const results = await this.collection
+    const results = await this.collection!
       .find({ category })
       .sort({ verified: -1, 'nutritionPer100g.calories': 1 })
       .skip(offset)
@@ -322,6 +339,11 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 根據營養成分查找相似食物
   async findSimilarFoods(targetNutrition: NutritionData, limit: number = 10): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const pipeline = [
       {
         $addFields: {
@@ -349,12 +371,17 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
       { $limit: limit }
     ];
 
-    const results = await this.collection.aggregate(pipeline).toArray();
+    const results = await this.collection!.aggregate(pipeline).toArray();
     return results.map(doc => this.mapToFoodItem(doc));
   }
 
   // 從營養資料庫搜尋食物
   async searchFromNutritionDatabase(query: string, limit: number = 20): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const cacheKey = `nutrition_db:search:${query}:${limit}`;
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
@@ -369,7 +396,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
       ]
     };
 
-    const results = await this.nutritionDbCollection
+    const results = await this.nutritionDbCollection!
       .find(searchConditions)
       .limit(limit)
       .toArray();
@@ -382,6 +409,11 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 獲取熱門食物
   async getPopularFoods(limit: number = 20): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const cacheKey = `foods:popular:${limit}`;
     const cached = await this.getFromCache(cacheKey);
     if (cached) {
@@ -390,7 +422,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
     // 這裡可以根據食物記錄的頻率來判斷熱門程度
     // 暫時使用驗證狀態和建立時間排序
-    const results = await this.collection
+    const results = await this.collection!
       .find({ verified: true })
       .sort({ created_at: -1 })
       .limit(limit)
@@ -404,6 +436,11 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
 
   // 獲取推薦食物 (基於營養均衡)
   async getRecommendedFoods(targetCalories: number, limit: number = 10): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
     const pipeline = [
       {
         $addFields: {
@@ -429,12 +466,25 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
       { $limit: limit }
     ];
 
-    const results = await this.collection.aggregate(pipeline).toArray();
+    const results = await this.collection!.aggregate(pipeline).toArray();
     return results.map(doc => this.mapToFoodItem(doc));
   }
 
   // 分頁查詢食物
   async findWithPagination(options: QueryOptions): Promise<PaginatedResult<FoodItem>> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空分頁結果');
+      return {
+        data: [],
+        total: 0,
+        page: 1,
+        pageSize: options.limit || 20,
+        totalPages: 0,
+        hasNext: false,
+        hasPrev: false
+      };
+    }
+
     const limit = options.limit || 20;
     const offset = options.offset || 0;
     const page = Math.floor(offset / limit) + 1;
@@ -442,10 +492,10 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
     const searchConditions = options.filters || {};
 
     // 計算總數
-    const total = await this.collection.countDocuments(searchConditions);
+    const total = await this.collection!.countDocuments(searchConditions);
 
     // 獲取資料
-    const results = await this.collection
+    const results = await this.collection!
       .find(searchConditions)
       .sort({ verified: -1, created_at: -1 })
       .skip(offset)
@@ -468,6 +518,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
   // 生成搜尋建議
   private async generateSearchSuggestions(query: string, category?: FoodCategory): Promise<string[]> {
     if (!query || query.length < 2) return [];
+    if (!this.isMongoDBAvailable()) return [];
 
     const pipeline = [
       {
@@ -491,7 +542,7 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
       { $project: { _id: 1 } }
     ];
 
-    const results = await this.collection.aggregate(pipeline).toArray();
+    const results = await this.collection!.aggregate(pipeline).toArray();
     return results.map(result => result._id);
   }
 
