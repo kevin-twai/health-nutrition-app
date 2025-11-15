@@ -72,11 +72,18 @@ export class ImageProcessingService {
       'image/jpg', 
       'image/png',
       'image/heic',
-      'image/heif'
+      'image/heif',
+      'image/webp',
+      'application/octet-stream' // curl 可能使用此類型
     ];
     
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    // 如果 MIME 類型是 application/octet-stream，只檢查擴展名
+    if (file.mimetype === 'application/octet-stream') {
+      return allowedExtensions.includes(fileExtension);
+    }
     
     return allowedMimeTypes.includes(file.mimetype) && 
            allowedExtensions.includes(fileExtension);
