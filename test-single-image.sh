@@ -3,7 +3,7 @@
 # 單張圖片測試腳本
 # 用法: ./test-single-image.sh <image_path> [token]
 
-API_URL="https://health-nutrition-tracker-api.onrender.com/api/v1"
+API_URL="https://health-nutrition-api.onrender.com/api/v1"
 
 # 顏色定義
 GREEN='\033[0;32m'
@@ -76,7 +76,7 @@ echo ""
 # 上傳並識別
 response=$(curl -s -X POST "$API_URL/photo/recognize" \
     -H "Authorization: Bearer $TOKEN" \
-    -F "image=@$IMAGE_PATH" \
+    -F "photo=@$IMAGE_PATH" \
     -w "\n%{http_code}")
 
 http_code=$(echo "$response" | tail -n1)
