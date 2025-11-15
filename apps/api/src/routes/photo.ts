@@ -21,10 +21,14 @@ const upload = multer({
       'image/webp'
     ];
     
+    console.log(`📎 Multer fileFilter - 檔案: ${file.originalname}, MIME: ${file.mimetype}`);
+    
     if (allowedMimeTypes.includes(file.mimetype)) {
+      console.log(`✅ 檔案類型允許: ${file.mimetype}`);
       cb(null, true);
     } else {
-      cb(new Error('不支援的檔案類型。請使用 JPEG、PNG、WEBP 或 HEIC 格式。'));
+      console.log(`❌ 檔案類型拒絕: ${file.mimetype}`);
+      cb(new Error(`不支援的檔案類型 (${file.mimetype})。請使用 JPEG、PNG、WEBP 或 HEIC 格式。`));
     }
   }
 });
