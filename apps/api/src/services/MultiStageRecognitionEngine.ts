@@ -521,8 +521,24 @@ export class MultiStageRecognitionEngine {
       const content = response.choices[0]?.message?.content || '{}';
       console.log('📝 OpenAI 回應長度:', content.length);
 
+      // 清理 OpenAI 回應中的 markdown 代碼塊標記
+      let cleanedContent = content.trim();
+      
+      // 移除 ```json 和 ``` 標記
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.substring(7);
+      } else if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.substring(3);
+      }
+      
+      if (cleanedContent.endsWith('```')) {
+        cleanedContent = cleanedContent.substring(0, cleanedContent.length - 3);
+      }
+      
+      cleanedContent = cleanedContent.trim();
+
       // 解析 JSON 回應
-      const parsed = JSON.parse(content);
+      const parsed = JSON.parse(cleanedContent);
       success = true;
       
       // 記錄 API 調用性能
