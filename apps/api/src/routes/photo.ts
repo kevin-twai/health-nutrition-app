@@ -18,12 +18,26 @@ const upload = multer({
       'image/png',
       'image/heic',
       'image/heif',
-      'image/webp'
+      'image/webp',
+      'application/octet-stream' // curl 可能使用此類型
     ];
     
-    console.log(`📎 Multer fileFilter - 檔案: ${file.originalname}, MIME: ${file.mimetype}`);
+    // 檢查文件擴展名
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'];
+    const fileExt = file.originalname.toLowerCase().match(/\.[^.]+$/)?.[0] || '';
     
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    console.log(`📎 Multer fileFilter - 檔案: ${file.originalname}, MIME: ${file.mimetype}, 擴展名: ${fileExt}`);
+    
+    // 如果 MIME 類型是 application/octet-stream，則檢查文件擴展名
+    if (file.mimetype === 'application/octet-stream') {
+      if (allowedExtensions.includes(fileExt)) {
+        console.log(`✅ 檔案擴展名允許: ${fileExt}`);
+        cb(null, true);
+      } else {
+        console.log(`❌ 檔案擴展名拒絕: ${fileExt}`);
+        cb(new Error(`不支援的檔案類型 (${fileExt})。請使用 JPEG、PNG、WEBP 或 HEIC 格式。`));
+      }
+    } else if (allowedMimeTypes.includes(file.mimetype)) {
       console.log(`✅ 檔案類型允許: ${file.mimetype}`);
       cb(null, true);
     } else {
