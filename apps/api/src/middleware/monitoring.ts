@@ -33,7 +33,7 @@ const logger = createLogger({
     format.errors({ stack: true }),
     format.json()
   ),
-  defaultMeta: { service: 'health-nutrition-tracker-api' },
+  defaultMeta: { service: 'health-nutrition-api' },
   transports: [
     new transports.File({ filename: 'logs/error.log', level: 'error' }),
     new transports.File({ filename: 'logs/combined.log' }),
@@ -339,7 +339,7 @@ export const metricsEndpoint = async (req: Request, res: Response) => {
   
   res.json({
     timestamp: new Date().toISOString(),
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     version: '1.0.0',
     health: healthChecks,
     metrics: systemMetrics,

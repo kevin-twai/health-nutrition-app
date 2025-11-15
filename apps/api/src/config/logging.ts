@@ -98,7 +98,7 @@ export const performanceLogger = createLogger({
     format.json()
   ),
   defaultMeta: { 
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     type: 'performance'
   },
   transports: [
@@ -119,7 +119,7 @@ export const securityLogger = createLogger({
     format.json()
   ),
   defaultMeta: { 
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     type: 'security'
   },
   transports: [
@@ -140,7 +140,7 @@ export const auditLogger = createLogger({
     format.json()
   ),
   defaultMeta: { 
-    service: 'health-nutrition-tracker-api',
+    service: 'health-nutrition-api',
     type: 'audit'
   },
   transports: [

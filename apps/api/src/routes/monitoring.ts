@@ -22,7 +22,7 @@ router.get('/system', async (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       status: Object.values(healthChecks).every(check => check) ? 'healthy' : 'degraded',
       system: {
         uptime: process.uptime(),
@@ -72,7 +72,7 @@ router.get('/alarms', async (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       alarms: alarmStates,
       summary: {
         total: alarmStates.length,
@@ -108,7 +108,7 @@ router.get('/performance', (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       timeWindow: timeWindow / 1000, // 轉換為秒
       statistics: performanceStats,
       slowestOperations,
@@ -137,7 +137,7 @@ router.get('/alerts', (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       alerts: unresolvedAlerts,
       summary: {
         total: unresolvedAlerts.length,
@@ -213,7 +213,7 @@ router.get('/health/detailed', async (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       status: overallHealth ? 'healthy' : 'unhealthy',
       checks: detailedChecks,
       summary: {
@@ -282,7 +282,7 @@ router.get('/memory', (req, res) => {
     
     res.json({
       timestamp: new Date().toISOString(),
-      service: 'health-nutrition-tracker-api',
+      service: 'health-nutrition-api',
       memory: memoryStats,
       requestId: req.requestId
     });
