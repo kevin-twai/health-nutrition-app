@@ -246,7 +246,7 @@ export class ImageProcessingService {
         processedMetadata = {
           width: metadata.width || 0,
           height: metadata.height || 0,
-          format: (metadata.format as 'jpeg' | 'png' | 'webp') || 'jpeg',
+          format: 'jpeg',
           size: file.size
         };
       }
