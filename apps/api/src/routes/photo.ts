@@ -17,13 +17,14 @@ const upload = multer({
       'image/jpg',
       'image/png',
       'image/heic',
-      'image/heif'
+      'image/heif',
+      'image/webp'
     ];
     
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('不支援的檔案類型。請使用 JPEG、PNG 或 HEIC 格式。'));
+      cb(new Error('不支援的檔案類型。請使用 JPEG、PNG、WEBP 或 HEIC 格式。'));
     }
   }
 });

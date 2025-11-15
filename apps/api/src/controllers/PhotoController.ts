@@ -159,7 +159,7 @@ export class PhotoController {
       }
 
       // 驗證內容類型
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/heif'];
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic', 'image/heif', 'image/webp'];
       if (!allowedTypes.includes(contentType)) {
         res.status(400).json({
           success: false,
