@@ -1657,25 +1657,34 @@ export const ASIAN_FOOD_ITEMS: Record<string, FoodItem> = {
   }
 };
 
+// 導入擴展數據
+import { ASIAN_FOOD_ITEMS_EXTENDED } from './asianFoodItemsExtended';
+
+// 合併所有食材數據
+const ALL_FOOD_ITEMS = {
+  ...ASIAN_FOOD_ITEMS,
+  ...ASIAN_FOOD_ITEMS_EXTENDED
+};
+
 /**
  * 獲取所有食材列表
  */
 export function getAllFoodItems(): FoodItem[] {
-  return Object.values(ASIAN_FOOD_ITEMS);
+  return Object.values(ALL_FOOD_ITEMS);
 }
 
 /**
  * 根據ID獲取食材
  */
 export function getFoodItemById(id: string): FoodItem | undefined {
-  return Object.values(ASIAN_FOOD_ITEMS).find(item => item.id === id);
+  return Object.values(ALL_FOOD_ITEMS).find(item => item.id === id);
 }
 
 /**
  * 根據名稱獲取食材（包含別名）
  */
 export function getFoodItemByName(name: string): FoodItem | undefined {
-  return Object.values(ASIAN_FOOD_ITEMS).find(
+  return Object.values(ALL_FOOD_ITEMS).find(
     item => item.name === name || item.nameVariants.includes(name)
   );
 }
@@ -1684,14 +1693,14 @@ export function getFoodItemByName(name: string): FoodItem | undefined {
  * 根據類別獲取食材
  */
 export function getFoodItemsByCategory(category: FoodCategory): FoodItem[] {
-  return Object.values(ASIAN_FOOD_ITEMS).filter(item => item.category === category);
+  return Object.values(ALL_FOOD_ITEMS).filter(item => item.category === category);
 }
 
 /**
  * 根據料理類型獲取食材
  */
 export function getFoodItemsByCuisineType(cuisineType: CuisineType): FoodItem[] {
-  return Object.values(ASIAN_FOOD_ITEMS).filter(
+  return Object.values(ALL_FOOD_ITEMS).filter(
     item => item.cuisineTypes.includes(cuisineType)
   );
 }

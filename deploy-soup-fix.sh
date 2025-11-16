@@ -14,18 +14,22 @@ echo ""
 echo "💾 提交修改..."
 git add apps/api/src/services/MultiStageRecognitionEngine.ts
 git add apps/api/src/data/asianFoodItemsExtended.ts
+git add apps/api/src/data/asianFoodItems.ts
 git add deploy-soup-fix.sh
+git add SOUP_RECOGNITION_FIX.md
 
-git commit -m "fix: 添加湯品到知識庫並修復後備機制
+git commit -m "fix: 添加湯品到知識庫並修復數據加載
 
 - 修復 parseVisionResponse 邏輯：當資料庫返回空結果時也觸發知識庫
+- 修復知識庫數據加載：合併 ASIAN_FOOD_ITEMS 和 ASIAN_FOOD_ITEMS_EXTENDED
 - 添加常見湯品到知識庫：
-  * 味噌湯（日式）
-  * 蛋花湯（中式）
-  * 貢丸湯（台式）
-  * 酸辣湯（川式）
+  * 味噌湯（日式）- 35 kcal
+  * 蛋花湯（中式）- 45 kcal
+  * 貢丸湯（台式）- 55 kcal
+  * 酸辣湯（川式）- 50 kcal
 - 每個湯品包含完整營養資訊和視覺特徵
-- 添加詳細日誌以追蹤查詢流程"
+- 添加詳細日誌以追蹤查詢流程
+- 知識庫現在包含 204+ 食材"
 
 # 3. 推送到 GitHub
 echo ""
