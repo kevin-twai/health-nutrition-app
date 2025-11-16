@@ -343,5 +343,150 @@ export const ASIAN_FOOD_ITEMS_EXTENDED: Record<string, FoodItem> = {
     cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE, CuisineType.KOREAN],
     commonPairings: ['豬肉', '豆腐', '粉絲', '香菇'],
     tags: ['火鍋', '白菜滷', '冬季蔬菜']
+  },
+
+  // ==================== 湯品類 ====================
+  '味噌湯': {
+    id: 'miso_soup',
+    name: '味噌湯',
+    nameVariants: ['味增湯', '日式味噌湯', 'みそ汁'],
+    category: FoodCategory.SOUP,
+    visualFeatures: {
+      color: ['淡褐色', '米黃色', '棕色'],
+      shape: ['液體', '湯狀'],
+      texture: ['濃稠', '溫熱'],
+      size: '一碗約150-200ml',
+      appearance: '淡褐色湯汁，可見豆腐塊和海帶芽',
+      surfaceCharacteristics: ['略帶顆粒感', '有蒸氣'],
+      glossiness: '微光澤',
+      transparency: '半透明'
+    },
+    nutritionPer100g: {
+      calories: 35,
+      protein: 2.5,
+      carbohydrates: 4.0,
+      fat: 1.0,
+      fiber: 0.5,
+      sugar: 1.0,
+      sodium: 800,
+      calcium: 20,
+      iron: 0.5
+    },
+    commonConfusions: ['豆漿', '濃湯'],
+    distinguishingFeatures: ['味噌香味', '日式風味', '常有豆腐和海帶', '鹹鮮味'],
+    cookingMethods: [CookingMethod.BOIL],
+    cuisineTypes: [CuisineType.JAPANESE],
+    commonPairings: ['豆腐', '海帶芽', '蔥花', '白飯'],
+    seasonality: ['全年'],
+    tags: ['日式', '湯品', '早餐', '定食'],
+    culturalNotes: '日本傳統湯品，通常搭配白飯和主菜'
+  },
+
+  '蛋花湯': {
+    id: 'egg_drop_soup',
+    name: '蛋花湯',
+    nameVariants: ['蛋花', '雞蛋湯'],
+    category: FoodCategory.SOUP,
+    visualFeatures: {
+      color: ['淡黃色', '金黃色'],
+      shape: ['液體', '湯狀'],
+      texture: ['清澈', '溫熱'],
+      size: '一碗約200-250ml',
+      appearance: '清澈湯汁中有蛋花絲',
+      surfaceCharacteristics: ['蛋花浮在表面', '有蒸氣'],
+      glossiness: '有光澤',
+      transparency: '透明'
+    },
+    nutritionPer100g: {
+      calories: 45,
+      protein: 3.5,
+      carbohydrates: 2.0,
+      fat: 2.5,
+      fiber: 0.1,
+      sugar: 0.5,
+      sodium: 600,
+      calcium: 15,
+      iron: 0.8
+    },
+    commonConfusions: ['玉米濃湯', '雞湯'],
+    distinguishingFeatures: ['有蛋花', '清淡', '常有蔥花', '快速料理'],
+    cookingMethods: [CookingMethod.BOIL],
+    cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE],
+    commonPairings: ['蔥花', '香油', '白胡椒', '番茄'],
+    seasonality: ['全年'],
+    tags: ['中式', '湯品', '家常', '簡單'],
+    culturalNotes: '中式家常湯品，製作簡單快速'
+  },
+
+  '貢丸湯': {
+    id: 'meatball_soup',
+    name: '貢丸湯',
+    nameVariants: ['肉丸湯', '魚丸湯'],
+    category: FoodCategory.SOUP,
+    visualFeatures: {
+      color: ['清澈', '淡白色'],
+      shape: ['液體', '湯狀', '圓形貢丸'],
+      texture: ['清澈', '溫熱'],
+      size: '一碗約250-300ml',
+      appearance: '清湯中有圓形貢丸',
+      surfaceCharacteristics: ['清澈', '有蒸氣'],
+      glossiness: '有光澤',
+      transparency: '透明'
+    },
+    nutritionPer100g: {
+      calories: 55,
+      protein: 5.0,
+      carbohydrates: 3.0,
+      fat: 2.5,
+      fiber: 0.1,
+      sugar: 0.5,
+      sodium: 700,
+      calcium: 10,
+      iron: 0.5
+    },
+    commonConfusions: ['魚丸湯', '肉羹湯'],
+    distinguishingFeatures: ['有彈性的貢丸', '清湯', '台式風味'],
+    cookingMethods: [CookingMethod.BOIL],
+    cuisineTypes: [CuisineType.TAIWANESE],
+    commonPairings: ['芹菜', '蔥花', '白胡椒', '油蔥酥'],
+    seasonality: ['全年'],
+    tags: ['台式', '湯品', '小吃', '夜市'],
+    culturalNotes: '台灣傳統小吃，常見於夜市和小吃店'
+  },
+
+  '酸辣湯': {
+    id: 'hot_and_sour_soup',
+    name: '酸辣湯',
+    nameVariants: ['酸辣', '酸辣羹'],
+    category: FoodCategory.SOUP,
+    visualFeatures: {
+      color: ['深褐色', '紅褐色'],
+      shape: ['液體', '濃稠'],
+      texture: ['濃稠', '溫熱'],
+      size: '一碗約200-250ml',
+      appearance: '濃稠深色湯汁，可見豆腐絲和木耳',
+      surfaceCharacteristics: ['濃稠', '有蒸氣'],
+      glossiness: '有光澤',
+      transparency: '不透明'
+    },
+    nutritionPer100g: {
+      calories: 50,
+      protein: 3.0,
+      carbohydrates: 6.0,
+      fat: 1.5,
+      fiber: 1.0,
+      sugar: 1.5,
+      sodium: 850,
+      calcium: 25,
+      iron: 1.0
+    },
+    commonConfusions: ['麻辣湯', '羹湯'],
+    distinguishingFeatures: ['酸辣味', '濃稠', '有豆腐絲', '黑醋香'],
+    cookingMethods: [CookingMethod.BOIL],
+    cuisineTypes: [CuisineType.CHINESE, CuisineType.SICHUAN],
+    commonPairings: ['豆腐', '木耳', '筍絲', '雞蛋', '香菜'],
+    seasonality: ['全年'],
+    tags: ['中式', '湯品', '酸辣', '開胃'],
+    culturalNotes: '川菜經典湯品，酸辣開胃'
   }
 };

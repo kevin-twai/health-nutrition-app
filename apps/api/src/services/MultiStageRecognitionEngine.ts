@@ -627,7 +627,7 @@ export class MultiStageRecognitionEngine {
       try {
         let matchingFood: FoodItem | null = null;
 
-        // 嘗試在資料庫中搜尋相似的食物
+        // 第一層：嘗試在資料庫中搜尋相似的食物
         try {
           const searchResult = await this.foodRepository.search({
             query: foodData.name,
@@ -637,19 +637,26 @@ export class MultiStageRecognitionEngine {
           
           if (matchingFoods.length > 0) {
             matchingFood = matchingFoods[0];
+            console.log(`✅ 從資料庫找到: ${matchingFood.name}`);
           }
         } catch (dbError) {
-          console.warn(`資料庫查詢失敗，使用知識庫作為後備: ${dbError instanceof Error ? dbError.message : '未知錯誤'}`);
-          
-          // 如果資料庫查詢失敗，嘗試從知識庫獲取
+          console.warn(`⚠️ 資料庫查詢失敗: ${dbError instanceof Error ? dbError.message : '未知錯誤'}`);
+        }
+
+        // 第二層：如果資料庫沒有找到（無論是錯誤還是空結果），使用知識庫
+        if (!matchingFood) {
+          console.log(`🔍 資料庫未找到 "${foodData.name}"，嘗試知識庫...`);
           const kbMatches = this.knowledgeBase.searchFoodItemsByName(foodData.name, true);
+          
           if (kbMatches.length > 0) {
             const kbFood = kbMatches[0];
+            console.log(`✅ 從知識庫找到: ${kbFood.name}`);
+            
             // 轉換知識庫的 FoodItem 為 shared.ts 的 FoodItem 格式
             matchingFood = {
               id: kbFood.id,
               name: kbFood.name,
-              category: kbFood.category as any, // 類型轉換
+              category: kbFood.category as any,
               nutritionPer100g: {
                 calories: kbFood.nutritionPer100g.calories,
                 protein: kbFood.nutritionPer100g.protein,
@@ -665,6 +672,8 @@ export class MultiStageRecognitionEngine {
               ],
               tags: kbFood.tags || []
             };
+          } else {
+            console.warn(`⚠️ 知識庫也未找到 "${foodData.name}"`);
           }
         }
 
