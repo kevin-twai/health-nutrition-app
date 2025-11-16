@@ -191,21 +191,36 @@ export default function PhotoRecognition() {
       formData.append('language', 'zh-TW')
       
       // 使用正確的 API 端點，添加超時控制
-      // OpenAI Vision API 需要較長時間處理，設定 60 秒超時
+      // OpenAI Vision API 需要較長時間處理，設定 120 秒超時
       const controller = new AbortController()
       const timeoutId = setTimeout(() => {
-        console.warn('⏱️ API 請求超時（60秒）')
+        console.warn('⏱️ API 請求超時（120秒）')
         controller.abort()
-      }, 60000) // 60秒超時，給 OpenAI API 足夠時間
+      }, 120000) // 120秒超時，給 OpenAI API 足夠時間
       
       console.log('📤 發送請求到後端 API...')
       
-      // 使用環境變數中的 API URL
+      // 使用環境變數中的 API URL，確保使用正確的 URL
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://health-nutrition-api.onrender.com'
+      console.log('🌐 API URL:', API_URL)
       
       // 獲取認證 token（如果有的話）
       const token = localStorage.getItem('authToken') || 'demo-token-for-testing'
       
+      // 先測試連接
+      try {
+        console.log('🔍 測試後端連接...')
+        const healthCheck = await fetch(`${API_URL}/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000) // 5秒超時
+        })
+        console.log('✅ 後端連接正常，狀態:', healthCheck.status)
+      } catch (healthError) {
+        console.error('❌ 後端連接失敗:', healthError)
+        throw new Error('無法連接到後端服務器，請檢查網絡連接')
+      }
+      
+      console.log('📤 發送照片識別請求...')
       const response = await fetch(`${API_URL}/api/v1/photo/recognize`, {
         method: 'POST',
         headers: {
