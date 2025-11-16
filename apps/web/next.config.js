@@ -11,38 +11,16 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  output: 'standalone',
-  experimental: {
-    workerThreads: false,
-    cpus: 1,
+  // 使用 export 模式生成靜態文件，避免 SSR 問題
+  output: 'export',
+  // 添加尾部斜杠以支持靜態托管
+  trailingSlash: true,
+  // 禁用圖片優化（export 模式需要）
+  images: {
+    unoptimized: true,
   },
-  // 允許建置繼續即使有預渲染錯誤
-  staticPageGenerationTimeout: 1000,
-  // 忽略預渲染錯誤，允許構建繼續
-  onError: (err) => {
-    console.warn('Build warning:', err.message);
-  },
-  // 完全跳過靜態生成錯誤
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
-  // 配置 webpack 來處理建置錯誤
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      };
-    }
-    // 忽略 styled-jsx 警告
-    config.ignoreWarnings = [
-      { module: /node_modules\/styled-jsx/ },
-    ];
-    return config;
-  },
-  // 生產環境配置
-  productionBrowserSourceMaps: false,
+  // 簡化構建 ID
+  generateBuildId: () => 'build',
   // 禁用 X-Powered-By header
   poweredByHeader: false,
 }
