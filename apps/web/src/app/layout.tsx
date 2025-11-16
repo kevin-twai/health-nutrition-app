@@ -3,9 +3,8 @@ export const metadata = {
   description: '綜合性健康管理應用，透過拍照辨識餐點自動估算營養素，結合AI聊天顧問提供個人化建議',
 }
 
-// 強制動態渲染
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// Export 模式：靜態生成所有頁面
+// 移除 dynamic = 'force-dynamic' 以支持 output: 'export'
 
 export default function RootLayout({
   children,
