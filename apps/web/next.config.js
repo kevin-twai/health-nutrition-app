@@ -11,8 +11,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 使用 standalone 模式（需要 Node.js 服務器，但避免 styled-jsx 問題）
-  output: 'standalone',
   // 禁用圖片優化
   images: {
     unoptimized: true,
