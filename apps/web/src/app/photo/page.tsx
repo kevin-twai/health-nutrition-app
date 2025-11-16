@@ -210,10 +210,15 @@ export default function PhotoRecognition() {
       // 先測試連接
       try {
         console.log('🔍 測試後端連接...')
+        const healthController = new AbortController()
+        const healthTimeout = setTimeout(() => healthController.abort(), 5000) // 5秒超時
+        
         const healthCheck = await fetch(`${API_URL}/health`, {
           method: 'GET',
-          signal: AbortSignal.timeout(5000) // 5秒超時
+          signal: healthController.signal
         })
+        
+        clearTimeout(healthTimeout)
         console.log('✅ 後端連接正常，狀態:', healthCheck.status)
       } catch (healthError) {
         console.error('❌ 後端連接失敗:', healthError)
