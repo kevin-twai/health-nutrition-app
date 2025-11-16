@@ -631,25 +631,12 @@ export default function PhotoRecognition() {
 
   return (
     <>
-      <style jsx>{`
-        @keyframes spin {
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes spin-animation {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
-        .loading-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: .5;
-          }
-        }
-      `}</style>
+      `}} />
       <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       {/* Header */}
       <header style={{ backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -736,7 +723,7 @@ export default function PhotoRecognition() {
                       border: '2px solid #ffffff40',
                       borderTop: '2px solid #ffffff',
                       borderRadius: '50%',
-                      animation: 'spin 1s linear infinite',
+                      animation: 'spin-animation 1s linear infinite',
                       marginRight: '8px'
                     }}></span>
                     分析中...

@@ -23,6 +23,21 @@ const nextConfig = {
   generateBuildId: () => 'build',
   // 禁用 X-Powered-By header
   poweredByHeader: false,
+  // 禁用 styled-jsx 編譯器以避免 SSR 錯誤
+  compiler: {
+    styledComponents: false,
+    emotion: false,
+    removeConsole: false,
+  },
+  // 配置 webpack 來完全跳過 styled-jsx
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'styled-jsx/style': false,
+      'styled-jsx': false,
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig
