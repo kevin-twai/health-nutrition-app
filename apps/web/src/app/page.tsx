@@ -215,9 +215,9 @@ export default function Home() {
             © 2024 健康營養追蹤系統. 由 AI 技術驅動的健康管理平台.
           </p>
           <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-            後端 API: <a href="https://health-nutrition-app-w3zm.onrender.com" 
+            後端 API: <a href="https://health-nutrition-api.onrender.com" 
                         style={{ color: '#3b82f6' }}>
-              health-nutrition-app-w3zm.onrender.com
+              health-nutrition-api.onrender.com
             </a>
           </p>
         </div>

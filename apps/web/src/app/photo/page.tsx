@@ -200,10 +200,13 @@ export default function PhotoRecognition() {
       
       console.log('📤 發送請求到後端 API...')
       
+      // 使用環境變數中的 API URL
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://health-nutrition-api.onrender.com'
+      
       // 獲取認證 token（如果有的話）
       const token = localStorage.getItem('authToken') || 'demo-token-for-testing'
       
-      const response = await fetch('https://health-nutrition-app-w3zm.onrender.com/api/v1/photo/recognize', {
+      const response = await fetch(`${API_URL}/api/v1/photo/recognize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
