@@ -60,7 +60,8 @@ const defaultConfig: GatewayConfig = {
   allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',') || [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://health-tracker.local'
+    'https://health-tracker.local',
+    'https://health-nutrition-web.onrender.com'
   ],
   
   rateLimit: {

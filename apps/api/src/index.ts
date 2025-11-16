@@ -31,8 +31,21 @@ const PORT = gatewayConfig.port;
 
 // 基礎中間件
 app.use(helmet());
+
+// CORS 配置 - 添加日誌
+console.log('🔧 CORS 允許的來源:', gatewayConfig.allowedOrigins);
 app.use(cors({
-  origin: gatewayConfig.allowedOrigins,
+  origin: (origin, callback) => {
+    console.log('📡 收到請求，來源:', origin);
+    // 如果沒有 origin（同源請求）或在允許列表中，則允許
+    if (!origin || gatewayConfig.allowedOrigins.includes(origin)) {
+      console.log('✅ CORS 允許');
+      callback(null, true);
+    } else {
+      console.log('❌ CORS 拒絕');
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Request-ID']
