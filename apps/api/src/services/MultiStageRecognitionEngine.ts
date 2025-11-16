@@ -3,7 +3,7 @@
  * Multi-Stage Recognition Engine for Enhanced Food Recognition
  */
 
-import { DetectedFood, RecognitionResult } from '../types/shared';
+import { DetectedFood, RecognitionResult, FoodItem } from '../types/shared';
 import { EnhancedPromptGenerator, PromptGeneratorConfig, PromptTemplateType } from './EnhancedPromptGenerator';
 import { AsianCuisineKnowledgeBase } from './AsianCuisineKnowledgeBase';
 import { knowledgeBaseQueryOptimizer } from './KnowledgeBaseQueryOptimizer';
@@ -625,24 +625,60 @@ export class MultiStageRecognitionEngine {
 
     for (const foodData of foodsArray) {
       try {
-        // 在資料庫中搜尋相似的食物
-        const searchResult = await this.foodRepository.search({
-          query: foodData.name,
-          limit: 1
-        });
-        const matchingFoods = searchResult.items;
+        let matchingFood: FoodItem | null = null;
 
-        if (matchingFoods.length > 0) {
-          const food = matchingFoods[0];
+        // 嘗試在資料庫中搜尋相似的食物
+        try {
+          const searchResult = await this.foodRepository.search({
+            query: foodData.name,
+            limit: 1
+          });
+          const matchingFoods = searchResult.items;
+          
+          if (matchingFoods.length > 0) {
+            matchingFood = matchingFoods[0];
+          }
+        } catch (dbError) {
+          console.warn(`資料庫查詢失敗，使用知識庫作為後備: ${dbError instanceof Error ? dbError.message : '未知錯誤'}`);
+          
+          // 如果資料庫查詢失敗，嘗試從知識庫獲取
+          const kbMatches = this.knowledgeBase.searchFoodItemsByName(foodData.name, true);
+          if (kbMatches.length > 0) {
+            const kbFood = kbMatches[0];
+            // 轉換知識庫的 FoodItem 為 shared.ts 的 FoodItem 格式
+            matchingFood = {
+              id: kbFood.id,
+              name: kbFood.name,
+              category: kbFood.category as any, // 類型轉換
+              nutritionPer100g: {
+                calories: kbFood.nutritionPer100g.calories,
+                protein: kbFood.nutritionPer100g.protein,
+                carbohydrates: kbFood.nutritionPer100g.carbohydrates,
+                fat: kbFood.nutritionPer100g.fat,
+                fiber: kbFood.nutritionPer100g.fiber,
+                sugar: kbFood.nutritionPer100g.sugar || 0,
+                sodium: kbFood.nutritionPer100g.sodium
+              },
+              commonPortions: [
+                { name: '100公克', weight: 100, description: '標準份量' },
+                { name: '1份', weight: 100, description: '一般份量' }
+              ],
+              tags: kbFood.tags || []
+            };
+          }
+        }
+
+        if (matchingFood) {
           foods.push({
-            id: food.id,
-            name: food.name,
+            id: matchingFood.id,
+            name: matchingFood.name,
             confidence: foodData.confidence || 0.5,
             estimatedPortion: foodData.portion || 100,
-            nutrition: this.convertNutritionInfo(food.nutritionPer100g)
+            nutrition: this.convertNutritionInfo(matchingFood.nutritionPer100g)
           });
         } else {
-          // 如果資料庫中沒有，創建一個基本的建議
+          // 如果資料庫和知識庫都沒有，創建一個基本的建議
+          console.warn(`未找到食物 "${foodData.name}" 的營養資訊，使用預設值`);
           foods.push({
             id: `temp-${Date.now()}-${Math.random()}`,
             name: foodData.name,
@@ -660,6 +696,21 @@ export class MultiStageRecognitionEngine {
         }
       } catch (error) {
         console.error(`解析食物 "${foodData.name}" 時發生錯誤:`, error);
+        // 即使發生錯誤，也添加一個基本的食物項目
+        foods.push({
+          id: `temp-${Date.now()}-${Math.random()}`,
+          name: foodData.name,
+          confidence: foodData.confidence || 0.3,
+          estimatedPortion: foodData.portion || 100,
+          nutrition: this.convertNutritionInfo({
+            calories: 0,
+            protein: 0,
+            carbohydrates: 0,
+            fat: 0,
+            fiber: 0,
+            sodium: 0
+          })
+        });
       }
     }
 
