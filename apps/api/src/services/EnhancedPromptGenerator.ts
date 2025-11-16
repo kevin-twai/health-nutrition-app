@@ -1693,7 +1693,7 @@ Special Notes:
 
   private createSoupPrompt(): string {
     if (this.language === 'zh-TW') {
-      return `你是一個專精於湯品識別的食物專家。請仔細分析這張圖片中的湯品。
+      return `你是一個專精於湯品識別的食物專家。請仔細分析這張圖片中的湯品，並詳細識別每一種食材和份量。
 
 湯品識別重點：
 1. **湯品類型**：
@@ -1701,53 +1701,96 @@ Special Notes:
    - 濃湯：濃稠、勾芡、奶白色或深色
    - 羹湯：勾芡、濃稠、有料
    - 火鍋湯：紅色（麻辣）或白色（清湯）
+   - 味噌湯：淡褐色、有味噌顆粒、日式
 
 2. **湯底識別**：
-   - 清湯：雞湯、排骨湯、魚湯
+   - 清湯：雞湯、排骨湯、魚湯、柴魚高湯
    - 濃湯：玉米濃湯、南瓜濃湯
    - 特色湯：味噌湯、酸辣湯、番茄湯
    - 羹湯：魚翅羹、酸辣羹、蚵仔麵線
 
-3. **配料識別**：
-   - 蔬菜：白菜、蘿蔔、香菇、海帶
-   - 蛋白質：肉片、魚片、豆腐、蛋
-   - 麵食：麵條、米粉、粉絲
-   - 其他：丸子、餃子、餛飩
+3. **配料識別（非常重要！）**：
+   **請仔細識別湯中的每一種食材，包括：**
+   
+   a. **蔬菜類**：
+      - 白菜、高麗菜、大白菜
+      - 蘿蔔、紅蘿蔔、白蘿蔔
+      - 香菇、金針菇、杏鮑菇
+      - 海帶、海帶芽、紫菜
+      - 洋蔥、蔥、青蔥
+      - 玉米、玉米筍
+   
+   b. **蛋白質類**：
+      - 豆腐（嫩豆腐、板豆腐、油豆腐）
+      - 肉片（豬肉、牛肉、雞肉）
+      - 魚片、魚肉、魚丸
+      - 蛋（水煮蛋、溫泉蛋）
+      - 海鮮（蝦、蛤蜊、花枝）
+   
+   c. **麵食類**：
+      - 麵條、烏龍麵、拉麵
+      - 米粉、粉絲、冬粉
+   
+   d. **其他配料**：
+      - 丸子（貢丸、魚丸、肉丸）
+      - 餃子、餛飩、水餃
+      - 年糕、魚板
 
-4. **調味料**：
-   - 鹽、醬油、味噌、醋
-   - 胡椒、香油、蔥花、香菜
+4. **份量估算**：
+   - 豆腐：每塊約30-50g
+   - 海帶：每片約10-20g
+   - 蔬菜：每份約30-50g
+   - 肉片：每片約20-30g
+   - 湯底：約200-300ml
+
+5. **調味料識別**：
+   - 味噌、鹽、醬油、醋
+   - 胡椒、香油、辣油
+   - 蔥花、香菜、薑絲
 
 請以 JSON 格式回應：
 {
   "foods": [
     {
-      "name": "配料名稱（繁體中文）",
+      "name": "配料名稱（繁體中文）- 必須具體明確",
       "confidence": 0.95,
       "portion": 50,
+      "unit": "g 或 ml",
       "category": "食材類別",
       "inSoup": true,
-      "visualFeatures": "視覺特徵",
-      "description": "描述"
+      "visualFeatures": "視覺特徵（顏色、形狀、大小）",
+      "position": "位置（浮在表面/沉在底部/中間）",
+      "description": "詳細描述"
     }
   ],
   "dishType": "湯品",
-  "soupType": "湯品類型（清湯/濃湯/羹湯）",
-  "soupBase": "湯底",
+  "dishName": "具體湯品名稱（如：味噌湯、排骨湯等）",
+  "soupType": "湯品類型（清湯/濃湯/羹湯/味噌湯）",
+  "soupBase": "湯底（柴魚高湯/雞湯/排骨湯/味噌湯底等）",
+  "soupPortion": 250,
   "consistency": "濃稠度（清澈/濃稠/勾芡）",
-  "color": "湯色",
-  "ingredients": ["配料列表"],
+  "color": "湯色（淡褐色/清澈/乳白色等）",
+  "ingredients": ["完整的配料列表"],
   "seasonings": ["調味料列表"],
+  "totalIngredients": 5,
   "overallDescription": "整體描述"
 }
 
-特別注意：
-- 識別湯中的所有配料
-- 注意湯的顏色和濃稠度
-- 區分清湯和濃湯
-- 注意浮在表面的配料（蔥花、香菜、油花）`;
+**特別注意（非常重要！）**：
+1. **必須識別湯中的每一種食材** - 不要只說"味噌湯"，要列出所有配料
+2. **每種食材都要估算份量** - 以公克(g)或毫升(ml)為單位
+3. **注意不同位置的食材** - 浮在表面的、沉在底部的、中間的
+4. **區分相似食材** - 如：嫩豆腐 vs 板豆腐、海帶 vs 海帶芽
+5. **識別小配料** - 蔥花、薑絲、芝麻等小配料也要列出
+6. **湯底也要計算份量** - 估算湯的總量（通常200-300ml）
+
+**味噌湯常見配料**：
+- 豆腐（嫩豆腐或板豆腐）
+- 海帶芽或海帶
+- 蔥花
+- 可能有：魚板、油豆腐、香菇、蘿蔔等`;
     } else {
-      return `You are a food expert specializing in soup identification. Please carefully analyze the soup in this image.
+      return `You are a food expert specializing in soup identification. Please carefully analyze the soup in this image and identify every ingredient with portion sizes.
 
 Soup Recognition Focus:
 1. **Soup Types**:
@@ -1755,29 +1798,94 @@ Soup Recognition Focus:
    - Thick soup: Thick, thickened, milky white or dark
    - Thick stew: Thickened, thick, with ingredients
    - Hot pot soup: Red (spicy) or white (clear)
+   - Miso soup: Light brown, has miso particles, Japanese style
 
 2. **Soup Base Identification**:
-   - Clear soup: Chicken soup, pork rib soup, fish soup
+   - Clear soup: Chicken soup, pork rib soup, fish soup, dashi broth
    - Thick soup: Corn soup, pumpkin soup
    - Specialty soup: Miso soup, hot and sour soup, tomato soup
    - Thick stew: Shark fin soup, hot and sour stew, oyster vermicelli
 
-3. **Ingredient Identification**:
-   - Vegetables: Cabbage, radish, mushroom, kelp
-   - Protein: Meat slices, fish slices, tofu, egg
-   - Noodles: Noodles, rice noodles, glass noodles
-   - Others: Meatballs, dumplings, wontons
+3. **Ingredient Identification (VERY IMPORTANT!)**:
+   **Please identify every ingredient in the soup, including:**
+   
+   a. **Vegetables**:
+      - Cabbage, napa cabbage, Chinese cabbage
+      - Radish, carrot, daikon
+      - Mushrooms (shiitake, enoki, king oyster)
+      - Kelp, wakame, seaweed
+      - Onion, scallion, green onion
+      - Corn, baby corn
+   
+   b. **Protein**:
+      - Tofu (silken tofu, firm tofu, fried tofu)
+      - Meat slices (pork, beef, chicken)
+      - Fish slices, fish meat, fish balls
+      - Egg (boiled egg, onsen egg)
+      - Seafood (shrimp, clams, squid)
+   
+   c. **Noodles**:
+      - Noodles, udon, ramen
+      - Rice noodles, glass noodles, vermicelli
+   
+   d. **Other Ingredients**:
+      - Meatballs (pork balls, fish balls, meat balls)
+      - Dumplings, wontons, potstickers
+      - Rice cakes, fish cakes
 
-4. **Seasonings**:
-   - Salt, soy sauce, miso, vinegar, pepper, sesame oil, scallions, cilantro
+4. **Portion Estimation**:
+   - Tofu: Each piece about 30-50g
+   - Kelp: Each piece about 10-20g
+   - Vegetables: Each serving about 30-50g
+   - Meat slices: Each slice about 20-30g
+   - Soup base: About 200-300ml
 
-Respond in JSON format with soup type, base, consistency, color, ingredients, and seasonings.
+5. **Seasoning Identification**:
+   - Miso, salt, soy sauce, vinegar
+   - Pepper, sesame oil, chili oil
+   - Scallions, cilantro, ginger strips
 
-Special Notes:
-- Identify all ingredients in the soup
-- Note soup color and consistency
-- Distinguish clear soup from thick soup
-- Note ingredients floating on surface`;
+Respond in JSON format:
+{
+  "foods": [
+    {
+      "name": "ingredient name (must be specific)",
+      "confidence": 0.95,
+      "portion": 50,
+      "unit": "g or ml",
+      "category": "ingredient category",
+      "inSoup": true,
+      "visualFeatures": "visual features (color, shape, size)",
+      "position": "position (floating/bottom/middle)",
+      "description": "detailed description"
+    }
+  ],
+  "dishType": "soup",
+  "dishName": "specific soup name (e.g., miso soup, pork rib soup)",
+  "soupType": "soup type (clear/thick/stew/miso)",
+  "soupBase": "soup base (dashi broth/chicken broth/pork rib broth/miso base)",
+  "soupPortion": 250,
+  "consistency": "consistency (clear/thick/thickened)",
+  "color": "soup color (light brown/clear/milky white)",
+  "ingredients": ["complete ingredient list"],
+  "seasonings": ["seasoning list"],
+  "totalIngredients": 5,
+  "overallDescription": "overall description"
+}
+
+**Special Notes (VERY IMPORTANT!)**:
+1. **Must identify every ingredient in the soup** - Don't just say "miso soup", list all ingredients
+2. **Estimate portion for each ingredient** - In grams (g) or milliliters (ml)
+3. **Note ingredients at different positions** - Floating on surface, at bottom, in middle
+4. **Distinguish similar ingredients** - E.g., silken tofu vs firm tofu, kelp vs wakame
+5. **Identify small garnishes** - Scallions, ginger strips, sesame seeds, etc.
+6. **Calculate soup base portion** - Estimate total soup volume (usually 200-300ml)
+
+**Common Miso Soup Ingredients**:
+- Tofu (silken or firm)
+- Wakame or kelp
+- Scallions
+- Possibly: Fish cake, fried tofu, mushrooms, radish, etc.`;
     }
   }
 
