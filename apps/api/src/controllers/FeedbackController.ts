@@ -8,15 +8,18 @@ export class FeedbackController {
   private feedbackCollector: FeedbackCollector;
   private feedbackAnalyzer: FeedbackAnalyzer;
   private feedbackImprover: FeedbackImprover;
+  private componentFeedbackCollector?: any; // 延遲初始化
 
   constructor(
     feedbackCollector: FeedbackCollector,
     feedbackAnalyzer: FeedbackAnalyzer,
-    feedbackImprover: FeedbackImprover
+    feedbackImprover: FeedbackImprover,
+    componentFeedbackCollector?: any
   ) {
     this.feedbackCollector = feedbackCollector;
     this.feedbackAnalyzer = feedbackAnalyzer;
     this.feedbackImprover = feedbackImprover;
+    this.componentFeedbackCollector = componentFeedbackCollector;
   }
 
   /**
@@ -459,6 +462,135 @@ export class FeedbackController {
       res.status(400).json({
         success: false,
         message: error.message || '刪除反饋失敗'
+      });
+    }
+  };
+
+  // ===== 成分識別反饋相關方法 =====
+
+  /**
+   * 提交成分識別反饋
+   * POST /api/feedback/component
+   */
+  submitComponentFeedback = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!this.componentFeedbackCollector) {
+        res.status(503).json({
+          success: false,
+          message: '成分反饋服務未初始化'
+        });
+        return;
+      }
+
+      const userId = (req as any).user?.id;
+      const feedbackData = {
+        ...req.body,
+        userId
+      };
+
+      const feedback = await this.componentFeedbackCollector.submitComponentFeedback(feedbackData);
+
+      res.status(201).json({
+        success: true,
+        message: '成分識別反饋提交成功',
+        data: feedback
+      });
+    } catch (error: any) {
+      console.error('提交成分反饋失敗:', error);
+      res.status(400).json({
+        success: false,
+        message: error.message || '提交成分反饋失敗'
+      });
+    }
+  };
+
+  /**
+   * 獲取成分反饋統計
+   * GET /api/feedback/component/stats
+   */
+  getComponentFeedbackStats = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!this.componentFeedbackCollector) {
+        res.status(503).json({
+          success: false,
+          message: '成分反饋服務未初始化'
+        });
+        return;
+      }
+
+      const stats = await this.componentFeedbackCollector.getComponentFeedbackStats();
+
+      res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error: any) {
+      console.error('獲取成分反饋統計失敗:', error);
+      res.status(500).json({
+        success: false,
+        message: '獲取成分反饋統計失敗'
+      });
+    }
+  };
+
+  /**
+   * 獲取特定成分的反饋歷史
+   * GET /api/feedback/component/history/:componentName
+   */
+  getComponentFeedbackHistory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!this.componentFeedbackCollector) {
+        res.status(503).json({
+          success: false,
+          message: '成分反饋服務未初始化'
+        });
+        return;
+      }
+
+      const { componentName } = req.params;
+      const history = await this.componentFeedbackCollector.getComponentFeedbackHistory(
+        decodeURIComponent(componentName)
+      );
+
+      res.json({
+        success: true,
+        data: history
+      });
+    } catch (error: any) {
+      console.error('獲取成分反饋歷史失敗:', error);
+      res.status(500).json({
+        success: false,
+        message: '獲取成分反饋歷史失敗'
+      });
+    }
+  };
+
+  /**
+   * 獲取料理類型的成分識別準確率
+   * GET /api/feedback/component/accuracy/:dishType
+   */
+  getDishTypeComponentAccuracy = async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!this.componentFeedbackCollector) {
+        res.status(503).json({
+          success: false,
+          message: '成分反饋服務未初始化'
+        });
+        return;
+      }
+
+      const { dishType } = req.params;
+      const accuracy = await this.componentFeedbackCollector.getDishTypeComponentAccuracy(dishType);
+
+      res.json({
+        success: true,
+        data: accuracy
+      });
+    } catch (error: any) {
+      console.error('獲取料理類型準確率失敗:', error);
+      res.status(500).json({
+        success: false,
+        message: '獲取料理類型準確率失敗'
       });
     }
   };

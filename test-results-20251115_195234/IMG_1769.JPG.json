@@ -1,0 +1,173 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208272330_jx8uoxb0x",
+    "imageInfo": {
+      "imageId": "dce7f2ef-11a4-4781-b382-188915d13b23",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208274/health-nutrition-app/food-images/dce7f2ef-11a4-4781-b382-188915d13b23_1763208272330.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208274/health-nutrition-app/food-images/dce7f2ef-11a4-4781-b382-188915d13b23_1763208272330.jpg",
+      "metadata": {
+        "originalSize": 2376620,
+        "processedSize": 121089,
+        "width": 768,
+        "height": 1024,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:04:34.661Z",
+        "features": {
+          "dominantColors": [
+            "#ad9e91"
+          ],
+          "brightness": 0.6214618192518977,
+          "contrast": 0.6138321464447749,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208288714-0.7334780670862528",
+          "name": "帝王蟹腳",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208288714-0.4998040946379615",
+          "name": "薑泥",
+          "confidence": 0.9,
+          "estimatedPortion": 10,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.925,
+      "description": "這是一道日式海鮮料理，主要食材為清蒸帝王蟹腳，搭配薑泥作為調味料，呈現出鮮甜的海味。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208288714-0.7334780670862528",
+            "name": "帝王蟹腳",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208288714-0.4998040946379615",
+            "name": "薑泥",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "10g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 16386,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.925,
+          "timestamp": "2025-11-15T12:04:48.714Z"
+        }
+      ],
+      "finalConfidence": 0.925,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 16386
+  },
+  "timestamp": "2025-11-15T12:04:48.716Z"
+}

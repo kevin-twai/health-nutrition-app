@@ -7,6 +7,12 @@ export enum FeedbackType {
   WRONG_PORTION = 'wrong_portion',
   WRONG_COOKING_METHOD = 'wrong_cooking_method',
   WRONG_CUISINE_TYPE = 'wrong_cuisine_type',
+  // 成分識別相關反饋類型
+  INCORRECT_COMPONENT = 'incorrect_component',
+  MISSING_COMPONENT = 'missing_component',
+  WRONG_COMPONENT_PORTION = 'wrong_component_portion',
+  WRONG_COMPONENT_CATEGORY = 'wrong_component_category',
+  COMPONENT_NUTRITION_ERROR = 'component_nutrition_error',
   OTHER = 'other'
 }
 
@@ -45,6 +51,21 @@ export interface RecognitionResultSnapshot {
   cuisineType?: string;
   recognitionStages: number;
   processingTime: number;
+  // 成分識別結果
+  componentDetection?: ComponentDetectionSnapshot;
+}
+
+// 成分檢測快照
+export interface ComponentDetectionSnapshot {
+  mainDish: {
+    name: string;
+    type: string;
+    confidence: number;
+  };
+  components: ComponentSnapshot[];
+  totalComponents: number;
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  processingTime: number;
 }
 
 // 食物建議快照
@@ -67,6 +88,76 @@ export interface UserCorrection {
   portionCorrections: PortionCorrection[];
   cookingMethodCorrection?: string;
   cuisineTypeCorrection?: string;
+  // 成分識別相關修正
+  componentCorrections?: ComponentCorrection;
+}
+
+// 成分修正接口
+export interface ComponentCorrection {
+  correctComponents: CorrectComponent[];
+  incorrectComponents: IncorrectComponent[];
+  missingComponents: MissingComponent[];
+  componentPortionCorrections: ComponentPortionCorrection[];
+  componentCategoryCorrections: ComponentCategoryCorrection[];
+  componentNutritionCorrections: ComponentNutritionCorrection[];
+}
+
+// 正確的成分
+export interface CorrectComponent {
+  id: string;
+  name: string;
+  portion?: number;
+  category?: string;
+  cookingMethod?: string;
+}
+
+// 錯誤的成分
+export interface IncorrectComponent {
+  identifiedAs: string;
+  actualComponent: string;
+  reason?: string;
+  identifiedPortion?: number;
+  actualPortion?: number;
+  identifiedCategory?: string;
+  actualCategory?: string;
+}
+
+// 遺漏的成分
+export interface MissingComponent {
+  name: string;
+  portion?: number;
+  category?: string;
+  cookingMethod?: string;
+  reason?: string;
+  importance: 'high' | 'medium' | 'low'; // 重要程度
+}
+
+// 成分份量修正
+export interface ComponentPortionCorrection {
+  componentId: string;
+  componentName: string;
+  identifiedPortion: number;
+  actualPortion: number;
+  reason?: string;
+}
+
+// 成分類別修正
+export interface ComponentCategoryCorrection {
+  componentId: string;
+  componentName: string;
+  identifiedCategory: string;
+  actualCategory: string;
+  reason?: string;
+}
+
+// 成分營養修正
+export interface ComponentNutritionCorrection {
+  componentId: string;
+  componentName: string;
+  nutritionField: 'calories' | 'protein' | 'carbs' | 'fat';
+  identifiedValue: number;
+  actualValue: number;
+  reason?: string;
 }
 
 // 正確的食物
@@ -96,6 +187,21 @@ export interface PortionCorrection {
   foodName: string;
   identifiedPortion: string;
   actualPortion: string;
+}
+
+// 成分快照
+export interface ComponentSnapshot {
+  id: string;
+  name: string;
+  nameEn?: string;
+  confidence: number;
+  estimatedPortion: number;
+  category?: string;
+  cookingMethod?: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
 }
 
 // 錯誤模式
@@ -199,7 +305,56 @@ export const feedbackValidationSchema = Joi.object({
       actualPortion: Joi.string().required()
     })).default([]),
     cookingMethodCorrection: Joi.string().optional(),
-    cuisineTypeCorrection: Joi.string().optional()
+    cuisineTypeCorrection: Joi.string().optional(),
+    // 成分識別修正
+    componentCorrections: Joi.object({
+      correctComponents: Joi.array().items(Joi.object({
+        id: Joi.string().required(),
+        name: Joi.string().required(),
+        portion: Joi.number().optional(),
+        category: Joi.string().optional(),
+        cookingMethod: Joi.string().optional()
+      })).default([]),
+      incorrectComponents: Joi.array().items(Joi.object({
+        identifiedAs: Joi.string().required(),
+        actualComponent: Joi.string().required(),
+        reason: Joi.string().optional(),
+        identifiedPortion: Joi.number().optional(),
+        actualPortion: Joi.number().optional(),
+        identifiedCategory: Joi.string().optional(),
+        actualCategory: Joi.string().optional()
+      })).default([]),
+      missingComponents: Joi.array().items(Joi.object({
+        name: Joi.string().required(),
+        portion: Joi.number().optional(),
+        category: Joi.string().optional(),
+        cookingMethod: Joi.string().optional(),
+        reason: Joi.string().optional(),
+        importance: Joi.string().valid('high', 'medium', 'low').default('medium')
+      })).default([]),
+      componentPortionCorrections: Joi.array().items(Joi.object({
+        componentId: Joi.string().required(),
+        componentName: Joi.string().required(),
+        identifiedPortion: Joi.number().required(),
+        actualPortion: Joi.number().required(),
+        reason: Joi.string().optional()
+      })).default([]),
+      componentCategoryCorrections: Joi.array().items(Joi.object({
+        componentId: Joi.string().required(),
+        componentName: Joi.string().required(),
+        identifiedCategory: Joi.string().required(),
+        actualCategory: Joi.string().required(),
+        reason: Joi.string().optional()
+      })).default([]),
+      componentNutritionCorrections: Joi.array().items(Joi.object({
+        componentId: Joi.string().required(),
+        componentName: Joi.string().required(),
+        nutritionField: Joi.string().valid('calories', 'protein', 'carbs', 'fat').required(),
+        identifiedValue: Joi.number().required(),
+        actualValue: Joi.number().required(),
+        reason: Joi.string().optional()
+      })).default([])
+    }).optional()
   }).required(),
   feedbackType: Joi.array().items(
     Joi.string().valid(...Object.values(FeedbackType))

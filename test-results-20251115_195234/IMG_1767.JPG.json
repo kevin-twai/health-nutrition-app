@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208190464_gmuxouke5",
+    "imageInfo": {
+      "imageId": "4abeb1bf-3992-47da-b76d-4e4505237bec",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208192/health-nutrition-app/food-images/4abeb1bf-3992-47da-b76d-4e4505237bec_1763208190465.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208192/health-nutrition-app/food-images/4abeb1bf-3992-47da-b76d-4e4505237bec_1763208190465.jpg",
+      "metadata": {
+        "originalSize": 3141421,
+        "processedSize": 202674,
+        "width": 768,
+        "height": 1024,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:03:12.800Z",
+        "features": {
+          "dominantColors": [
+            "#a38d76"
+          ],
+          "brightness": 0.55146435340765,
+          "contrast": 0.6079667550260276,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208229385-0.8621283224489071",
+          "name": "蟹腳刺身",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道日式蟹腳刺身，擺放在碎冰上以保持新鮮，搭配綠色蔬菜和白色蘿蔔片，並附有芥末作為調味料。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208229385-0.8621283224489071",
+            "name": "蟹腳刺身",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 38924,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T12:03:49.385Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 38924
+  },
+  "timestamp": "2025-11-15T12:03:49.388Z"
+}

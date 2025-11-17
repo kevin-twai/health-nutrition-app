@@ -72,6 +72,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       apiGatewayConfig.general.rateLimit,
       foodRecognitionMonitoringRoutes
     );
+
+    // 成分調整路由
+    console.log('註冊成分調整路由...');
+    const componentAdjustmentRoutes = (await import('./component-adjustment')).default;
+    app.use('/api/v1/component-adjustment', 
+      apiGatewayConfig.general.rateLimit,
+      componentAdjustmentRoutes()
+    );
     
     console.log('✅ 所有路由註冊完成');
   } catch (error) {

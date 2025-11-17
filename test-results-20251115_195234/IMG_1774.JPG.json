@@ -1,0 +1,335 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208362211_pj3oweeeh",
+    "imageInfo": {
+      "imageId": "976aa605-3662-45c6-b869-af38608f915b",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208363/health-nutrition-app/food-images/976aa605-3662-45c6-b869-af38608f915b_1763208362211.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208363/health-nutrition-app/food-images/976aa605-3662-45c6-b869-af38608f915b_1763208362211.jpg",
+      "metadata": {
+        "originalSize": 2754648,
+        "processedSize": 169127,
+        "width": 768,
+        "height": 1024,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:06:04.675Z",
+        "features": {
+          "dominantColors": [
+            "#b19267"
+          ],
+          "brightness": 0.557084964926726,
+          "contrast": 0.5280559809030551,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208385419-0.47764253769725007",
+          "name": "蟹腿",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208385419-0.3275828236261178",
+          "name": "豆腐",
+          "confidence": 0.95,
+          "estimatedPortion": 100,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208385419-0.3957504391824894",
+          "name": "金針菇",
+          "confidence": 0.95,
+          "estimatedPortion": 50,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208385419-0.8974603205797368",
+          "name": "白菜",
+          "confidence": 0.95,
+          "estimatedPortion": 80,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208385419-0.6551208678980855",
+          "name": "水芹",
+          "confidence": 0.9,
+          "estimatedPortion": 30,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9400000000000001,
+      "description": "這是一道日式海鮮火鍋，包含蟹腿、豆腐、金針菇、白菜和水芹，湯底清淡鮮美，食材新鮮，適合寒冷天氣享用。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208385419-0.47764253769725007",
+            "name": "蟹腿",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208385419-0.3275828236261178",
+            "name": "豆腐",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "100g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208385419-0.3957504391824894",
+            "name": "金針菇",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "50g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208385419-0.8974603205797368",
+            "name": "白菜",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "80g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208385419-0.6551208678980855",
+            "name": "水芹",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "30g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 23210,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9400000000000001,
+          "timestamp": "2025-11-15T12:06:25.419Z"
+        }
+      ],
+      "finalConfidence": 0.9400000000000001,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 23210
+  },
+  "timestamp": "2025-11-15T12:06:25.421Z"
+}

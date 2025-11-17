@@ -1,0 +1,281 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207572634_ea7otjif7",
+    "imageInfo": {
+      "imageId": "8eaeacf0-f560-46ee-bfdf-bcb09f17ff89",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207573/health-nutrition-app/food-images/8eaeacf0-f560-46ee-bfdf-bcb09f17ff89_1763207572634.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207573/health-nutrition-app/food-images/8eaeacf0-f560-46ee-bfdf-bcb09f17ff89_1763207572634.jpg",
+      "metadata": {
+        "originalSize": 9014,
+        "processedSize": 12939,
+        "width": 200,
+        "height": 250,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:52:54.281Z",
+        "features": {
+          "dominantColors": [
+            "#aa977d"
+          ],
+          "brightness": 0.5822823267973857,
+          "contrast": 0.49000620024416625,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207581911-0.6477006756627134",
+          "name": "炒麵",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207581911-0.3345840135541247",
+          "name": "紅椒",
+          "confidence": 0.9,
+          "estimatedPortion": 20,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207581911-0.885820635910295",
+          "name": "玉米筍",
+          "confidence": 0.9,
+          "estimatedPortion": 30,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207581911-0.5781339571742994",
+          "name": "菇類",
+          "confidence": 0.85,
+          "estimatedPortion": 25,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9,
+      "description": "這是一道中式炒麵，包含多種蔬菜如紅椒、玉米筍和菇類，經過快炒後色香味俱全。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207581911-0.6477006756627134",
+            "name": "炒麵",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207581911-0.3345840135541247",
+            "name": "紅椒",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "20g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207581911-0.885820635910295",
+            "name": "玉米筍",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "30g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207581911-0.5781339571742994",
+            "name": "菇類",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "25g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.85,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 9279,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9,
+          "timestamp": "2025-11-15T11:53:01.911Z"
+        }
+      ],
+      "finalConfidence": 0.9,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 9279
+  },
+  "timestamp": "2025-11-15T11:53:01.913Z"
+}

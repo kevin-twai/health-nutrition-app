@@ -729,3 +729,215 @@ export interface EncryptedCredentials {
   secret?: string;
   expiresAt?: Date;
 }
+
+// ============================================
+// 照片上傳相關類型
+// ============================================
+
+/**
+ * 照片上傳回應接口
+ */
+export interface PhotoUploadResponse {
+  imageId: string;
+  originalUrl: string;
+  processedUrl: string;
+  metadata: {
+    originalSize: number;
+    processedSize: number;
+    width: number;
+    height: number;
+    format: string;
+    uploadedAt: Date;
+  };
+}
+
+// ============================================
+// 成分識別相關類型（從 ComponentDetection.ts 導入）
+// ============================================
+
+/**
+ * 成分識別 API 回應接口
+ * 用於 /api/v1/photo/recognize-with-components 端點
+ */
+export interface ComponentRecognitionResponse {
+  success: boolean;
+  data?: ComponentRecognitionData;
+  error?: ApiError;
+  timestamp: Date;
+}
+
+/**
+ * 成分識別回應數據
+ */
+export interface ComponentRecognitionData {
+  sessionId: string;
+  imageInfo: PhotoUploadResponse;
+  recognition: BasicRecognitionInfo;
+  componentDetection?: ComponentDetectionInfo;
+  validation: ValidationInfo;
+  processingTime: number;
+}
+
+/**
+ * 基礎識別資訊
+ */
+export interface BasicRecognitionInfo {
+  foods: DetectedFood[];
+  confidence: number;
+  description?: string;
+  suggestions?: string[];
+  processingTime: number;
+}
+
+/**
+ * 成分檢測資訊
+ */
+export interface ComponentDetectionInfo {
+  enabled: boolean;
+  success: boolean;
+  mainDish?: MainDishInfo;
+  components?: DetectedComponentInfo[];
+  nutritionSummary?: ComponentNutritionSummary;
+  metadata?: ComponentDetectionMetadata;
+  suggestions?: ComponentSuggestions;
+  error?: string;
+  errorCode?: string;
+  fallbackMessage?: string;
+}
+
+/**
+ * 主料理資訊
+ */
+export interface MainDishInfo {
+  name: string;
+  type: string;
+  confidence: number;
+  estimatedTotalPortion: number;
+}
+
+/**
+ * 檢測到的成分資訊
+ */
+export interface DetectedComponentInfo {
+  id: string;
+  name: string;
+  nameEn?: string;
+  confidence: number;
+  estimatedPortion: number;
+  cookingMethod?: string;
+  category?: string;
+  visualFeatures?: ComponentVisualFeatures;
+  nutritionPer100g?: NutritionData;
+  actualNutrition?: NutritionData;
+}
+
+/**
+ * 成分視覺特徵
+ */
+export interface ComponentVisualFeatures {
+  color: string[];
+  shape: string;
+  texture: string;
+  position: string;
+}
+
+/**
+ * 成分營養摘要
+ */
+export interface ComponentNutritionSummary {
+  total: NutritionData;
+  byComponent: ComponentNutritionDetail[];
+  byCategory: CategoryNutritionDetail[];
+  cookingImpact: CookingImpactDetail[];
+}
+
+/**
+ * 成分營養詳情
+ */
+export interface ComponentNutritionDetail {
+  component: DetectedComponentInfo;
+  rawNutrition: NutritionData;
+  cookedNutrition: NutritionData;
+  portionNutrition: NutritionData;
+  percentageOfTotal: NutritionPercentage;
+}
+
+/**
+ * 營養百分比
+ */
+export interface NutritionPercentage {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+/**
+ * 類別營養詳情
+ */
+export interface CategoryNutritionDetail {
+  category: string;
+  totalNutrition: NutritionData;
+  components: string[];
+  percentageOfDish: number;
+}
+
+/**
+ * 烹飪影響詳情
+ */
+export interface CookingImpactDetail {
+  method: string;
+  caloriesAdded: number;
+  fatAdded: number;
+  notes: string;
+}
+
+/**
+ * 成分檢測元數據
+ */
+export interface ComponentDetectionMetadata {
+  processingTime: number;
+  confidenceScore: number;
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  componentsDetected: number;
+  componentsFromKB: number;
+  componentsFromVision: number;
+}
+
+/**
+ * 成分建議
+ */
+export interface ComponentSuggestions {
+  possibleMissingComponents: string[];
+  portionAdjustments: PortionAdjustmentSuggestion[];
+  alternativeInterpretations: AlternativeInterpretationSuggestion[];
+}
+
+/**
+ * 份量調整建議
+ */
+export interface PortionAdjustmentSuggestion {
+  component: string;
+  suggestedPortion: number;
+  reason: string;
+}
+
+/**
+ * 替代解釋建議
+ */
+export interface AlternativeInterpretationSuggestion {
+  dishName: string;
+  components: DetectedComponentInfo[];
+  confidence: number;
+}
+
+/**
+ * 驗證資訊
+ */
+export interface ValidationInfo {
+  passed: boolean;
+  hasWarnings: boolean;
+  errors: string[];
+  warnings: string[];
+  infos?: string[];
+}

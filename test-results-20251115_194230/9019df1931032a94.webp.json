@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763206962492_u0wiy38oj",
+    "imageInfo": {
+      "imageId": "8036e2b1-b38f-43ad-bd7a-a584be9f2fd8",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763206963/health-nutrition-app/food-images/8036e2b1-b38f-43ad-bd7a-a584be9f2fd8_1763206962492.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763206963/health-nutrition-app/food-images/8036e2b1-b38f-43ad-bd7a-a584be9f2fd8_1763206962492.jpg",
+      "metadata": {
+        "originalSize": 9014,
+        "processedSize": 12939,
+        "width": 200,
+        "height": 250,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:42:44.105Z",
+        "features": {
+          "dominantColors": [
+            "#aa977d"
+          ],
+          "brightness": 0.5822823267973857,
+          "contrast": 0.49000620024416625,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763206968830-0.7227491367751016",
+          "name": "炒意大利麵",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道融合風味的炒意大利麵，結合了亞洲風味的食材如鴻禧菇和玉米筍，並以西式的意大利麵為主體。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763206968830-0.7227491367751016",
+            "name": "炒意大利麵",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "融合料理"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 6339,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:42:48.830Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 6339
+  },
+  "timestamp": "2025-11-15T11:42:48.831Z"
+}

@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207802780_21y2wodez",
+    "imageInfo": {
+      "imageId": "690d3b1f-864b-457e-a5db-5eff8c874aad",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207803/health-nutrition-app/food-images/690d3b1f-864b-457e-a5db-5eff8c874aad_1763207802780.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207803/health-nutrition-app/food-images/690d3b1f-864b-457e-a5db-5eff8c874aad_1763207802780.jpg",
+      "metadata": {
+        "originalSize": 7618,
+        "processedSize": 8738,
+        "width": 187,
+        "height": 177,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:56:44.175Z",
+        "features": {
+          "dominantColors": [
+            "#776d5f"
+          ],
+          "brightness": 0.4230427355288067,
+          "contrast": 0.4891648693164588,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207808164-0.5597449817825813",
+          "name": "滷肉飯",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道經典的台灣料理，滷肉飯，通常作為主食食用，具有濃郁的滷汁風味。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207808164-0.5597449817825813",
+            "name": "滷肉飯",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 5385,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:56:48.164Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 5385
+  },
+  "timestamp": "2025-11-15T11:56:48.165Z"
+}

@@ -1,0 +1,398 @@
+{
+  "timestamp": "2025-11-17T11:29:29.711Z",
+  "metrics": {
+    "totalTests": 6,
+    "correctTests": 4,
+    "accuracy": 0.6666666666666666,
+    "precision": 1,
+    "recall": 0.88,
+    "f1Score": 0.9361702127659575,
+    "avgProcessingTime": 3210.4636466970373
+  },
+  "mainComponentMetrics": {
+    "mainComponentsTotal": 23,
+    "mainComponentsRecognized": 21,
+    "accuracy": 0.9130434782608695
+  },
+  "portionMetrics": {
+    "avgError": 0.09265151515151517,
+    "maxError": 0.2,
+    "withinTarget": 22,
+    "totalTests": 22
+  },
+  "goals": [
+    {
+      "name": "成分識別準確率",
+      "target": 0.75,
+      "actual": 0.6666666666666666,
+      "achieved": false
+    },
+    {
+      "name": "主要成分識別率",
+      "target": 0.9,
+      "actual": 0.9130434782608695,
+      "achieved": true
+    },
+    {
+      "name": "份量估計準確度",
+      "target": 0.75,
+      "actual": 1,
+      "achieved": true
+    }
+  ],
+  "allAchieved": false,
+  "results": [
+    {
+      "testCaseId": "egg-fried-rice-01",
+      "dishName": "蛋炒飯",
+      "difficulty": "easy",
+      "expectedComponents": [
+        {
+          "name": "白飯",
+          "portion": 200,
+          "confidence": 1
+        },
+        {
+          "name": "雞蛋",
+          "portion": 50,
+          "confidence": 1
+        },
+        {
+          "name": "青蔥",
+          "portion": 10,
+          "confidence": 0.9
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "白飯",
+          "portion": 190,
+          "confidence": 0.8987710468091712
+        },
+        {
+          "name": "雞蛋",
+          "portion": 55,
+          "confidence": 0.9950428199581806
+        },
+        {
+          "name": "青蔥",
+          "portion": 12,
+          "confidence": 0.9494604896367022
+        }
+      ],
+      "correct": true,
+      "correctComponents": [
+        "白飯",
+        "雞蛋",
+        "青蔥"
+      ],
+      "missingComponents": [],
+      "extraComponents": [],
+      "processingTime": 2974.3729066575506
+    },
+    {
+      "testCaseId": "miso-soup-01",
+      "dishName": "味噌湯",
+      "difficulty": "medium",
+      "expectedComponents": [
+        {
+          "name": "味噌湯底",
+          "portion": 200,
+          "confidence": 1
+        },
+        {
+          "name": "豆腐",
+          "portion": 30,
+          "confidence": 1
+        },
+        {
+          "name": "海帶芽",
+          "portion": 5,
+          "confidence": 0.9
+        },
+        {
+          "name": "青蔥",
+          "portion": 5,
+          "confidence": 0.85
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "豆腐",
+          "portion": 29,
+          "confidence": 0.9785878485087023
+        },
+        {
+          "name": "海帶芽",
+          "portion": 6,
+          "confidence": 0.9909957695184619
+        }
+      ],
+      "correct": false,
+      "correctComponents": [
+        "豆腐",
+        "海帶芽"
+      ],
+      "missingComponents": [
+        "味噌湯底",
+        "青蔥"
+      ],
+      "extraComponents": [],
+      "processingTime": 3655.161043723162
+    },
+    {
+      "testCaseId": "taiwanese-bento-01",
+      "dishName": "台式便當",
+      "difficulty": "hard",
+      "expectedComponents": [
+        {
+          "name": "白飯",
+          "portion": 200,
+          "confidence": 1
+        },
+        {
+          "name": "炸排骨",
+          "portion": 120,
+          "confidence": 1
+        },
+        {
+          "name": "滷蛋",
+          "portion": 50,
+          "confidence": 1
+        },
+        {
+          "name": "炒高麗菜",
+          "portion": 60,
+          "confidence": 0.95
+        },
+        {
+          "name": "滷豆干",
+          "portion": 40,
+          "confidence": 0.9
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "白飯",
+          "portion": 224,
+          "confidence": 0.9475611444393421
+        },
+        {
+          "name": "炸排骨",
+          "portion": 112,
+          "confidence": 0.9988108524362387
+        },
+        {
+          "name": "滷蛋",
+          "portion": 43,
+          "confidence": 0.8752925326233797
+        },
+        {
+          "name": "炒高麗菜",
+          "portion": 69,
+          "confidence": 0.9843591485116715
+        },
+        {
+          "name": "滷豆干",
+          "portion": 45,
+          "confidence": 0.9072098790052147
+        }
+      ],
+      "correct": true,
+      "correctComponents": [
+        "白飯",
+        "炸排骨",
+        "滷蛋",
+        "炒高麗菜",
+        "滷豆干"
+      ],
+      "missingComponents": [],
+      "extraComponents": [],
+      "processingTime": 3545.216754375183
+    },
+    {
+      "testCaseId": "beef-noodle-soup-01",
+      "dishName": "牛肉麵",
+      "difficulty": "medium",
+      "expectedComponents": [
+        {
+          "name": "麵條",
+          "portion": 200,
+          "confidence": 1
+        },
+        {
+          "name": "牛肉",
+          "portion": 100,
+          "confidence": 1
+        },
+        {
+          "name": "牛肉湯",
+          "portion": 300,
+          "confidence": 1
+        },
+        {
+          "name": "青菜",
+          "portion": 50,
+          "confidence": 0.9
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "麵條",
+          "portion": 178,
+          "confidence": 0.9615724911459387
+        },
+        {
+          "name": "牛肉",
+          "portion": 107,
+          "confidence": 0.8708117995688973
+        },
+        {
+          "name": "牛肉湯",
+          "portion": 341,
+          "confidence": 0.9526409212838611
+        },
+        {
+          "name": "青菜",
+          "portion": 47,
+          "confidence": 0.8666488987207005
+        }
+      ],
+      "correct": true,
+      "correctComponents": [
+        "麵條",
+        "牛肉",
+        "牛肉湯",
+        "青菜"
+      ],
+      "missingComponents": [],
+      "extraComponents": [],
+      "processingTime": 3025.559110733675
+    },
+    {
+      "testCaseId": "kung-pao-chicken-01",
+      "dishName": "宮保雞丁",
+      "difficulty": "medium",
+      "expectedComponents": [
+        {
+          "name": "雞肉",
+          "portion": 120,
+          "confidence": 1
+        },
+        {
+          "name": "花生",
+          "portion": 30,
+          "confidence": 0.95
+        },
+        {
+          "name": "乾辣椒",
+          "portion": 5,
+          "confidence": 0.9
+        },
+        {
+          "name": "青蔥",
+          "portion": 10,
+          "confidence": 0.85
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "雞肉",
+          "portion": 118,
+          "confidence": 0.8852882122877384
+        },
+        {
+          "name": "花生",
+          "portion": 29,
+          "confidence": 0.9019471834666534
+        },
+        {
+          "name": "乾辣椒",
+          "portion": 5,
+          "confidence": 0.9466190621605772
+        },
+        {
+          "name": "青蔥",
+          "portion": 10,
+          "confidence": 0.9842123057879366
+        }
+      ],
+      "correct": true,
+      "correctComponents": [
+        "雞肉",
+        "花生",
+        "乾辣椒",
+        "青蔥"
+      ],
+      "missingComponents": [],
+      "extraComponents": [],
+      "processingTime": 3784.8645800705544
+    },
+    {
+      "testCaseId": "sushi-platter-01",
+      "dishName": "壽司拼盤",
+      "difficulty": "hard",
+      "expectedComponents": [
+        {
+          "name": "壽司飯",
+          "portion": 150,
+          "confidence": 1
+        },
+        {
+          "name": "鮭魚",
+          "portion": 50,
+          "confidence": 1
+        },
+        {
+          "name": "鮪魚",
+          "portion": 50,
+          "confidence": 1
+        },
+        {
+          "name": "海苔",
+          "portion": 5,
+          "confidence": 0.95
+        },
+        {
+          "name": "醃薑",
+          "portion": 10,
+          "confidence": 0.9
+        }
+      ],
+      "recognizedComponents": [
+        {
+          "name": "壽司飯",
+          "portion": 151,
+          "confidence": 0.9847372884673271
+        },
+        {
+          "name": "鮭魚",
+          "portion": 44,
+          "confidence": 0.9894552747097665
+        },
+        {
+          "name": "海苔",
+          "portion": 6,
+          "confidence": 0.8504892743102889
+        },
+        {
+          "name": "醃薑",
+          "portion": 9,
+          "confidence": 0.9903860486018443
+        }
+      ],
+      "correct": false,
+      "correctComponents": [
+        "壽司飯",
+        "鮭魚",
+        "海苔",
+        "醃薑"
+      ],
+      "missingComponents": [
+        "鮪魚"
+      ],
+      "extraComponents": [],
+      "processingTime": 2277.6074846220995
+    }
+  ]
+}

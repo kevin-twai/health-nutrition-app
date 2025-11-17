@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207692602_jc568i0eq",
+    "imageInfo": {
+      "imageId": "739ef14e-0949-492e-aa97-d824c536a5ab",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207693/health-nutrition-app/food-images/739ef14e-0949-492e-aa97-d824c536a5ab_1763207692602.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207693/health-nutrition-app/food-images/739ef14e-0949-492e-aa97-d824c536a5ab_1763207692602.jpg",
+      "metadata": {
+        "originalSize": 10678,
+        "processedSize": 14023,
+        "width": 225,
+        "height": 225,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:54:54.015Z",
+        "features": {
+          "dominantColors": [
+            "#8f7c62"
+          ],
+          "brightness": 0.47688539013959497,
+          "contrast": 0.38578057472211097,
+          "sharpness": 0.9875982712886041,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207697734-0.8045906065243775",
+          "name": "蘿蔔糕",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這道菜是中式點心蘿蔔糕，煎至金黃，外酥內嫩，常見於早餐或茶點中。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207697734-0.8045906065243775",
+            "name": "蘿蔔糕",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 5133,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:54:57.734Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 5133
+  },
+  "timestamp": "2025-11-15T11:54:57.735Z"
+}

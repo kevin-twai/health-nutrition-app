@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207563731_pp8d2pgch",
+    "imageInfo": {
+      "imageId": "acdea377-c686-46a6-b1ca-8904e698553a",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207564/health-nutrition-app/food-images/acdea377-c686-46a6-b1ca-8904e698553a_1763207563731.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207564/health-nutrition-app/food-images/acdea377-c686-46a6-b1ca-8904e698553a_1763207563731.jpg",
+      "metadata": {
+        "originalSize": 24423,
+        "processedSize": 27644,
+        "width": 511,
+        "height": 340,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:52:45.179Z",
+        "features": {
+          "dominantColors": [
+            "#84796c"
+          ],
+          "brightness": 0.47172879466049106,
+          "contrast": 0.4850235433847098,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207569978-0.2516858336873127",
+          "name": "小籠包",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一籠中式點心小籠包，蒸籠中排列整齊，麵皮薄透，內含肉餡及湯汁，適合搭配醬油、醋等調味料食用。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207569978-0.2516858336873127",
+            "name": "小籠包",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 6249,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:52:49.978Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 6249
+  },
+  "timestamp": "2025-11-15T11:52:49.980Z"
+}

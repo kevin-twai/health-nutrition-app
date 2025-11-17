@@ -1,5 +1,6 @@
 import { mongodb, NutritionDatabaseDocument } from '../mongodb';
 import { FoodCategory } from '../../types/shared';
+import { extendedTaiwanFoodNutritionData } from './nutrition-data-extended';
 
 // 台灣常見食物營養資料庫 (基於台灣食品營養成分資料庫)
 export const taiwanFoodNutritionData: Omit<NutritionDatabaseDocument, '_id' | 'created_at' | 'updated_at'>[] = [
@@ -281,8 +282,9 @@ export class NutritionDatabaseSeeder {
         return;
       }
       
-      // 準備插入資料
-      const documentsToInsert = taiwanFoodNutritionData.map(item => ({
+      // 準備插入資料 - 合併基礎資料和擴充資料
+      const allNutritionData = [...taiwanFoodNutritionData, ...extendedTaiwanFoodNutritionData];
+      const documentsToInsert = allNutritionData.map(item => ({
         ...item,
         created_at: new Date(),
         updated_at: new Date()

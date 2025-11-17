@@ -1,0 +1,248 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207766448_fn56vrqxf",
+    "imageInfo": {
+      "imageId": "75e1180f-e13e-4b51-bf27-ff47735ad4de",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207767/health-nutrition-app/food-images/75e1180f-e13e-4b51-bf27-ff47735ad4de_1763207766448.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207767/health-nutrition-app/food-images/75e1180f-e13e-4b51-bf27-ff47735ad4de_1763207766448.jpg",
+      "metadata": {
+        "originalSize": 8264,
+        "processedSize": 10740,
+        "width": 275,
+        "height": 183,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:56:07.654Z",
+        "features": {
+          "dominantColors": [
+            "#7b674e"
+          ],
+          "brightness": 0.396756871186958,
+          "contrast": 0.5779293492907835,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207776491-0.8302344042825994",
+          "name": "米粉",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207776491-0.48379562973318047",
+          "name": "魚丸",
+          "confidence": 0.9,
+          "estimatedPortion": 50,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207776491-0.46717200837332606",
+          "name": "香菜",
+          "confidence": 0.85,
+          "estimatedPortion": 5,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9,
+      "description": "這是一道台式米粉湯，包含米粉、魚丸和香菜，湯頭鮮美，適合寒冷天氣享用。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207776491-0.8302344042825994",
+            "name": "米粉",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207776491-0.48379562973318047",
+            "name": "魚丸",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "50g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207776491-0.46717200837332606",
+            "name": "香菜",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "5g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.85,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 10044,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9,
+          "timestamp": "2025-11-15T11:56:16.491Z"
+        }
+      ],
+      "finalConfidence": 0.9,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": true,
+      "errors": [],
+      "warnings": [
+        {
+          "passed": false,
+          "ruleName": "份量描述完整性檢查",
+          "severity": "warning",
+          "message": "發現 1 個份量描述問題",
+          "suggestions": [
+            "確保每個食物都有份量估算",
+            "份量應該是合理的數值（通常在 10g-1000g 之間）",
+            "份量可以四捨五入到整數或一位小數",
+            "對於難以估算的食物，可以使用標準份量（如一碗、一盤等）"
+          ],
+          "affectedFoods": [
+            "香菜"
+          ],
+          "details": {
+            "issues": [
+              "香菜 的份量可能不合理: 5g"
+            ]
+          }
+        }
+      ],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 10044
+  },
+  "timestamp": "2025-11-15T11:56:16.492Z"
+}

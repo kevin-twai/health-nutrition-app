@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208459700_9l9x20whj",
+    "imageInfo": {
+      "imageId": "b4fdbecd-918b-41b0-a0ba-a7ac1a75fa7a",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208461/health-nutrition-app/food-images/b4fdbecd-918b-41b0-a0ba-a7ac1a75fa7a_1763208459700.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208461/health-nutrition-app/food-images/b4fdbecd-918b-41b0-a0ba-a7ac1a75fa7a_1763208459700.jpg",
+      "metadata": {
+        "originalSize": 3757490,
+        "processedSize": 145047,
+        "width": 1024,
+        "height": 768,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:07:42.238Z",
+        "features": {
+          "dominantColors": [
+            "#8f7550"
+          ],
+          "brightness": 0.4440164570195483,
+          "contrast": 0.48448955954684897,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208486236-0.20286279151510178",
+          "name": "粥",
+          "confidence": 0.95,
+          "estimatedPortion": 300,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道中式粥品，米粒在淡黃色的湯中煮至柔軟，適合作為早餐或輕食。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208486236-0.20286279151510178",
+            "name": "粥",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "300g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 26539,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T12:08:06.236Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 26539
+  },
+  "timestamp": "2025-11-15T12:08:06.239Z"
+}

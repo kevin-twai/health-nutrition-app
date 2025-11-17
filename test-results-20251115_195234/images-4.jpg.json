@@ -1,0 +1,227 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207723435_5iu5i8r47",
+    "imageInfo": {
+      "imageId": "1c31d313-910d-4361-9b88-306941c9d7d8",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207724/health-nutrition-app/food-images/1c31d313-910d-4361-9b88-306941c9d7d8_1763207723436.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207724/health-nutrition-app/food-images/1c31d313-910d-4361-9b88-306941c9d7d8_1763207723436.jpg",
+      "metadata": {
+        "originalSize": 13275,
+        "processedSize": 17536,
+        "width": 259,
+        "height": 194,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:55:24.779Z",
+        "features": {
+          "dominantColors": [
+            "#9b7758"
+          ],
+          "brightness": 0.47263703103606075,
+          "contrast": 0.5273973398370667,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207733727-0.33470841058691847",
+          "name": "油飯",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207733727-0.3225263148828974",
+          "name": "小黃瓜",
+          "confidence": 0.9,
+          "estimatedPortion": 30,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207733727-0.868770581367889",
+          "name": "肉鬆",
+          "confidence": 0.85,
+          "estimatedPortion": 20,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9,
+      "description": "這是一道典型的台式油飯，搭配小黃瓜和肉鬆，呈現出豐富的口感和風味。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207733727-0.33470841058691847",
+            "name": "油飯",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207733727-0.3225263148828974",
+            "name": "小黃瓜",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "30g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207733727-0.868770581367889",
+            "name": "肉鬆",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "20g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.85,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 10293,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9,
+          "timestamp": "2025-11-15T11:55:33.727Z"
+        }
+      ],
+      "finalConfidence": 0.9,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 10293
+  },
+  "timestamp": "2025-11-15T11:55:33.728Z"
+}

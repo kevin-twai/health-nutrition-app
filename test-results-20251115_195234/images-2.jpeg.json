@@ -1,0 +1,227 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207670225_ux49pws7a",
+    "imageInfo": {
+      "imageId": "500e4354-2bb1-4323-88d2-36cf443205d9",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207671/health-nutrition-app/food-images/500e4354-2bb1-4323-88d2-36cf443205d9_1763207670225.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207671/health-nutrition-app/food-images/500e4354-2bb1-4323-88d2-36cf443205d9_1763207670225.jpg",
+      "metadata": {
+        "originalSize": 10555,
+        "processedSize": 13893,
+        "width": 259,
+        "height": 194,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:54:31.597Z",
+        "features": {
+          "dominantColors": [
+            "#a79171"
+          ],
+          "brightness": 0.5564693082582712,
+          "contrast": 0.46522301496419577,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207680272-0.9994994785317992",
+          "name": "炸醬麵",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207680272-0.5296438998236667",
+          "name": "肉燥",
+          "confidence": 0.9,
+          "estimatedPortion": 50,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763207680272-0.3563074038816507",
+          "name": "豆芽",
+          "confidence": 0.85,
+          "estimatedPortion": 30,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9,
+      "description": "這是一道中式主食，炸醬麵，包含白色麵條、肉燥和豆芽，通常拌勻後食用，口感豐富。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207680272-0.9994994785317992",
+            "name": "炸醬麵",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207680272-0.5296438998236667",
+            "name": "肉燥",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "50g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763207680272-0.3563074038816507",
+            "name": "豆芽",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "30g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.85,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 10048,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9,
+          "timestamp": "2025-11-15T11:54:40.272Z"
+        }
+      ],
+      "finalConfidence": 0.9,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 10048
+  },
+  "timestamp": "2025-11-15T11:54:40.273Z"
+}

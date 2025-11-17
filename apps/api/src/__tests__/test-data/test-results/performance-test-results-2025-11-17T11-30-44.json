@@ -1,0 +1,181 @@
+{
+  "timestamp": "2025-11-17T11:30:44.077Z",
+  "stats": {
+    "overall": {
+      "total": 6,
+      "passed": 6,
+      "passRate": 1,
+      "avgResponseTime": 3387.6666666666665,
+      "minResponseTime": 1525,
+      "maxResponseTime": 5028
+    },
+    "byDifficulty": {
+      "easy": {
+        "total": 1,
+        "passed": 1,
+        "passRate": 1,
+        "avgResponseTime": 1525,
+        "targetTime": 3000,
+        "minResponseTime": 1525,
+        "maxResponseTime": 1525
+      },
+      "medium": {
+        "total": 3,
+        "passed": 3,
+        "passRate": 1,
+        "avgResponseTime": 2937.6666666666665,
+        "targetTime": 5000,
+        "minResponseTime": 2865,
+        "maxResponseTime": 3007
+      },
+      "hard": {
+        "total": 2,
+        "passed": 2,
+        "passRate": 1,
+        "avgResponseTime": 4994,
+        "targetTime": 8000,
+        "minResponseTime": 4960,
+        "maxResponseTime": 5028
+      }
+    }
+  },
+  "breakdownStats": {
+    "imageProcessing": {
+      "avg": 703.3333333333334,
+      "min": 316,
+      "max": 1104,
+      "percentage": 20.76158614582308
+    },
+    "componentDetection": {
+      "avg": 1692.3333333333333,
+      "min": 781,
+      "max": 2535,
+      "percentage": 49.95572173570796
+    },
+    "nutritionCalculation": {
+      "avg": 654.5,
+      "min": 287,
+      "max": 953,
+      "percentage": 19.32008265276001
+    },
+    "suggestionGeneration": {
+      "avg": 337.5,
+      "min": 141,
+      "max": 534,
+      "percentage": 9.962609465708944
+    }
+  },
+  "goals": [
+    {
+      "name": "簡單料理響應時間",
+      "target": "< 3秒",
+      "actual": "1525ms",
+      "achieved": true
+    },
+    {
+      "name": "中等複雜料理響應時間",
+      "target": "< 5秒",
+      "actual": "2938ms",
+      "achieved": true
+    },
+    {
+      "name": "複雜料理響應時間",
+      "target": "< 8秒",
+      "actual": "4994ms",
+      "achieved": true
+    }
+  ],
+  "allAchieved": true,
+  "results": [
+    {
+      "testCaseId": "egg-fried-rice-01",
+      "dishName": "蛋炒飯",
+      "difficulty": "easy",
+      "componentsCount": 3,
+      "responseTime": 1525,
+      "targetTime": 3000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 316,
+        "componentDetection": 781,
+        "nutritionCalculation": 287,
+        "suggestionGeneration": 141
+      }
+    },
+    {
+      "testCaseId": "miso-soup-01",
+      "dishName": "味噌湯",
+      "difficulty": "medium",
+      "componentsCount": 4,
+      "responseTime": 3007,
+      "targetTime": 5000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 597,
+        "componentDetection": 1518,
+        "nutritionCalculation": 598,
+        "suggestionGeneration": 294
+      }
+    },
+    {
+      "testCaseId": "taiwanese-bento-01",
+      "dishName": "台式便當",
+      "difficulty": "hard",
+      "componentsCount": 5,
+      "responseTime": 4960,
+      "targetTime": 8000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 1104,
+        "componentDetection": 2423,
+        "nutritionCalculation": 951,
+        "suggestionGeneration": 482
+      }
+    },
+    {
+      "testCaseId": "beef-noodle-soup-01",
+      "dishName": "牛肉麵",
+      "difficulty": "medium",
+      "componentsCount": 4,
+      "responseTime": 2941,
+      "targetTime": 5000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 599,
+        "componentDetection": 1454,
+        "nutritionCalculation": 606,
+        "suggestionGeneration": 282
+      }
+    },
+    {
+      "testCaseId": "kung-pao-chicken-01",
+      "dishName": "宮保雞丁",
+      "difficulty": "medium",
+      "componentsCount": 4,
+      "responseTime": 2865,
+      "targetTime": 5000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 598,
+        "componentDetection": 1443,
+        "nutritionCalculation": 532,
+        "suggestionGeneration": 292
+      }
+    },
+    {
+      "testCaseId": "sushi-platter-01",
+      "dishName": "壽司拼盤",
+      "difficulty": "hard",
+      "componentsCount": 5,
+      "responseTime": 5028,
+      "targetTime": 8000,
+      "passed": true,
+      "breakdown": {
+        "imageProcessing": 1006,
+        "componentDetection": 2535,
+        "nutritionCalculation": 953,
+        "suggestionGeneration": 534
+      }
+    }
+  ]
+}

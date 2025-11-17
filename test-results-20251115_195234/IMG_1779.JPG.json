@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208492866_b3ql9myvv",
+    "imageInfo": {
+      "imageId": "b2464365-0304-4999-8c3f-aa4271bd232c",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208494/health-nutrition-app/food-images/b2464365-0304-4999-8c3f-aa4271bd232c_1763208492866.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208494/health-nutrition-app/food-images/b2464365-0304-4999-8c3f-aa4271bd232c_1763208492866.jpg",
+      "metadata": {
+        "originalSize": 2492373,
+        "processedSize": 129136,
+        "width": 768,
+        "height": 1024,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:08:15.618Z",
+        "features": {
+          "dominantColors": [
+            "#b5a589"
+          ],
+          "brightness": 0.630543586215682,
+          "contrast": 0.6038468499252314,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208505073-0.713509566921425",
+          "name": "海苔蛋花粥",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道日式風味的海苔蛋花粥，口感柔滑，風味清淡，適合作為早餐或輕食。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208505073-0.713509566921425",
+            "name": "海苔蛋花粥",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 12209,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T12:08:25.073Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 12209
+  },
+  "timestamp": "2025-11-15T12:08:25.075Z"
+}

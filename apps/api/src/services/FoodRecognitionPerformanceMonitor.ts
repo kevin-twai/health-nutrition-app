@@ -74,6 +74,56 @@ export interface KnowledgeBaseQueryMetrics {
 }
 
 /**
+ * 成分識別性能指標
+ */
+export interface ComponentDetectionMetrics {
+  sessionId: string;
+  userId?: string;
+  dishName: string;
+  dishType: string;
+  totalDuration: number;
+  componentsDetected: number;
+  
+  // 各階段耗時
+  visionApiDuration: number;
+  knowledgeBaseDuration: number;
+  nutritionCalculationDuration: number;
+  validationDuration: number;
+  
+  // API 調用
+  visionApiCalls: number;
+  visionApiSuccess: boolean;
+  
+  // 知識庫查詢
+  knowledgeBaseQueries: number;
+  knowledgeBaseCacheHits: number;
+  
+  // 營養計算
+  nutritionCalculations: number;
+  
+  // 結果
+  averageConfidence: number;
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  success: boolean;
+  errorMessage?: string;
+  
+  timestamp: Date;
+}
+
+/**
+ * 成分識別階段性能
+ */
+export interface ComponentDetectionStageMetrics {
+  stageName: 'vision_api' | 'knowledge_base' | 'nutrition_calculation' | 'validation';
+  startTime: number;
+  endTime: number;
+  duration: number;
+  success: boolean;
+  itemsProcessed: number;
+  errorMessage?: string;
+}
+
+/**
  * 性能統計摘要
  */
 export interface PerformanceStatistics {
@@ -110,6 +160,7 @@ export class FoodRecognitionPerformanceMonitor {
   private sessionMetrics: RecognitionSessionMetrics[] = [];
   private apiCallMetrics: ApiCallMetrics[] = [];
   private knowledgeBaseMetrics: KnowledgeBaseQueryMetrics[] = [];
+  private componentDetectionMetrics: ComponentDetectionMetrics[] = [];
   
   // 配置
   private readonly MAX_METRICS_HISTORY = 1000;
@@ -125,6 +176,20 @@ export class FoodRecognitionPerformanceMonitor {
     imageSize: number;
     imageFormat: string;
     userId?: string;
+  }> = new Map();
+  
+  // 當前成分識別會話追蹤
+  private currentComponentSessions: Map<string, {
+    sessionId: string;
+    userId?: string;
+    dishName: string;
+    dishType: string;
+    startTime: number;
+    stages: ComponentDetectionStageMetrics[];
+    visionApiCalls: number;
+    knowledgeBaseQueries: number;
+    knowledgeBaseCacheHits: number;
+    nutritionCalculations: number;
   }> = new Map();
 
   private constructor() {
@@ -653,6 +718,7 @@ export class FoodRecognitionPerformanceMonitor {
     const initialSessionCount = this.sessionMetrics.length;
     const initialApiCallCount = this.apiCallMetrics.length;
     const initialKbQueryCount = this.knowledgeBaseMetrics.length;
+    const initialComponentCount = this.componentDetectionMetrics.length;
 
     // 清理會話指標
     this.sessionMetrics = this.sessionMetrics.filter(
@@ -669,18 +735,26 @@ export class FoodRecognitionPerformanceMonitor {
       q => q.timestamp.getTime() >= cutoff
     );
 
+    // 清理成分識別指標
+    this.componentDetectionMetrics = this.componentDetectionMetrics.filter(
+      c => c.timestamp.getTime() >= cutoff
+    );
+
     const removedSessions = initialSessionCount - this.sessionMetrics.length;
     const removedApiCalls = initialApiCallCount - this.apiCallMetrics.length;
     const removedKbQueries = initialKbQueryCount - this.knowledgeBaseMetrics.length;
+    const removedComponents = initialComponentCount - this.componentDetectionMetrics.length;
 
-    if (removedSessions > 0 || removedApiCalls > 0 || removedKbQueries > 0) {
+    if (removedSessions > 0 || removedApiCalls > 0 || removedKbQueries > 0 || removedComponents > 0) {
       logger.debug('清理舊的性能指標', {
         removedSessions,
         removedApiCalls,
         removedKbQueries,
+        removedComponents,
         remainingSessions: this.sessionMetrics.length,
         remainingApiCalls: this.apiCallMetrics.length,
-        remainingKbQueries: this.knowledgeBaseMetrics.length
+        remainingKbQueries: this.knowledgeBaseMetrics.length,
+        remainingComponents: this.componentDetectionMetrics.length
       });
     }
   }
@@ -693,6 +767,7 @@ export class FoodRecognitionPerformanceMonitor {
     const apiStats = this.getApiCallStatistics(timeWindow);
     const kbStats = this.getKnowledgeBaseStatistics(timeWindow);
     const memoryTrend = this.getMemoryUsageTrend();
+    const componentStats = this.getComponentDetectionStatistics(timeWindow);
 
     const report = `
 === 食物識別性能報告 ===
@@ -727,6 +802,14 @@ export class FoodRecognitionPerformanceMonitor {
 - 平均搜索項目: ${kbStats.averageItemsSearched.toFixed(0)}
 - 平均匹配項目: ${kbStats.averageItemsMatched.toFixed(0)}
 
+【成分識別統計】
+- 總會話數: ${componentStats.totalSessions}
+- 成功會話: ${componentStats.successfulSessions} (${componentStats.totalSessions > 0 ? ((componentStats.successfulSessions / componentStats.totalSessions) * 100).toFixed(1) : 0}%)
+- 平均處理時間: ${componentStats.averageDuration.toFixed(0)}ms
+- 平均識別成分數: ${componentStats.averageComponentsDetected.toFixed(1)}
+- Vision API 成功率: ${(componentStats.visionApiSuccessRate * 100).toFixed(1)}%
+- 知識庫緩存命中率: ${(componentStats.knowledgeBaseCacheHitRate * 100).toFixed(1)}%
+
 【內存使用】
 - 當前內存: ${memoryTrend.currentMemoryMB}MB
 - 平均內存: ${memoryTrend.averageMemoryMB.toFixed(0)}MB
@@ -746,13 +829,409 @@ ${Array.from(stats.errorDistribution.entries())
   }
 
   /**
+   * 開始成分識別會話
+   */
+  startComponentDetectionSession(
+    sessionId: string,
+    dishName: string,
+    dishType: string,
+    userId?: string
+  ): void {
+    this.currentComponentSessions.set(sessionId, {
+      sessionId,
+      userId,
+      dishName,
+      dishType,
+      startTime: Date.now(),
+      stages: [],
+      visionApiCalls: 0,
+      knowledgeBaseQueries: 0,
+      knowledgeBaseCacheHits: 0,
+      nutritionCalculations: 0
+    });
+
+    logger.debug('開始成分識別會話', {
+      sessionId,
+      dishName,
+      dishType,
+      userId
+    });
+  }
+
+  /**
+   * 記錄成分識別階段
+   */
+  recordComponentDetectionStage(
+    sessionId: string,
+    stageName: 'vision_api' | 'knowledge_base' | 'nutrition_calculation' | 'validation',
+    startTime: number,
+    endTime: number,
+    itemsProcessed: number,
+    success: boolean,
+    errorMessage?: string
+  ): void {
+    const session = this.currentComponentSessions.get(sessionId);
+    if (!session) {
+      logger.warn('找不到成分識別會話', { sessionId });
+      return;
+    }
+
+    const stageMetrics: ComponentDetectionStageMetrics = {
+      stageName,
+      startTime,
+      endTime,
+      duration: endTime - startTime,
+      success,
+      itemsProcessed,
+      errorMessage
+    };
+
+    session.stages.push(stageMetrics);
+
+    // 更新計數器
+    if (stageName === 'vision_api' && success) {
+      session.visionApiCalls++;
+    } else if (stageName === 'knowledge_base') {
+      session.knowledgeBaseQueries++;
+    } else if (stageName === 'nutrition_calculation') {
+      session.nutritionCalculations += itemsProcessed;
+    }
+
+    // 記錄到性能日誌
+    performanceLogger.info('成分識別階段完成', {
+      sessionId,
+      ...stageMetrics
+    });
+
+    // 檢查慢階段
+    const thresholds = {
+      vision_api: 3000,
+      knowledge_base: 500,
+      nutrition_calculation: 1000,
+      validation: 500
+    };
+
+    if (stageMetrics.duration > thresholds[stageName]) {
+      logger.warn('成分識別階段過慢', {
+        sessionId,
+        stageName,
+        duration: stageMetrics.duration,
+        threshold: thresholds[stageName],
+        itemsProcessed
+      });
+    }
+  }
+
+  /**
+   * 記錄成分識別知識庫緩存命中
+   */
+  recordComponentKnowledgeBaseCacheHit(sessionId: string): void {
+    const session = this.currentComponentSessions.get(sessionId);
+    if (session) {
+      session.knowledgeBaseCacheHits++;
+    }
+  }
+
+  /**
+   * 結束成分識別會話
+   */
+  endComponentDetectionSession(
+    sessionId: string,
+    componentsDetected: number,
+    averageConfidence: number,
+    detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid',
+    success: boolean,
+    errorMessage?: string
+  ): void {
+    const session = this.currentComponentSessions.get(sessionId);
+    if (!session) {
+      logger.warn('找不到成分識別會話', { sessionId });
+      return;
+    }
+
+    const endTime = Date.now();
+    const totalDuration = endTime - session.startTime;
+
+    // 計算各階段耗時
+    const visionApiStages = session.stages.filter(s => s.stageName === 'vision_api');
+    const knowledgeBaseStages = session.stages.filter(s => s.stageName === 'knowledge_base');
+    const nutritionStages = session.stages.filter(s => s.stageName === 'nutrition_calculation');
+    const validationStages = session.stages.filter(s => s.stageName === 'validation');
+
+    const visionApiDuration = visionApiStages.reduce((sum, s) => sum + s.duration, 0);
+    const knowledgeBaseDuration = knowledgeBaseStages.reduce((sum, s) => sum + s.duration, 0);
+    const nutritionCalculationDuration = nutritionStages.reduce((sum, s) => sum + s.duration, 0);
+    const validationDuration = validationStages.reduce((sum, s) => sum + s.duration, 0);
+
+    const visionApiSuccess = visionApiStages.length > 0 && visionApiStages.every(s => s.success);
+
+    const metrics: ComponentDetectionMetrics = {
+      sessionId,
+      userId: session.userId,
+      dishName: session.dishName,
+      dishType: session.dishType,
+      totalDuration,
+      componentsDetected,
+      visionApiDuration,
+      knowledgeBaseDuration,
+      nutritionCalculationDuration,
+      validationDuration,
+      visionApiCalls: session.visionApiCalls,
+      visionApiSuccess,
+      knowledgeBaseQueries: session.knowledgeBaseQueries,
+      knowledgeBaseCacheHits: session.knowledgeBaseCacheHits,
+      nutritionCalculations: session.nutritionCalculations,
+      averageConfidence,
+      detectionMethod,
+      success,
+      errorMessage,
+      timestamp: new Date()
+    };
+
+    // 添加到全局指標
+    this.componentDetectionMetrics.push(metrics);
+
+    // 保持指標數量在限制內
+    if (this.componentDetectionMetrics.length > this.MAX_METRICS_HISTORY) {
+      const removeCount = Math.floor(this.MAX_METRICS_HISTORY * 0.2);
+      this.componentDetectionMetrics.splice(0, removeCount);
+    }
+
+    // 記錄到性能日誌
+    performanceLogger.info('成分識別會話完成', metrics);
+
+    // 檢查慢會話
+    if (totalDuration > 8000) {
+      logger.warn('成分識別會話過慢', {
+        sessionId,
+        totalDuration,
+        threshold: 8000,
+        componentsDetected,
+        visionApiDuration,
+        knowledgeBaseDuration,
+        nutritionCalculationDuration
+      });
+    }
+
+    // 檢查失敗的會話
+    if (!success) {
+      logger.error('成分識別會話失敗', {
+        sessionId,
+        errorMessage,
+        totalDuration,
+        componentsDetected
+      });
+    }
+
+    // 清理當前會話
+    this.currentComponentSessions.delete(sessionId);
+  }
+
+  /**
+   * 獲取成分識別性能統計
+   */
+  getComponentDetectionStatistics(timeWindow: number = 300000): {
+    totalSessions: number;
+    successfulSessions: number;
+    failedSessions: number;
+    averageDuration: number;
+    averageComponentsDetected: number;
+    averageConfidence: number;
+    
+    // 各階段平均耗時
+    averageVisionApiDuration: number;
+    averageKnowledgeBaseDuration: number;
+    averageNutritionCalculationDuration: number;
+    averageValidationDuration: number;
+    
+    // API 和查詢統計
+    totalVisionApiCalls: number;
+    visionApiSuccessRate: number;
+    totalKnowledgeBaseQueries: number;
+    knowledgeBaseCacheHitRate: number;
+    totalNutritionCalculations: number;
+    
+    // 檢測方法分佈
+    detectionMethodDistribution: {
+      vision_api: number;
+      knowledge_base: number;
+      hybrid: number;
+    };
+    
+    // 料理類型分佈
+    dishTypeDistribution: Map<string, number>;
+    
+    slowSessions: number;
+    timeWindow: number;
+  } {
+    const now = Date.now();
+    const windowStart = now - timeWindow;
+
+    const recentSessions = this.componentDetectionMetrics.filter(
+      s => s.timestamp.getTime() >= windowStart
+    );
+
+    if (recentSessions.length === 0) {
+      return {
+        totalSessions: 0,
+        successfulSessions: 0,
+        failedSessions: 0,
+        averageDuration: 0,
+        averageComponentsDetected: 0,
+        averageConfidence: 0,
+        averageVisionApiDuration: 0,
+        averageKnowledgeBaseDuration: 0,
+        averageNutritionCalculationDuration: 0,
+        averageValidationDuration: 0,
+        totalVisionApiCalls: 0,
+        visionApiSuccessRate: 0,
+        totalKnowledgeBaseQueries: 0,
+        knowledgeBaseCacheHitRate: 0,
+        totalNutritionCalculations: 0,
+        detectionMethodDistribution: {
+          vision_api: 0,
+          knowledge_base: 0,
+          hybrid: 0
+        },
+        dishTypeDistribution: new Map(),
+        slowSessions: 0,
+        timeWindow
+      };
+    }
+
+    const successfulSessions = recentSessions.filter(s => s.success);
+    const failedSessions = recentSessions.filter(s => !s.success);
+
+    // 計算平均值
+    const totalDuration = recentSessions.reduce((sum, s) => sum + s.totalDuration, 0);
+    const totalComponents = recentSessions.reduce((sum, s) => sum + s.componentsDetected, 0);
+    const totalConfidence = successfulSessions.reduce((sum, s) => sum + s.averageConfidence, 0);
+    
+    const totalVisionApiDuration = recentSessions.reduce((sum, s) => sum + s.visionApiDuration, 0);
+    const totalKnowledgeBaseDuration = recentSessions.reduce((sum, s) => sum + s.knowledgeBaseDuration, 0);
+    const totalNutritionCalculationDuration = recentSessions.reduce((sum, s) => sum + s.nutritionCalculationDuration, 0);
+    const totalValidationDuration = recentSessions.reduce((sum, s) => sum + s.validationDuration, 0);
+
+    const totalVisionApiCalls = recentSessions.reduce((sum, s) => sum + s.visionApiCalls, 0);
+    const successfulVisionApiCalls = recentSessions.filter(s => s.visionApiSuccess).length;
+    const totalKnowledgeBaseQueries = recentSessions.reduce((sum, s) => sum + s.knowledgeBaseQueries, 0);
+    const totalKnowledgeBaseCacheHits = recentSessions.reduce((sum, s) => sum + s.knowledgeBaseCacheHits, 0);
+    const totalNutritionCalculations = recentSessions.reduce((sum, s) => sum + s.nutritionCalculations, 0);
+
+    // 檢測方法分佈
+    const detectionMethodDistribution = {
+      vision_api: recentSessions.filter(s => s.detectionMethod === 'vision_api').length,
+      knowledge_base: recentSessions.filter(s => s.detectionMethod === 'knowledge_base').length,
+      hybrid: recentSessions.filter(s => s.detectionMethod === 'hybrid').length
+    };
+
+    // 料理類型分佈
+    const dishTypeDistribution = new Map<string, number>();
+    recentSessions.forEach(session => {
+      const count = dishTypeDistribution.get(session.dishType) || 0;
+      dishTypeDistribution.set(session.dishType, count + 1);
+    });
+
+    const slowSessions = recentSessions.filter(s => s.totalDuration > 8000).length;
+
+    return {
+      totalSessions: recentSessions.length,
+      successfulSessions: successfulSessions.length,
+      failedSessions: failedSessions.length,
+      averageDuration: totalDuration / recentSessions.length,
+      averageComponentsDetected: totalComponents / recentSessions.length,
+      averageConfidence: successfulSessions.length > 0 
+        ? totalConfidence / successfulSessions.length 
+        : 0,
+      averageVisionApiDuration: totalVisionApiDuration / recentSessions.length,
+      averageKnowledgeBaseDuration: totalKnowledgeBaseDuration / recentSessions.length,
+      averageNutritionCalculationDuration: totalNutritionCalculationDuration / recentSessions.length,
+      averageValidationDuration: totalValidationDuration / recentSessions.length,
+      totalVisionApiCalls,
+      visionApiSuccessRate: totalVisionApiCalls > 0 
+        ? successfulVisionApiCalls / totalVisionApiCalls 
+        : 0,
+      totalKnowledgeBaseQueries,
+      knowledgeBaseCacheHitRate: totalKnowledgeBaseQueries > 0 
+        ? totalKnowledgeBaseCacheHits / totalKnowledgeBaseQueries 
+        : 0,
+      totalNutritionCalculations,
+      detectionMethodDistribution,
+      dishTypeDistribution,
+      slowSessions,
+      timeWindow
+    };
+  }
+
+  /**
+   * 生成成分識別性能報告
+   */
+  generateComponentDetectionReport(timeWindow: number = 300000): string {
+    const stats = this.getComponentDetectionStatistics(timeWindow);
+
+    const report = `
+=== 成分識別性能報告 ===
+時間窗口: ${timeWindow / 1000} 秒
+
+【識別會話統計】
+- 總會話數: ${stats.totalSessions}
+- 成功會話: ${stats.successfulSessions} (${((stats.successfulSessions / stats.totalSessions) * 100).toFixed(1)}%)
+- 失敗會話: ${stats.failedSessions} (${((stats.failedSessions / stats.totalSessions) * 100).toFixed(1)}%)
+- 平均處理時間: ${stats.averageDuration.toFixed(0)}ms
+- 平均識別成分數: ${stats.averageComponentsDetected.toFixed(1)}
+- 平均信心度: ${(stats.averageConfidence * 100).toFixed(1)}%
+- 慢會話數: ${stats.slowSessions} (>8000ms)
+
+【各階段平均耗時】
+- Vision API: ${stats.averageVisionApiDuration.toFixed(0)}ms (${((stats.averageVisionApiDuration / stats.averageDuration) * 100).toFixed(1)}%)
+- 知識庫查詢: ${stats.averageKnowledgeBaseDuration.toFixed(0)}ms (${((stats.averageKnowledgeBaseDuration / stats.averageDuration) * 100).toFixed(1)}%)
+- 營養計算: ${stats.averageNutritionCalculationDuration.toFixed(0)}ms (${((stats.averageNutritionCalculationDuration / stats.averageDuration) * 100).toFixed(1)}%)
+- 驗證: ${stats.averageValidationDuration.toFixed(0)}ms (${((stats.averageValidationDuration / stats.averageDuration) * 100).toFixed(1)}%)
+
+【API 和查詢統計】
+- Vision API 調用: ${stats.totalVisionApiCalls} 次
+- Vision API 成功率: ${(stats.visionApiSuccessRate * 100).toFixed(1)}%
+- 知識庫查詢: ${stats.totalKnowledgeBaseQueries} 次
+- 知識庫緩存命中率: ${(stats.knowledgeBaseCacheHitRate * 100).toFixed(1)}%
+- 營養計算次數: ${stats.totalNutritionCalculations}
+
+【檢測方法分佈】
+- Vision API: ${stats.detectionMethodDistribution.vision_api} (${((stats.detectionMethodDistribution.vision_api / stats.totalSessions) * 100).toFixed(1)}%)
+- 知識庫: ${stats.detectionMethodDistribution.knowledge_base} (${((stats.detectionMethodDistribution.knowledge_base / stats.totalSessions) * 100).toFixed(1)}%)
+- 混合: ${stats.detectionMethodDistribution.hybrid} (${((stats.detectionMethodDistribution.hybrid / stats.totalSessions) * 100).toFixed(1)}%)
+
+【料理類型分佈】
+${Array.from(stats.dishTypeDistribution.entries())
+  .sort((a, b) => b[1] - a[1])
+  .map(([type, count]) => `- ${type}: ${count} (${((count / stats.totalSessions) * 100).toFixed(1)}%)`)
+  .join('\n') || '無數據'}
+
+生成時間: ${new Date().toISOString()}
+========================
+`;
+
+    return report;
+  }
+
+  /**
+   * 獲取最慢的成分識別會話
+   */
+  getSlowestComponentDetectionSessions(limit: number = 10): ComponentDetectionMetrics[] {
+    return [...this.componentDetectionMetrics]
+      .sort((a, b) => b.totalDuration - a.totalDuration)
+      .slice(0, limit);
+  }
+
+  /**
    * 重置所有指標
    */
   reset(): void {
     this.sessionMetrics = [];
     this.apiCallMetrics = [];
     this.knowledgeBaseMetrics = [];
+    this.componentDetectionMetrics = [];
     this.currentSessions.clear();
+    this.currentComponentSessions.clear();
     logger.info('性能監控指標已重置');
   }
 }

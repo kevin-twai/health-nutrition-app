@@ -32,7 +32,8 @@ export enum FoodCategory {
   EGGS = '蛋類',
   TOFU = '豆腐類',
   DRIED_GOODS = '乾貨',
-  HERBS_SPICES = '香料香草'
+  HERBS_SPICES = '香料香草',
+  SEAWEED = '海藻類'
 }
 
 /**
@@ -105,6 +106,7 @@ export interface NutritionInfo {
   sodium: number;         // 鈉 (mg)
   calcium?: number;       // 鈣 (mg)
   iron?: number;          // 鐵 (mg)
+  iodine?: number;        // 碘 (μg)
 }
 
 /**
@@ -114,6 +116,21 @@ export interface RegionalVariant {
   region: string;          // 地區
   localName: string;       // 當地名稱
   differences: string[];   // 差異描述
+}
+
+/**
+ * 成分資訊（用於成分識別系統）
+ */
+export interface ComponentInfo {
+  category: string;                     // 成分類別（對應 ComponentCategory）
+  isCommonComponent: boolean;           // 是否為常見成分
+  typicalDishes: string[];              // 常見於哪些料理
+  cookingMethods: string[];             // 常見烹飪方式（對應 ComponentCookingMethod）
+  portionRanges: {                      // 份量範圍
+    min: number;                        // 最小份量（克）
+    max: number;                        // 最大份量（克）
+    typical: number;                    // 典型份量（克）
+  };
 }
 
 /**
@@ -136,6 +153,7 @@ export interface FoodItem {
   seasonality?: string[];               // 季節性
   culturalNotes?: string;               // 文化註記
   tags?: string[];                      // 標籤
+  componentInfo?: ComponentInfo;        // 成分資訊（用於成分識別）
 }
 
 /**

@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207682983_yremmk2iz",
+    "imageInfo": {
+      "imageId": "c649a05f-2a05-4d00-95de-67eb2274dec5",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207684/health-nutrition-app/food-images/c649a05f-2a05-4d00-95de-67eb2274dec5_1763207682983.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207684/health-nutrition-app/food-images/c649a05f-2a05-4d00-95de-67eb2274dec5_1763207682983.jpg",
+      "metadata": {
+        "originalSize": 13216,
+        "processedSize": 17695,
+        "width": 259,
+        "height": 194,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:54:44.618Z",
+        "features": {
+          "dominantColors": [
+            "#918258"
+          ],
+          "brightness": 0.4735231289506608,
+          "contrast": 0.3992164639793521,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207689564-0.9467948723192922",
+          "name": "蚵仔煎",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這道菜是台灣的蚵仔煎，使用蚵仔、蛋液和地瓜粉漿煎製，並搭配甜辣醬和綠色蔬菜。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207689564-0.9467948723192922",
+            "name": "蚵仔煎",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 6582,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:54:49.564Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 6582
+  },
+  "timestamp": "2025-11-15T11:54:49.565Z"
+}

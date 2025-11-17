@@ -3,6 +3,7 @@ import { FeedbackController } from '../controllers/FeedbackController';
 import { FeedbackCollector } from '../services/FeedbackCollector';
 import { FeedbackAnalyzer } from '../services/FeedbackAnalyzer';
 import { FeedbackImprover } from '../services/FeedbackImprover';
+import { ComponentFeedbackCollector } from '../services/ComponentFeedbackCollector';
 import { FeedbackRepository } from '../repositories/FeedbackRepository';
 import { AsianCuisineKnowledgeBase } from '../services/AsianCuisineKnowledgeBase';
 import { EnhancedPromptGenerator } from '../services/EnhancedPromptGenerator';
@@ -28,6 +29,7 @@ async function initializeFeedbackServices() {
   const feedbackRepository = new FeedbackRepository(db, redis);
   const feedbackAnalyzer = new FeedbackAnalyzer(feedbackRepository);
   const feedbackCollector = new FeedbackCollector(feedbackRepository);
+  const componentFeedbackCollector = new ComponentFeedbackCollector(feedbackRepository);
   
   const knowledgeBase = new AsianCuisineKnowledgeBase();
   const promptGenerator = new EnhancedPromptGenerator('zh-TW');
@@ -42,7 +44,8 @@ async function initializeFeedbackServices() {
   feedbackController = new FeedbackController(
     feedbackCollector,
     feedbackAnalyzer,
-    feedbackImprover
+    feedbackImprover,
+    componentFeedbackCollector
   );
 
   return feedbackController;
@@ -234,6 +237,44 @@ router.post('/improve/execute', requireAuth(redis), async (req, res) => {
 router.get('/improve/history', requireAuth(redis), async (req, res) => {
   // TODO: 添加管理員權限檢查
   await feedbackController.getImprovementHistory(req, res);
+});
+
+// ===== 成分識別反饋 =====
+
+/**
+ * @route POST /api/feedback/component
+ * @desc 提交成分識別反饋
+ * @access Private
+ */
+router.post('/component', requireAuth(redis), async (req, res) => {
+  await feedbackController.submitComponentFeedback(req, res);
+});
+
+/**
+ * @route GET /api/feedback/component/stats
+ * @desc 獲取成分反饋統計
+ * @access Private
+ */
+router.get('/component/stats', requireAuth(redis), async (req, res) => {
+  await feedbackController.getComponentFeedbackStats(req, res);
+});
+
+/**
+ * @route GET /api/feedback/component/history/:componentName
+ * @desc 獲取特定成分的反饋歷史
+ * @access Private
+ */
+router.get('/component/history/:componentName', requireAuth(redis), async (req, res) => {
+  await feedbackController.getComponentFeedbackHistory(req, res);
+});
+
+/**
+ * @route GET /api/feedback/component/accuracy/:dishType
+ * @desc 獲取料理類型的成分識別準確率
+ * @access Private
+ */
+router.get('/component/accuracy/:dishType', requireAuth(redis), async (req, res) => {
+  await feedbackController.getDishTypeComponentAccuracy(req, res);
 });
 
 export default router;

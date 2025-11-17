@@ -1,0 +1,485 @@
+{
+  "info": {
+    "name": "Health Nutrition API (含成分識別)",
+    "description": "健康營養追蹤系統 API 測試集合 - 包含亞洲料理成分識別功能",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "2.0.0"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://health-nutrition-api.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "1. Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "檢查 API 服務狀態"
+          }
+        },
+        {
+          "name": "2. Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    console.log('✅ 用戶註冊成功');",
+                  "} else {",
+                  "    console.log('⚠️ 註冊失敗或用戶已存在');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\",\n  \"confirmPassword\": \"P@55w0rd\",\n  \"profile\": {\n    \"name\": \"測試用戶\",\n    \"age\": 30,\n    \"gender\": \"male\",\n    \"height\": 170,\n    \"weight\": 70,\n    \"activityLevel\": \"moderately_active\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register"]
+            },
+            "description": "註冊新用戶"
+          }
+        },
+        {
+          "name": "3. Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        pm.environment.set('jwt_token', jsonData.token);",
+                  "        pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "        console.log('✅ 登入成功，Token 已儲存');",
+                  "        console.log('Token:', jsonData.token.substring(0, 20) + '...');",
+                  "    } else if (jsonData.accessToken) {",
+                  "        pm.environment.set('jwt_token', jsonData.accessToken);",
+                  "        pm.collectionVariables.set('jwt_token', jsonData.accessToken);",
+                  "        console.log('✅ 登入成功，Token 已儲存');",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ 登入失敗');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"P@55w0rd\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login"]
+            },
+            "description": "用戶登入並獲取 JWT Token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Food Recognition",
+      "item": [
+        {
+          "name": "4. Upload Food Image (Basic)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "選擇一張食物圖片"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/photo/recognize",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "photo", "recognize"]
+            },
+            "description": "基礎食物識別（不包含成分分析）"
+          }
+        },
+        {
+          "name": "5. Upload Food Image with Components",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.sessionId) {",
+                  "        pm.collectionVariables.set('session_id', jsonData.data.sessionId);",
+                  "        console.log('✅ 成分識別成功');",
+                  "        console.log('Session ID:', jsonData.data.sessionId);",
+                  "        console.log('檢測到成分數:', jsonData.data.componentDetection.components.length);",
+                  "    }",
+                  "} else {",
+                  "    console.log('❌ 識別失敗');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "選擇一張亞洲料理圖片"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/photo/recognize-with-components?includeComponents=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "photo", "recognize-with-components"],
+              "query": [
+                {
+                  "key": "includeComponents",
+                  "value": "true",
+                  "description": "是否包含成分識別"
+                }
+              ]
+            },
+            "description": "上傳食物圖片並進行成分識別（亞洲料理專用）"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Component Adjustment",
+      "item": [
+        {
+          "name": "6. Add Component",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\",\n  \"component\": {\n    \"name\": \"青蔥\",\n    \"estimatedPortion\": 10,\n    \"cookingMethod\": \"stir_fried\",\n    \"category\": \"garnish\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/add",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "add"]
+            },
+            "description": "添加缺失的成分到識別結果"
+          }
+        },
+        {
+          "name": "7. Remove Component",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\",\n  \"componentId\": \"comp_3\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/remove",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "remove"]
+            },
+            "description": "從識別結果中移除錯誤的成分"
+          }
+        },
+        {
+          "name": "8. Update Component Portion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\",\n  \"componentId\": \"comp_2\",\n  \"newPortion\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/update-portion",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "update-portion"]
+            },
+            "description": "調整成分的份量"
+          }
+        },
+        {
+          "name": "9. Recalculate Nutrition",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/recalculate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "recalculate"]
+            },
+            "description": "重新計算調整後的營養資訊"
+          }
+        },
+        {
+          "name": "10. Get Session State",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/session/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "session", "{{session_id}}"]
+            },
+            "description": "獲取會話的當前狀態"
+          }
+        },
+        {
+          "name": "11. Get Adjustment History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/component-adjustment/history/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "component-adjustment", "history", "{{session_id}}"]
+            },
+            "description": "獲取會話的調整歷史記錄"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Other Features",
+      "item": [
+        {
+          "name": "12. Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "users", "profile"]
+            },
+            "description": "獲取當前用戶資料"
+          }
+        },
+        {
+          "name": "13. Get Food Recognition History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/photo/history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "photo", "history"]
+            },
+            "description": "獲取食物識別歷史記錄"
+          }
+        },
+        {
+          "name": "14. Send Chat Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"我今天吃了什麼？營養均衡嗎？\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/chat/message",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "chat", "message"]
+            },
+            "description": "發送訊息給 AI 營養顧問"
+          }
+        },
+        {
+          "name": "15. Get Nutrition Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/reports/nutrition?period=week",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "reports", "nutrition"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "week",
+                  "description": "可選: day, week, month"
+                }
+              ]
+            },
+            "description": "獲取營養報告"
+          }
+        },
+        {
+          "name": "16. Get Gamification Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/gamification/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "gamification", "profile"]
+            },
+            "description": "獲取遊戲化資料（積分、成就等）"
+          }
+        },
+        {
+          "name": "17. System Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/monitoring/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "monitoring", "status"]
+            },
+            "description": "獲取系統狀態"
+          }
+        }
+      ]
+    }
+  ]
+}

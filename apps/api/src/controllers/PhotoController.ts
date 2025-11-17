@@ -6,7 +6,11 @@ import { MultiStageRecognitionEngine } from '../services/MultiStageRecognitionEn
 import { ResultValidator } from '../services/ResultValidator';
 import { AsianCuisineKnowledgeBase } from '../services/AsianCuisineKnowledgeBase';
 import { EnhancedPromptGenerator } from '../services/EnhancedPromptGenerator';
+import { ComponentDetectionEngine } from '../services/ComponentDetectionEngine';
+import { ComponentNutritionCalculator } from '../services/ComponentNutritionCalculator';
+import { ComponentAdjustmentService } from '../services/ComponentAdjustmentService';
 import { ApiResponse, RecognitionResult, NutritionData } from '../types/shared';
+import { ComponentRecognitionResponse, ComponentDetectionResult } from '../types/ComponentDetection';
 
 export interface PhotoUploadRequest extends Request {
   file?: Express.Multer.File;
@@ -47,6 +51,9 @@ export class PhotoController {
   private nutritionCalculator: NutritionCalculator;
   private knowledgeBase: AsianCuisineKnowledgeBase;
   private promptGenerator: EnhancedPromptGenerator;
+  private componentDetectionEngine: ComponentDetectionEngine;
+  private componentNutritionCalculator: ComponentNutritionCalculator;
+  private componentAdjustmentService: ComponentAdjustmentService;
 
   constructor() {
     this.imageProcessingService = new ImageProcessingService();
@@ -67,10 +74,17 @@ export class PhotoController {
     this.resultValidator = new ResultValidator();
     this.nutritionCalculator = new NutritionCalculator();
     
+    // 初始化成分檢測引擎和營養計算器
+    this.componentDetectionEngine = new ComponentDetectionEngine('zh-TW');
+    this.componentNutritionCalculator = new ComponentNutritionCalculator();
+    this.componentAdjustmentService = new ComponentAdjustmentService();
+    
     console.log('✓ PhotoController 初始化完成 - 使用增強型識別引擎');
     console.log('  - 多階段識別引擎已啟用');
     console.log('  - 亞洲料理知識庫已載入');
     console.log('  - 結果驗證器已啟用');
+    console.log('  - 成分檢測引擎已啟用');
+    console.log('  - 成分調整服務已啟用');
   }
 
   /**
@@ -411,6 +425,42 @@ export class PhotoController {
   }
 
   /**
+   * 獲取錯誤代碼
+   */
+  private getErrorCode(error: any): string {
+    if (!error) return 'UNKNOWN_ERROR';
+    
+    const message = error.message || '';
+    
+    // Vision API 相關錯誤
+    if (message.includes('Vision API') || message.includes('OpenAI')) {
+      return 'VISION_API_ERROR';
+    }
+    
+    // 知識庫相關錯誤
+    if (message.includes('知識庫') || message.includes('knowledge base')) {
+      return 'KNOWLEDGE_BASE_ERROR';
+    }
+    
+    // 圖片相關錯誤
+    if (message.includes('圖片') || message.includes('image') || message.includes('buffer')) {
+      return 'IMAGE_PROCESSING_ERROR';
+    }
+    
+    // 營養計算錯誤
+    if (message.includes('營養') || message.includes('nutrition')) {
+      return 'NUTRITION_CALCULATION_ERROR';
+    }
+    
+    // 超時錯誤
+    if (message.includes('timeout') || message.includes('超時')) {
+      return 'TIMEOUT_ERROR';
+    }
+    
+    return 'COMPONENT_DETECTION_ERROR';
+  }
+
+  /**
    * 格式化替代選項供用戶選擇
    */
   private formatAlternativesForUser(alternatives: any[]): any[] {
@@ -528,6 +578,245 @@ export class PhotoController {
       console.error('記錄用戶選擇失敗:', error);
     }
   }
+
+  /**
+   * 完整的照片上傳和食物辨識流程（包含成分識別）
+   * POST /api/v1/photo/recognize-with-components
+   * 
+   * 查詢參數：
+   * - includeComponents: boolean - 是否包含成分識別（預設為 true）
+   */
+  recognizeWithComponents = async (req: PhotoUploadRequest, res: Response): Promise<void> => {
+    const startTime = Date.now();
+    const sessionId = `component_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      if (!req.file) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: 'NO_FILE_UPLOADED',
+            message: '請選擇要上傳的圖片檔案'
+          },
+          timestamp: new Date()
+        } as ApiResponse<null>);
+        return;
+      }
+
+      // 檢查是否啟用成分識別（預設為 true）
+      const includeComponents = req.query.includeComponents !== 'false';
+      
+      console.log(`[${sessionId}] 開始食物識別流程 (成分識別: ${includeComponents ? '啟用' : '停用'})`);
+
+      // 解析圖片處理選項
+      const imageOptions: ImageProcessingOptions = {
+        quality: req.body.quality ? parseInt(req.body.quality) : 85,
+        maxWidth: req.body.maxWidth ? parseInt(req.body.maxWidth) : 1024,
+        maxHeight: req.body.maxHeight ? parseInt(req.body.maxHeight) : 1024,
+        format: req.body.format || 'jpeg',
+        enableSmartCrop: req.body.enableSmartCrop === 'true' || req.body.enableSmartCrop === true,
+        extractFeatures: true,
+        enhanceQuality: req.body.enhanceQuality === 'true' || req.body.enhanceQuality === true
+      };
+
+      // 並行處理：上傳圖片和基礎識別
+      const [uploadResult, multiStageResult] = await Promise.all([
+        this.imageProcessingService.uploadAndProcessImage(req.file, imageOptions),
+        this.multiStageEngine.recognize(req.file.buffer)
+      ]);
+
+      console.log(`[${sessionId}] 基礎識別完成，信心度: ${(multiStageResult.confidence * 100).toFixed(1)}%`);
+
+      // 如果不需要成分識別，返回標準識別結果
+      if (!includeComponents) {
+        const validationReport = this.resultValidator.validate(multiStageResult);
+        const totalProcessingTime = Date.now() - startTime;
+
+        res.status(200).json({
+          success: true,
+          data: {
+            sessionId,
+            imageInfo: uploadResult,
+            recognition: {
+              foods: multiStageResult.foods,
+              confidence: multiStageResult.confidence,
+              description: multiStageResult.description,
+              suggestions: multiStageResult.suggestions,
+              processingTime: totalProcessingTime
+            },
+            validation: {
+              passed: validationReport.errors.length === 0,
+              hasWarnings: validationReport.warnings.length > 0,
+              errors: validationReport.errors,
+              warnings: validationReport.warnings
+            },
+            processingTime: totalProcessingTime
+          },
+          timestamp: new Date()
+        } as ApiResponse<any>);
+        return;
+      }
+
+      // 執行成分識別
+      console.log(`[${sessionId}] 開始成分識別...`);
+      
+      // 從識別結果中提取料理名稱
+      const dishName = multiStageResult.foods && multiStageResult.foods.length > 0
+        ? multiStageResult.foods[0].name
+        : undefined;
+
+      let componentResult: ComponentDetectionResult;
+      
+      try {
+        // 驗證圖片 buffer
+        if (!req.file.buffer || req.file.buffer.length === 0) {
+          throw new Error('圖片數據無效');
+        }
+
+        componentResult = await this.componentDetectionEngine.detectComponents(
+          req.file.buffer,
+          dishName
+        );
+        
+        console.log(`[${sessionId}] 成分識別完成，檢測到 ${componentResult.components.length} 個成分`);
+        
+        // 驗證成分識別結果
+        if (!componentResult.components || componentResult.components.length === 0) {
+          console.warn(`[${sessionId}] 未檢測到任何成分，使用知識庫降級`);
+        }
+        
+        // 計算成分的營養資訊
+        try {
+          const nutritionSummary = await this.componentNutritionCalculator.aggregateDishNutrition(
+            componentResult.components
+          );
+          
+          // 更新結果中的營養摘要
+          componentResult.nutritionSummary = nutritionSummary;
+          
+          console.log(`[${sessionId}] 營養計算完成`);
+        } catch (nutritionError) {
+          console.error(`[${sessionId}] 營養計算失敗:`, nutritionError);
+          // 營養計算失敗不影響成分識別結果，使用空營養摘要
+          console.log(`[${sessionId}] 使用空營養摘要繼續`);
+        }
+        
+      } catch (componentError) {
+        console.error(`[${sessionId}] 成分識別失敗:`, componentError);
+        
+        // 記錄錯誤詳情
+        const errorDetails = {
+          message: componentError instanceof Error ? componentError.message : '未知錯誤',
+          stack: componentError instanceof Error ? componentError.stack : undefined,
+          dishName,
+          imageSize: req.file.size,
+          timestamp: new Date()
+        };
+        
+        console.error(`[${sessionId}] 錯誤詳情:`, errorDetails);
+        
+        // 降級處理：返回基礎識別結果，但標記成分識別失敗
+        const totalProcessingTime = Date.now() - startTime;
+        const validationReport = this.resultValidator.validate(multiStageResult);
+
+        res.status(200).json({
+          success: true,
+          data: {
+            sessionId,
+            imageInfo: uploadResult,
+            recognition: {
+              foods: multiStageResult.foods,
+              confidence: multiStageResult.confidence,
+              description: multiStageResult.description,
+              suggestions: multiStageResult.suggestions,
+              processingTime: totalProcessingTime
+            },
+            validation: {
+              passed: validationReport.errors.length === 0,
+              hasWarnings: validationReport.warnings.length > 0,
+              errors: validationReport.errors,
+              warnings: validationReport.warnings
+            },
+            componentDetection: {
+              enabled: true,
+              success: false,
+              error: componentError instanceof Error ? componentError.message : '成分識別失敗',
+              fallbackMessage: '已降級至基礎識別模式，您仍可查看料理的整體營養資訊',
+              errorCode: this.getErrorCode(componentError)
+            },
+            processingTime: totalProcessingTime
+          },
+          timestamp: new Date()
+        } as ApiResponse<any>);
+        return;
+      }
+
+      // 驗證識別結果
+      const validationReport = this.resultValidator.validate(multiStageResult);
+      
+      // 計算總處理時間
+      const totalProcessingTime = Date.now() - startTime;
+
+      // 構建完整回應
+      const response = {
+        sessionId,
+        imageInfo: uploadResult,
+        recognition: {
+          foods: multiStageResult.foods,
+          confidence: multiStageResult.confidence,
+          description: multiStageResult.description,
+          suggestions: multiStageResult.suggestions,
+          processingTime: totalProcessingTime
+        },
+        componentDetection: {
+          enabled: true,
+          success: true,
+          mainDish: componentResult.mainDish,
+          components: componentResult.components,
+          nutritionSummary: componentResult.nutritionSummary,
+          metadata: componentResult.metadata,
+          suggestions: componentResult.suggestions
+        },
+        validation: {
+          passed: validationReport.errors.length === 0,
+          hasWarnings: validationReport.warnings.length > 0,
+          errors: validationReport.errors,
+          warnings: validationReport.warnings
+        },
+        processingTime: totalProcessingTime
+      };
+
+      console.log(`[${sessionId}] 完整識別流程完成，總耗時 ${totalProcessingTime}ms`);
+
+      // 初始化調整會話（允許用戶後續調整成分）
+      try {
+        this.componentAdjustmentService.initializeSession(sessionId, componentResult);
+        console.log(`[${sessionId}] 調整會話已初始化`);
+      } catch (sessionError) {
+        console.warn(`[${sessionId}] 初始化調整會話失敗:`, sessionError);
+        // 不影響主要回應
+      }
+
+      res.status(200).json({
+        success: true,
+        data: response,
+        timestamp: new Date()
+      } as ApiResponse<typeof response>);
+
+    } catch (error) {
+      console.error(`[${sessionId}] 食物辨識錯誤:`, error);
+      
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'RECOGNITION_FAILED',
+          message: error instanceof Error ? error.message : '食物辨識失敗',
+          sessionId
+        },
+        timestamp: new Date()
+      } as ApiResponse<null>);
+    }
+  };
 
   /**
    * 用戶選擇替代選項

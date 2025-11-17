@@ -2258,4 +2258,108 @@ Respond in JSON format with street food type, features, and toppings.`;
 
     return prompt;
   }
+
+  /**
+   * 生成成分識別 Prompt
+   * 根據料理類型生成專門的成分識別 prompt
+   * 
+   * @param dishName - 料理名稱
+   * @param dishType - 料理類型
+   * @param region - 地區（可選）
+   * @returns 成分識別 prompt
+   */
+  generateComponentDetectionPrompt(
+    dishName: string,
+    dishType: DishType,
+    region?: string
+  ): string {
+    // 導入成分識別 prompt 函數
+    const {
+      generateSoupComponentPrompt,
+      generateFriedRiceComponentPrompt,
+      generateBentoComponentPrompt,
+      generateNoodlesComponentPrompt,
+      generateGenericComponentPrompt
+    } = require('./ComponentDetectionPrompts');
+
+    let basePrompt: string;
+
+    // 根據料理類型選擇對應的 prompt
+    switch (dishType) {
+      case DishType.SOUP:
+        basePrompt = generateSoupComponentPrompt(this.language);
+        break;
+      
+      case DishType.FRIED_RICE:
+        basePrompt = generateFriedRiceComponentPrompt(this.language);
+        break;
+      
+      case DishType.BENTO:
+        basePrompt = generateBentoComponentPrompt(this.language);
+        break;
+      
+      case DishType.NOODLES:
+        basePrompt = generateNoodlesComponentPrompt(this.language);
+        break;
+      
+      case DishType.STIR_FRY:
+      case DishType.DUMPLING:
+      case DishType.BARBECUE:
+      case DishType.HOT_POT:
+      case DishType.UNKNOWN:
+      default:
+        basePrompt = generateGenericComponentPrompt(dishName, this.language);
+        break;
+    }
+
+    // 添加地區背景知識（如果提供）
+    if (region) {
+      basePrompt = this.addRegionalContext(basePrompt, region);
+    }
+
+    // 添加通用的成分識別指導
+    const generalGuidance = this.language === 'zh-TW'
+      ? `\n\n**通用識別指導**：
+- 仔細觀察圖片中的每個細節
+- 注意顏色、形狀、質地、大小
+- 考慮該料理的典型成分組成
+- 對於不確定的成分，降低信心度
+- 份量估算要考慮視覺比例和典型份量`
+      : `\n\n**General Recognition Guidance**:
+- Carefully observe every detail in the image
+- Note color, shape, texture, size
+- Consider typical component composition for this dish
+- For uncertain components, lower confidence
+- Portion estimation should consider visual proportion and typical portions`;
+
+    return basePrompt + generalGuidance;
+  }
+
+  /**
+   * 生成成分精煉 Prompt
+   * 用於低信心度成分的二次確認
+   * 
+   * @param initialComponents - 初步識別的成分列表
+   * @param dishContext - 料理背景資訊
+   * @returns 成分精煉 prompt
+   */
+  generateComponentRefinementPrompt(
+    initialComponents: Array<{
+      name: string;
+      confidence: number;
+      estimatedPortion: number;
+    }>,
+    dishContext: string
+  ): string {
+    const { generateComponentRefinementPrompt } = require('./ComponentDetectionPrompts');
+
+    return generateComponentRefinementPrompt({
+      initialComponents,
+      dishContext,
+      language: this.language
+    });
+  }
 }
+
+// 導入 DishType 枚舉以支持成分識別
+import { DishType } from '../types/ComponentDetection';

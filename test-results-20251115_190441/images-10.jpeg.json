@@ -1,0 +1,173 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763204695437_46qkt62hv",
+    "imageInfo": {
+      "imageId": "8fde4ffb-72d6-43cf-af65-1ba73465ef37",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763204696/health-nutrition-app/food-images/8fde4ffb-72d6-43cf-af65-1ba73465ef37_1763204695437.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763204696/health-nutrition-app/food-images/8fde4ffb-72d6-43cf-af65-1ba73465ef37_1763204695437.jpg",
+      "metadata": {
+        "originalSize": 7075,
+        "processedSize": 9289,
+        "width": 275,
+        "height": 183,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:04:56.828Z",
+        "features": {
+          "dominantColors": [
+            "#c1ab89"
+          ],
+          "brightness": 0.6538644691855878,
+          "contrast": 0.3401786402726928,
+          "sharpness": 0.8708573190980935,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763204535279-0.16547482407709568",
+          "name": "炸豆腐",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763204535279-0.5504437355730656",
+          "name": "泡菜",
+          "confidence": 0.9,
+          "estimatedPortion": 50,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.925,
+      "description": "這是一道台式小吃，包含炸豆腐和泡菜，通常作為開胃菜或小吃食用。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763204535279-0.16547482407709568",
+            "name": "炸豆腐",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763204535279-0.5504437355730656",
+            "name": "泡菜",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "50g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 1392,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.925,
+          "timestamp": "2025-11-15T11:02:15.279Z"
+        }
+      ],
+      "finalConfidence": 0.925,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 1392
+  },
+  "timestamp": "2025-11-15T11:04:56.829Z"
+}

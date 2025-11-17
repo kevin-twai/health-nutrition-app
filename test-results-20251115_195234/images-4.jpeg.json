@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207714059_zkxiyekbd",
+    "imageInfo": {
+      "imageId": "f17f8d90-c095-499c-8ea5-159beaf69390",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207714/health-nutrition-app/food-images/f17f8d90-c095-499c-8ea5-159beaf69390_1763207714059.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207714/health-nutrition-app/food-images/f17f8d90-c095-499c-8ea5-159beaf69390_1763207714059.jpg",
+      "metadata": {
+        "originalSize": 11119,
+        "processedSize": 14722,
+        "width": 275,
+        "height": 183,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:55:15.483Z",
+        "features": {
+          "dominantColors": [
+            "#b79a70"
+          ],
+          "brightness": 0.5865762478530078,
+          "contrast": 0.4695201609202644,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207720526-0.7650799055797199",
+          "name": "粽子",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道中式傳統節慶食品，通常在端午節食用，糯米包裹肉類和香菇，並淋上紅色醬汁。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207720526-0.7650799055797199",
+            "name": "粽子",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 6468,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:55:20.526Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 6468
+  },
+  "timestamp": "2025-11-15T11:55:20.527Z"
+}

@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207787435_zoawfm5wf",
+    "imageInfo": {
+      "imageId": "f15ddcd4-79ce-46d6-bc13-58be1c4a6668",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207788/health-nutrition-app/food-images/f15ddcd4-79ce-46d6-bc13-58be1c4a6668_1763207787435.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207788/health-nutrition-app/food-images/f15ddcd4-79ce-46d6-bc13-58be1c4a6668_1763207787435.jpg",
+      "metadata": {
+        "originalSize": 10994,
+        "processedSize": 14497,
+        "width": 259,
+        "height": 194,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:56:28.937Z",
+        "features": {
+          "dominantColors": [
+            "#a7917b"
+          ],
+          "brightness": 0.5698716562876659,
+          "contrast": 0.45345687723753264,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207792515-0.011593710777482835",
+          "name": "白切雞",
+          "confidence": 0.95,
+          "estimatedPortion": 150,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道中式白切雞，雞肉切片整齊，擺放在盤中，顯示出清蒸的烹飪方式，保持了肉質的鮮嫩和原味。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207792515-0.011593710777482835",
+            "name": "白切雞",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "150g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "中式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 5081,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:56:32.515Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 5081
+  },
+  "timestamp": "2025-11-15T11:56:32.516Z"
+}

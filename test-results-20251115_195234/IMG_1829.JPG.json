@@ -1,0 +1,319 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763208608098_7nzhfwnfr",
+    "imageInfo": {
+      "imageId": "ad3fe468-009e-4f9c-a198-9a30a670a8df",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208610/health-nutrition-app/food-images/ad3fe468-009e-4f9c-a198-9a30a670a8df_1763208608098.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763208610/health-nutrition-app/food-images/ad3fe468-009e-4f9c-a198-9a30a670a8df_1763208608098.jpg",
+      "metadata": {
+        "originalSize": 2801338,
+        "processedSize": 119237,
+        "width": 1024,
+        "height": 768,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T12:10:10.921Z",
+        "features": {
+          "dominantColors": [
+            "#7f6b56"
+          ],
+          "brightness": 0.4191963395262076,
+          "contrast": 0.4804275871610348,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763208626931-0.6840749186508847",
+          "name": "油炸豆腐",
+          "confidence": 0.95,
+          "estimatedPortion": 50,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208626932-0.535290984479988",
+          "name": "拉麵",
+          "confidence": 0.95,
+          "estimatedPortion": 100,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208626932-0.29673550668649795",
+          "name": "魚板花片",
+          "confidence": 0.9,
+          "estimatedPortion": 10,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        },
+        {
+          "id": "temp-1763208626932-0.06500337382454546",
+          "name": "蔥花",
+          "confidence": 0.85,
+          "estimatedPortion": 5,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.9125,
+      "description": "這是一碗日式拉麵，包含油炸豆腐、白色捲曲麵條、粉紅色花形魚板和蔥花，湯底清澈。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763208626931-0.6840749186508847",
+            "name": "油炸豆腐",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "50g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208626932-0.535290984479988",
+            "name": "拉麵",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "100g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208626932-0.29673550668649795",
+            "name": "魚板花片",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "10g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.9,
+          "recognitionStage": 1
+        },
+        {
+          "food": {
+            "id": "temp-1763208626932-0.06500337382454546",
+            "name": "蔥花",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "5g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "日式"
+          },
+          "confidence": 0.85,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 18837,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.9125,
+          "timestamp": "2025-11-15T12:10:26.932Z"
+        }
+      ],
+      "finalConfidence": 0.9125,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": true,
+      "errors": [],
+      "warnings": [
+        {
+          "passed": false,
+          "ruleName": "豆製品特徵檢查",
+          "severity": "warning",
+          "message": "同時檢測到豆製品和麵條，請確認識別正確",
+          "suggestions": [
+            "豆腐干絲和麵條容易混淆",
+            "豆腐干絲：顏色偏黃白色，質地較粗糙，有豆製品特有紋理",
+            "麵條：顏色較白，表面光滑有光澤，質地柔軟",
+            "檢查烹飪方式：干絲常用於涼拌，麵條常用於湯麵或炒麵",
+            "使用專門的豆製品 prompt 重新識別"
+          ],
+          "affectedFoods": [
+            "油炸豆腐",
+            "拉麵"
+          ]
+        },
+        {
+          "passed": false,
+          "ruleName": "份量描述完整性檢查",
+          "severity": "warning",
+          "message": "發現 1 個份量描述問題",
+          "suggestions": [
+            "確保每個食物都有份量估算",
+            "份量應該是合理的數值（通常在 10g-1000g 之間）",
+            "份量可以四捨五入到整數或一位小數",
+            "對於難以估算的食物，可以使用標準份量（如一碗、一盤等）"
+          ],
+          "affectedFoods": [
+            "蔥花"
+          ],
+          "details": {
+            "issues": [
+              "蔥花 的份量可能不合理: 5g"
+            ]
+          }
+        }
+      ],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 18837
+  },
+  "timestamp": "2025-11-15T12:10:26.935Z"
+}

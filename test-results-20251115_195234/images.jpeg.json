@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "data": {
+    "sessionId": "session_1763207795333_7alazmkkw",
+    "imageInfo": {
+      "imageId": "9aca85e3-051a-4da9-8029-abbd009a821e",
+      "originalUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207796/health-nutrition-app/food-images/9aca85e3-051a-4da9-8029-abbd009a821e_1763207795333.jpg",
+      "processedUrl": "https://res.cloudinary.com/dzbixd1eo/image/upload/v1763207796/health-nutrition-app/food-images/9aca85e3-051a-4da9-8029-abbd009a821e_1763207795333.jpg",
+      "metadata": {
+        "originalSize": 9216,
+        "processedSize": 11986,
+        "width": 259,
+        "height": 194,
+        "format": "jpeg",
+        "uploadedAt": "2025-11-15T11:56:37.090Z",
+        "features": {
+          "dominantColors": [
+            "#797168"
+          ],
+          "brightness": 0.4414981298547096,
+          "contrast": 0.4886527398992859,
+          "sharpness": 1,
+          "hasMultipleObjects": false
+        }
+      }
+    },
+    "recognition": {
+      "foods": [
+        {
+          "id": "temp-1763207799904-0.21500527423732663",
+          "name": "蚵仔麵線",
+          "confidence": 0.95,
+          "estimatedPortion": 300,
+          "nutrition": {
+            "calories": 0,
+            "protein": 0,
+            "carbohydrates": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sugar": 0,
+            "sodium": 0,
+            "vitamins": {
+              "vitamin_a_mcg": 0,
+              "vitamin_c_mg": 0,
+              "vitamin_d_mcg": 0,
+              "vitamin_e_mg": 0,
+              "vitamin_k_mcg": 0,
+              "vitamin_b1_mg": 0,
+              "vitamin_b2_mg": 0,
+              "vitamin_b3_mg": 0,
+              "vitamin_b6_mg": 0,
+              "vitamin_b12_mcg": 0,
+              "folate_mcg": 0
+            },
+            "minerals": {
+              "calcium_mg": 0,
+              "iron_mg": 0,
+              "magnesium_mg": 0,
+              "phosphorus_mg": 0,
+              "potassium_mg": 0,
+              "zinc_mg": 0
+            }
+          }
+        }
+      ],
+      "confidence": 0.95,
+      "description": "這是一道台灣經典的小吃，蚵仔麵線，通常在街頭小吃攤販售，口感滑順，味道鮮美。",
+      "suggestions": [
+        {
+          "food": {
+            "id": "temp-1763207799904-0.21500527423732663",
+            "name": "蚵仔麵線",
+            "calories": 0,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0,
+            "sodium": 0,
+            "category": "食材",
+            "portion": "300g",
+            "description": "多階段識別結果（階段 1）",
+            "cuisine_type": "台式"
+          },
+          "confidence": 0.95,
+          "recognitionStage": 1
+        }
+      ],
+      "processingTime": 4571,
+      "confidenceLevel": "very_high",
+      "needsUserConfirmation": false
+    },
+    "multiStageInfo": {
+      "totalStages": 1,
+      "stagesExecuted": [
+        {
+          "stage": 1,
+          "promptType": "standard",
+          "confidence": 0.95,
+          "timestamp": "2025-11-15T11:56:39.904Z"
+        }
+      ],
+      "finalConfidence": 0.95,
+      "finalStage": 1
+    },
+    "validation": {
+      "passed": true,
+      "hasWarnings": false,
+      "errors": [],
+      "warnings": [],
+      "infos": []
+    },
+    "alternatives": {
+      "available": false,
+      "message": "識別信心度足夠，無需提供替代選項"
+    },
+    "processingTime": 4571
+  },
+  "timestamp": "2025-11-15T11:56:39.904Z"
+}

@@ -9,6 +9,7 @@ import {
   CuisineType,
   CookingMethod
 } from '../types/AsianCuisineKnowledgeBase';
+import { ComponentCategory, CookingMethod as ComponentCookingMethod } from '../types/ComponentDetection';
 
 /**
  * 擴展的亞洲食材數據
@@ -488,5 +489,53 @@ export const ASIAN_FOOD_ITEMS_EXTENDED: Record<string, FoodItem> = {
     seasonality: ['全年'],
     tags: ['中式', '湯品', '酸辣', '開胃'],
     culturalNotes: '川菜經典湯品，酸辣開胃'
+  },
+
+  // ==================== 常見成分（含 componentInfo） ====================
+  // 注意：部分成分已在 asianFoodItems.ts 中定義，這裡只添加新的成分
+  
+  '海帶芽': {
+    id: 'wakame',
+    name: '海帶芽',
+    nameVariants: ['裙帶菜', '海藻'],
+    category: FoodCategory.SEAWEED,
+    visualFeatures: {
+      color: ['深綠色', '墨綠色'],
+      shape: ['片狀', '捲曲'],
+      texture: ['滑嫩', '柔軟'],
+      size: '泡發後約3-5cm',
+      appearance: '深綠色薄片，泡水後膨脹',
+      surfaceCharacteristics: ['表面光滑', '略有黏性'],
+      glossiness: '有光澤',
+      transparency: '半透明'
+    },
+    nutritionPer100g: {
+      calories: 45,
+      protein: 3.0,
+      carbohydrates: 9.1,
+      fat: 0.6,
+      fiber: 0.5,
+      sodium: 872,
+      calcium: 150,
+      iron: 2.2,
+      iodine: 150
+    },
+    commonConfusions: ['海帶', '紫菜'],
+    distinguishingFeatures: ['深綠色', '泡水膨脹', '滑嫩口感', '富含碘'],
+    cookingMethods: [CookingMethod.BOIL, CookingMethod.COLD_DRESSED],
+    cuisineTypes: [CuisineType.JAPANESE, CuisineType.KOREAN],
+    commonPairings: ['味噌湯', '豆腐', '醋', '芝麻'],
+    tags: ['海藻', '低卡', '高碘'],
+    componentInfo: {
+      category: ComponentCategory.VEGETABLE,
+      isCommonComponent: true,
+      typicalDishes: ['味噌湯', '海帶芽湯', '涼拌海帶芽', '拉麵'],
+      cookingMethods: [ComponentCookingMethod.BOILED, ComponentCookingMethod.RAW],
+      portionRanges: {
+        min: 3,
+        max: 15,
+        typical: 5
+      }
+    }
   }
 };

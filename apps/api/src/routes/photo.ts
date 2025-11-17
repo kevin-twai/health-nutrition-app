@@ -136,6 +136,42 @@ export default function createPhotoRoutes(): Router {
   );
 
   /**
+   * @route POST /api/v1/photo/recognize-with-components
+   * @desc 上傳照片並進行食物辨識（包含成分識別）
+   * @access Public (暫時開放以便測試)
+   * @query includeComponents?: boolean (default: true) - 是否包含成分識別
+   * @body multipart/form-data with 'photo' field
+   * @body maxResults?: number (default: 5)
+   * @body minConfidence?: number (default: 0.3)
+   * @body language?: string (default: 'zh-TW')
+   * @body quality?: number (1-100, default: 85)
+   * @body maxWidth?: number (default: 1024)
+   * @body maxHeight?: number (default: 1024)
+   * @body format?: 'jpeg' | 'png' | 'webp' (default: 'jpeg')
+   * @body enableSmartCrop?: boolean (default: false)
+   * @body extractFeatures?: boolean (default: true)
+   * @body enhanceQuality?: boolean (default: false)
+   */
+  router.post('/recognize-with-components',
+    // requireAuth(), // 暫時註解掉以便測試
+    upload.single('photo'),
+    (req, res, next) => {
+      if (req.file === undefined && req.body.photo === undefined) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'NO_FILE_UPLOADED',
+            message: '請選擇要上傳的圖片檔案'
+          },
+          timestamp: new Date()
+        });
+      }
+      next();
+    },
+    photoController.recognizeWithComponents
+  );
+
+  /**
    * @route POST /api/v1/photo/select-alternative
    * @desc 用戶選擇替代選項
    * @access Public (暫時開放以便測試)

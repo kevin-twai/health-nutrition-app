@@ -1,0 +1,31 @@
+// 在 handleAnalyze 函數中，替換 API 調用部分：
+
+import { recognizeFood } from '@/lib/api-with-retry'
+
+const handleAnalyze = async () => {
+  if (!selectedFile) return
+  
+  setIsAnalyzing(true)
+  setError('')
+  
+  try {
+    console.log('📤 開始分析食物照片...')
+    
+    // 使用帶重試邏輯的 API 調用
+    const result = await recognizeFood(selectedFile)
+    
+    console.log('✅ API 回應:', result)
+    
+    if (result.success && result.data) {
+      setAnalysisResult(result.data)
+    } else {
+      throw new Error('API 回應格式錯誤')
+    }
+    
+  } catch (err) {
+    console.error('❌ 分析失敗:', err)
+    setError(err instanceof Error ? err.message : '分析失敗，請重試')
+  } finally {
+    setIsAnalyzing(false)
+  }
+}
