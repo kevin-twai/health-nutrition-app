@@ -92,14 +92,24 @@ export class ComponentDetectionEngine {
       let detectedDishName = dishName;
       let dishConfidence = 1.0;
 
-      if (!detectedDishType || !detectedDishName) {
-        const dishInfo = await this.detectDishType(image);
+      if (!detectedDishType) {
+        // 只有在沒有料理類型時才需要判斷
+        // 如果有 dishName，將其作為上下文傳遞給 detectDishType
+        const dishInfo = await this.detectDishType(image, dishName);
         detectedDishType = dishInfo.type;
-        detectedDishName = dishInfo.name;
+        
+        // 如果沒有提供 dishName，使用 detectDishType 的結果
+        if (!detectedDishName) {
+          detectedDishName = dishInfo.name;
+        }
+        
         dishConfidence = dishInfo.confidence;
         
         console.log(`   自動判斷料理: ${detectedDishName} (${detectedDishType})`);
         console.log(`   信心度: ${(dishConfidence * 100).toFixed(1)}%`);
+      } else if (!detectedDishName) {
+        // 如果有類型但沒有名稱，使用類型作為名稱
+        detectedDishName = detectedDishType;
       }
 
       // Step 2: 使用 Vision API 提取成分
@@ -273,13 +283,14 @@ export class ComponentDetectionEngine {
    * 自動判斷料理類型
    * 
    * @param image - 圖片 Buffer
+   * @param knownDishName - 已知的料理名稱（可選，用作上下文）
    * @returns 料理資訊
    */
-  private async detectDishType(image: Buffer): Promise<MainDishInfo> {
+  private async detectDishType(image: Buffer, knownDishName?: string): Promise<MainDishInfo> {
     if (!this.openai) {
       // 如果沒有 OpenAI，返回預設值
       return {
-        name: '未知料理',
+        name: knownDishName || '未知料理',
         type: DishType.UNKNOWN,
         confidence: 0.5,
         estimatedTotalPortion: 300
@@ -290,8 +301,13 @@ export class ComponentDetectionEngine {
       const base64Image = image.toString('base64');
       const imageUrl = `data:image/jpeg;base64,${base64Image}`;
 
+      // 如果已知料理名稱，將其作為上下文
+      const contextHint = knownDishName 
+        ? `\n\n已知料理名稱：${knownDishName}\n請根據此名稱判斷料理類型。`
+        : '';
+
       const prompt = this.language === 'zh-TW'
-        ? `請識別這張圖片中的料理類型。
+        ? `請識別這張圖片中的料理類型。${contextHint}
 
 請以 JSON 格式回應：
 {
