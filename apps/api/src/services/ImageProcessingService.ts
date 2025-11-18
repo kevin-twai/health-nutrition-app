@@ -71,14 +71,20 @@ export class ImageProcessingService {
       'image/jpeg',
       'image/jpg', 
       'image/png',
-      'image/heic',
-      'image/heif',
       'image/webp',
       'application/octet-stream' // curl 可能使用此類型
     ];
     
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
     const fileExtension = path.extname(file.originalname).toLowerCase();
+    
+    // 檢查是否為不支援的 HEIC 格式
+    const isHEIC = fileExtension === '.heic' || fileExtension === '.heif' || 
+                   file.mimetype === 'image/heic' || file.mimetype === 'image/heif';
+    
+    if (isHEIC) {
+      return false; // 明確拒絕 HEIC 格式
+    }
     
     // 如果 MIME 類型是 application/octet-stream，只檢查擴展名
     if (file.mimetype === 'application/octet-stream') {
@@ -223,6 +229,17 @@ export class ImageProcessingService {
         format: 'jpeg' as const,
         size: file.size
       };
+
+      // 檢查是否為 HEIC/HEIF 格式
+      const fileExtension = path.extname(file.originalname).toLowerCase();
+      const isHEIC = fileExtension === '.heic' || fileExtension === '.heif' || 
+                     file.mimetype === 'image/heic' || file.mimetype === 'image/heif';
+
+      // HEIC 格式需要特殊處理
+      if (isHEIC) {
+        console.log('⚠️ 檢測到 HEIC/HEIF 格式');
+        throw new Error('目前不支援 HEIC/HEIF 格式。請將照片轉換為 JPEG 或 PNG 格式後再上傳。\n\niPhone 用戶可以在「設定 > 相機 > 格式」中選擇「最相容」來拍攝 JPEG 格式照片。');
+      }
 
       // 使用 sharp 處理圖片
       const image = sharp(file.buffer);

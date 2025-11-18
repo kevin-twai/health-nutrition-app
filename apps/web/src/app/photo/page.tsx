@@ -847,7 +847,7 @@ export default function PhotoRecognition() {
               </div>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={handleFileSelect}
                 style={{ display: 'none' }}
                 id="photo-upload"
