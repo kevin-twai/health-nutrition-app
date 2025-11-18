@@ -296,7 +296,7 @@ export class ComponentDetectionEngine {
 請以 JSON 格式回應：
 {
   "dishName": "料理名稱（繁體中文）",
-  "dishType": "料理類型（soup/fried_rice/stir_fry/bento/noodles/dumpling/barbecue/hot_pot/unknown）",
+  "dishType": "料理類型（soup/fried_rice/stir_fry/bento/noodles/dumpling/barbecue/hot_pot/curry/unknown）",
   "confidence": 0.95,
   "estimatedTotalPortion": 300
 }
@@ -310,13 +310,14 @@ export class ComponentDetectionEngine {
 - dumpling: 點心類（小籠包、餃子、燒賣等）
 - barbecue: 燒烤類
 - hot_pot: 火鍋類
+- curry: 咖哩類（日式咖哩、泰式咖哩、印度咖哩等）
 - unknown: 無法判斷`
         : `Please identify the dish type in this image.
 
 Respond in JSON format:
 {
   "dishName": "dish name",
-  "dishType": "dish type (soup/fried_rice/stir_fry/bento/noodles/dumpling/barbecue/hot_pot/unknown)",
+  "dishType": "dish type (soup/fried_rice/stir_fry/bento/noodles/dumpling/barbecue/hot_pot/curry/unknown)",
   "confidence": 0.95,
   "estimatedTotalPortion": 300
 }`;

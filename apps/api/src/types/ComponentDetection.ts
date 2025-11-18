@@ -16,6 +16,7 @@ export enum DishType {
   DUMPLING = 'dumpling',            // 點心類（餃子、小籠包等）
   BARBECUE = 'barbecue',            // 燒烤類
   HOT_POT = 'hot_pot',              // 火鍋類
+  CURRY = 'curry',                  // 咖哩類
   UNKNOWN = 'unknown'               // 未知類型
 }
 

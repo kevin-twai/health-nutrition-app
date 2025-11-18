@@ -4932,6 +4932,132 @@ export const DISH_COMPONENT_MAPS: DishComponentMap[] = [
       max: 50,
       typical: 40
     }
+  },
+
+  // ==================== 日式咖哩 ====================
+  {
+    dishName: '日式咖哩',
+    dishNameEn: 'Japanese Curry',
+    dishType: DishType.CURRY,
+    region: ['japan'],
+    commonComponents: [
+      {
+        name: '白飯',
+        nameEn: 'White Rice',
+        category: ComponentCategory.GRAIN,
+        typicalPortion: 200,
+        portionRange: { min: 150, max: 250 },
+        frequency: 0.95,
+        alternatives: ['糙米飯'],
+        cookingMethods: [CookingMethod.BOILED],
+        nutritionImpact: []
+      },
+      {
+        name: '咖哩醬',
+        nameEn: 'Curry Sauce',
+        category: ComponentCategory.SAUCE,
+        typicalPortion: 150,
+        portionRange: { min: 100, max: 200 },
+        frequency: 1.0,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '雞肉',
+        nameEn: 'Chicken',
+        category: ComponentCategory.PROTEIN,
+        typicalPortion: 100,
+        portionRange: { min: 80, max: 150 },
+        frequency: 0.9,
+        alternatives: ['豬肉', '牛肉'],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '馬鈴薯',
+        nameEn: 'Potato',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 80,
+        portionRange: { min: 60, max: 120 },
+        frequency: 0.95,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '紅蘿蔔',
+        nameEn: 'Carrot',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 50,
+        portionRange: { min: 30, max: 80 },
+        frequency: 0.9,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '洋蔥',
+        nameEn: 'Onion',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 60,
+        portionRange: { min: 40, max: 100 },
+        frequency: 0.85,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '南瓜',
+        nameEn: 'Pumpkin',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 50,
+        portionRange: { min: 30, max: 80 },
+        frequency: 0.4,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '蓮藕',
+        nameEn: 'Lotus Root',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 40,
+        portionRange: { min: 20, max: 60 },
+        frequency: 0.3,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '茄子',
+        nameEn: 'Eggplant',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 50,
+        portionRange: { min: 30, max: 80 },
+        frequency: 0.3,
+        alternatives: [],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      },
+      {
+        name: '青椒',
+        nameEn: 'Green Pepper',
+        category: ComponentCategory.VEGETABLE,
+        typicalPortion: 30,
+        portionRange: { min: 20, max: 50 },
+        frequency: 0.4,
+        alternatives: ['甜椒'],
+        cookingMethods: [CookingMethod.BRAISED],
+        nutritionImpact: []
+      }
+    ],
+    regionalVariations: [],
+    typicalPortionRange: {
+      min: 500,
+      max: 700,
+      typical: 600
+    }
   }
 ];
 

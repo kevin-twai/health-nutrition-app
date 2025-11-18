@@ -537,5 +537,50 @@ export const ASIAN_FOOD_ITEMS_EXTENDED: Record<string, FoodItem> = {
         typical: 5
       }
     }
+  },
+
+  // ==================== 醬料類 ====================
+  '咖哩醬': {
+    id: 'curry_sauce',
+    name: '咖哩醬',
+    nameVariants: ['咖哩汁', '咖喱醬'],
+    category: FoodCategory.SAUCES,
+    visualFeatures: {
+      color: ['黃褐色', '金黃色', '深褐色'],
+      shape: ['液態', '濃稠'],
+      texture: ['濃稠', '滑順'],
+      size: '不定',
+      appearance: '濃稠的醬汁，顏色從金黃到深褐色',
+      surfaceCharacteristics: ['表面光滑', '略有油光'],
+      glossiness: '有光澤',
+      transparency: '不透明'
+    },
+    nutritionPer100g: {
+      calories: 120,
+      protein: 3.2,
+      carbohydrates: 12.5,
+      fat: 7.8,
+      fiber: 2.1,
+      sodium: 890,
+      calcium: 45,
+      iron: 1.8
+    },
+    commonConfusions: [],
+    distinguishingFeatures: ['濃郁香料味', '濃稠質地', '金黃或褐色', '含多種香料'],
+    cookingMethods: [CookingMethod.BRAISE, CookingMethod.SIMMER],
+    cuisineTypes: [CuisineType.JAPANESE, CuisineType.THAI],
+    commonPairings: ['白飯', '雞肉', '馬鈴薯', '紅蘿蔔', '洋蔥'],
+    tags: ['日式', '香料', '濃郁'],
+    componentInfo: {
+      category: ComponentCategory.SAUCE,
+      isCommonComponent: true,
+      typicalDishes: ['日式咖哩', '咖哩飯', '咖哩烏龍麵'],
+      cookingMethods: [ComponentCookingMethod.BRAISED],
+      portionRanges: {
+        min: 100,
+        max: 200,
+        typical: 150
+      }
+    }
   }
 };
