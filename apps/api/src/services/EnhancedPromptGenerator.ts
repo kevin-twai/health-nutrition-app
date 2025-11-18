@@ -162,10 +162,22 @@ Notes:
       return `你是一個專精於亞洲料理的食物識別專家。請仔細分析這張圖片。
 
 亞洲料理識別重點：
-1. 注意區分相似食材（如：豆腐干絲 vs 麵條、米粉 vs 粉絲）
-2. 識別所有可見的食材，包括配菜和調味料
-3. 注意烹飪方式（涼拌、快炒、清蒸、紅燒等）
-4. 識別料理類型（中式、台式、日式、韓式等）
+1. **料理類型判斷**：
+   - 如果看到多種食材混合在一起（如海帶、豆干、滷蛋等），這可能是「涼拌小菜」或「滷味拼盤」，而不是單一食材
+   - 涼拌小菜特徵：多種食材、切成絲或片、有油光、顏色豐富
+   - 滷味拼盤特徵：多種滷製食材、深褐色、有滷汁
+   
+2. **食材識別**：
+   - 注意區分相似食材（如：豆腐干絲 vs 麵條、米粉 vs 粉絲）
+   - 識別所有可見的食材，包括配菜和調味料
+   - 如果是拼盤或小菜，請列出所有食材，而不是只列出主要食材
+   
+3. **烹飪方式**：
+   - 涼拌、快炒、清蒸、紅燒、滷製等
+   - 注意表面特徵（油光、醬色、焦痕等）
+   
+4. **料理類型**：
+   - 中式、台式、日式、韓式等
 
 請以 JSON 格式回應：
 {
@@ -183,15 +195,31 @@ Notes:
   "cuisineType": "料理類型",
   "dishType": "菜餚類型",
   "overallDescription": "整體描述"
-}`;
+}
+
+**特別注意**：
+- 如果圖片中有多種不同的食材（如海帶、豆干、滷蛋），請識別為「涼拌小菜」或「滷味拼盤」，並列出所有食材
+- 不要將拼盤中的某一種食材當作整道菜的名稱（例如：不要只說「豆腐干絲」，而應該說「涼拌小菜（含海帶、豆干、滷蛋等）」）`;
     } else {
       return `You are a food recognition expert specializing in Asian cuisine. Please carefully analyze this image.
 
 Asian Cuisine Recognition Focus:
-1. Distinguish similar ingredients (e.g., tofu strips vs noodles, rice noodles vs glass noodles)
-2. Identify all visible ingredients including side dishes and seasonings
-3. Note cooking methods (cold dressed, stir-fried, steamed, braised, etc.)
-4. Identify cuisine type (Chinese, Taiwanese, Japanese, Korean, etc.)
+1. **Dish Type Identification**:
+   - If you see multiple ingredients mixed together (e.g., kelp, dried tofu, braised egg), this may be "cold dressed appetizers" or "braised platter", not a single ingredient
+   - Cold dressed appetizers features: Multiple ingredients, cut into strips or slices, oil sheen, colorful
+   - Braised platter features: Multiple braised ingredients, dark brown, with braising liquid
+   
+2. **Ingredient Identification**:
+   - Distinguish similar ingredients (e.g., tofu strips vs noodles, rice noodles vs glass noodles)
+   - Identify all visible ingredients including side dishes and seasonings
+   - If it's a platter or appetizers, list all ingredients, not just the main one
+   
+3. **Cooking Methods**:
+   - Cold dressed, stir-fried, steamed, braised, etc.
+   - Note surface features (oil sheen, sauce color, char marks, etc.)
+   
+4. **Cuisine Type**:
+   - Chinese, Taiwanese, Japanese, Korean, etc.
 
 Respond in JSON format:
 {
@@ -209,7 +237,11 @@ Respond in JSON format:
   "cuisineType": "cuisine type",
   "dishType": "dish type",
   "overallDescription": "overall description"
-}`;
+}
+
+**Special Notes**:
+- If the image contains multiple different ingredients (e.g., kelp, dried tofu, braised egg), identify as "cold dressed appetizers" or "braised platter" and list all ingredients
+- Don't name the dish after just one ingredient in the platter (e.g., don't just say "dried tofu strips", but say "cold dressed appetizers (with kelp, dried tofu, braised egg, etc.)")`;
     }
   }
 
