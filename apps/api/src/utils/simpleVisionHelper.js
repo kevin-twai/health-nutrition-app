@@ -8,11 +8,15 @@
 let EnhancedPromptGenerator;
 
 try {
-  // 嘗試導入編譯後的 TypeScript 模組
-  const module = require('../services/EnhancedPromptGenerator');
+  // 嘗試導入編譯後的 TypeScript 模組（從 dist 目錄）
+  const path = require('path');
+  const distPath = path.resolve(__dirname, '../../dist/services/EnhancedPromptGenerator');
+  const module = require(distPath);
   EnhancedPromptGenerator = module.EnhancedPromptGenerator;
+  console.log('✅ 成功導入 EnhancedPromptGenerator');
 } catch (error) {
   console.warn('⚠️ 無法導入 EnhancedPromptGenerator，使用回退方案');
+  console.warn('   錯誤詳情:', error.message);
   EnhancedPromptGenerator = null;
 }
 

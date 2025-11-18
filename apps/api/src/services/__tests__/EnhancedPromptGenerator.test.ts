@@ -21,7 +21,8 @@ describe('EnhancedPromptGenerator', () => {
       const prompt = generator.generatePrompt();
       expect(prompt).toBeDefined();
       expect(prompt.length).toBeGreaterThan(0);
-      expect(prompt).toContain('營養分析助手');
+      // 預設使用亞洲料理模板，應該包含食物識別專家
+      expect(prompt).toContain('食物識別專家');
     });
 
     it('應該能獲取所有可用的模板類型', () => {

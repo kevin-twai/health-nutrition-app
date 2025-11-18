@@ -1,11 +1,12 @@
 // 增強版測試服務器 - 健康營養追蹤系統
-// 版本: 1.0.3 - 使用 heic-convert 支援 HEIC 格式
+// 版本: 1.0.4 - 整合 EnhancedPromptGenerator
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const convert = require('heic-convert');
+const { generateFoodRecognitionPrompt } = require('./utils/simpleVisionHelper');
 const app = express();
 const port = process.env.PORT || 3001;
 

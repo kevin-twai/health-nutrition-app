@@ -3,8 +3,10 @@ services:
     name: health-nutrition-app
     env: node
     plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: |
+      npm install
+      cd apps/api && npx tsc
+    startCommand: node apps/api/src/simple-server.js
     envVars:
       - key: NODE_ENV
         value: production
