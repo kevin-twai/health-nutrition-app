@@ -337,7 +337,24 @@ Respond in JSON format:
       });
 
       const content = response.choices[0]?.message?.content || '{}';
-      const parsed = JSON.parse(content);
+      
+      // 清理回應，移除 markdown 標記
+      let cleanedContent = content.trim();
+      
+      // 移除可能的 markdown 代碼塊標記
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.replace(/^```json\s*/, '');
+      }
+      if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.replace(/^```\s*/, '');
+      }
+      if (cleanedContent.endsWith('```')) {
+        cleanedContent = cleanedContent.replace(/\s*```$/, '');
+      }
+      
+      console.log('🧹 清理後的料理類型 JSON:', cleanedContent.substring(0, 200));
+      
+      const parsed = JSON.parse(cleanedContent);
 
       return {
         name: parsed.dishName || '未知料理',
@@ -348,6 +365,9 @@ Respond in JSON format:
 
     } catch (error) {
       console.error('料理類型判斷失敗:', error);
+      if (error instanceof Error) {
+        console.error('錯誤訊息:', error.message);
+      }
       return {
         name: '未知料理',
         type: DishType.UNKNOWN,
@@ -402,8 +422,24 @@ Respond in JSON format:
       const content = response.choices[0]?.message?.content || '{}';
       console.log('   Vision API 回應:', content.substring(0, 200) + '...');
 
+      // 清理回應，移除 markdown 標記
+      let cleanedContent = content.trim();
+      
+      // 移除可能的 markdown 代碼塊標記
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.replace(/^```json\s*/, '');
+      }
+      if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.replace(/^```\s*/, '');
+      }
+      if (cleanedContent.endsWith('```')) {
+        cleanedContent = cleanedContent.replace(/\s*```$/, '');
+      }
+      
+      console.log('🧹 清理後的成分 JSON:', cleanedContent.substring(0, 200) + '...');
+
       // 解析回應
-      const parsed = JSON.parse(content);
+      const parsed = JSON.parse(cleanedContent);
       const components = parsed.components || parsed.foods || [];
 
       // 轉換為 DetectedComponent 格式
@@ -427,6 +463,9 @@ Respond in JSON format:
 
     } catch (error) {
       console.error('Vision API 成分提取失敗:', error);
+      if (error instanceof Error) {
+        console.error('錯誤訊息:', error.message);
+      }
       return [];
     }
   }
