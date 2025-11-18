@@ -16,17 +16,25 @@ const upload = multer({
       'image/jpeg',
       'image/jpg',
       'image/png',
-      'image/heic',
-      'image/heif',
       'image/webp',
       'application/octet-stream' // curl 可能使用此類型
     ];
     
     // 檢查文件擴展名
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.webp'];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
     const fileExt = file.originalname.toLowerCase().match(/\.[^.]+$/)?.[0] || '';
     
     console.log(`📎 Multer fileFilter - 檔案: ${file.originalname}, MIME: ${file.mimetype}, 擴展名: ${fileExt}`);
+    
+    // 明確拒絕 HEIC/HEIF 格式
+    const isHEIC = fileExt === '.heic' || fileExt === '.heif' || 
+                   file.mimetype === 'image/heic' || file.mimetype === 'image/heif';
+    
+    if (isHEIC) {
+      console.log(`❌ 拒絕 HEIC/HEIF 格式: ${file.originalname}`);
+      cb(new Error('目前不支援 HEIC/HEIF 格式。請將照片轉換為 JPEG 或 PNG 格式後再上傳。\n\niPhone 用戶可以在「設定 > 相機 > 格式」中選擇「最相容」來拍攝 JPEG 格式照片。'));
+      return;
+    }
     
     // 如果 MIME 類型是 application/octet-stream，則檢查文件擴展名
     if (file.mimetype === 'application/octet-stream') {
@@ -35,14 +43,14 @@ const upload = multer({
         cb(null, true);
       } else {
         console.log(`❌ 檔案擴展名拒絕: ${fileExt}`);
-        cb(new Error(`不支援的檔案類型 (${fileExt})。請使用 JPEG、PNG、WEBP 或 HEIC 格式。`));
+        cb(new Error(`不支援的檔案類型 (${fileExt})。請使用 JPEG、PNG 或 WEBP 格式。`));
       }
     } else if (allowedMimeTypes.includes(file.mimetype)) {
       console.log(`✅ 檔案類型允許: ${file.mimetype}`);
       cb(null, true);
     } else {
       console.log(`❌ 檔案類型拒絕: ${file.mimetype}`);
-      cb(new Error(`不支援的檔案類型 (${file.mimetype})。請使用 JPEG、PNG、WEBP 或 HEIC 格式。`));
+      cb(new Error(`不支援的檔案類型 (${file.mimetype})。請使用 JPEG、PNG 或 WEBP 格式。`));
     }
   }
 });
