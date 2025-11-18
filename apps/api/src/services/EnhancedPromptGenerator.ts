@@ -168,9 +168,13 @@ Notes:
    - 滷味拼盤特徵：多種滷製食材、深褐色、有滷汁
    
 2. **食材識別**：
-   - 注意區分相似食材（如：豆腐干絲 vs 麵條、米粉 vs 粉絲）
+   - 注意區分相似食材：
+     * 豆腐干絲 vs 麵條：干絲較粗、有韌性、顏色偏黃、表面粗糙
+     * 油炸豆腐 vs 豆腐干絲：油炸豆腐是金黃色方塊、外皮酥脆；豆腐干絲是細長條狀
+     * 米粉 vs 粉絲：米粉較粗、不透明；粉絲較細、半透明
    - 識別所有可見的食材，包括配菜和調味料
    - 如果是拼盤或小菜，請列出所有食材，而不是只列出主要食材
+   - 特別注意烹飪方式對食材外觀的影響（油炸、滷製、涼拌等）
    
 3. **烹飪方式**：
    - 涼拌、快炒、清蒸、紅燒、滷製等
@@ -212,9 +216,13 @@ Asian Cuisine Recognition Focus:
    - Braised platter features: Multiple braised ingredients, dark brown, with braising liquid
    
 2. **Ingredient Identification**:
-   - Distinguish similar ingredients (e.g., tofu strips vs noodles, rice noodles vs glass noodles)
+   - Distinguish similar ingredients:
+     * Dried tofu strips vs noodles: strips are thicker, chewier, yellowish, rough surface
+     * Fried tofu vs dried tofu strips: fried tofu is golden cube with crispy skin; dried tofu strips are thin long strips
+     * Rice noodles vs glass noodles: rice noodles are thicker, opaque; glass noodles are thinner, translucent
    - Identify all visible ingredients including side dishes and seasonings
    - If it's a platter or appetizers, list all ingredients, not just the main one
+   - Pay special attention to how cooking methods affect ingredient appearance (fried, braised, cold dressed, etc.)
    
 3. **Cooking Methods**:
    - Cold dressed, stir-fried, steamed, braised, etc.
@@ -921,7 +929,9 @@ Special Notes:
 
 2. **其他豆製品**：
    - 豆腐：白色、軟嫩、方塊狀
+   - 油炸豆腐：金黃色或深褐色、外皮酥脆、內部軟嫩、方塊狀或三角形、表面有油炸痕跡
    - 豆干：褐色、堅實、方塊狀
+   - 豆腐干絲：淡黃色、細長條狀、有韌性
    - 豆皮：薄片狀、淡黃色
    - 腐竹：棒狀、淡黃色、乾燥
    - 臭豆腐：深色、多孔、發酵味
