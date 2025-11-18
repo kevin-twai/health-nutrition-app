@@ -5,7 +5,7 @@
  */
 
 import { Collection, ObjectId } from 'mongodb';
-import { getMongoDb } from '../database/mongodb';
+import { mongodb } from '../database/mongodb';
 import { ComponentAdjustment, ComponentAdjustmentDocument } from '../models/ComponentAdjustment';
 
 export class ComponentAdjustmentRepository {
@@ -14,8 +14,12 @@ export class ComponentAdjustmentRepository {
   /**
    * 獲取集合
    */
-  private async getCollection(): Promise<Collection<ComponentAdjustmentDocument>> {
-    const db = await getMongoDb();
+  private async getCollection(): Promise<Collection<ComponentAdjustmentDocument> | null> {
+    const db = mongodb.getDb();
+    if (!db) {
+      console.warn('MongoDB 未連接，無法獲取 component_adjustments 集合');
+      return null;
+    }
     return db.collection<ComponentAdjustmentDocument>(this.collectionName);
   }
 

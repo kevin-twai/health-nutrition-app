@@ -55,7 +55,7 @@ export async function detectRamenComponents() {
   console.log('\n營養摘要：');
   console.log(`  總熱量: ${result.nutritionSummary.total.calories.toFixed(0)} kcal`);
   console.log(`  蛋白質: ${result.nutritionSummary.total.protein.toFixed(1)}g`);
-  console.log(`  碳水化合物: ${result.nutritionSummary.total.carbs.toFixed(1)}g`);
+  console.log(`  碳水化合物: ${result.nutritionSummary.total.carbohydrates.toFixed(1)}g`);
   console.log(`  脂肪: ${result.nutritionSummary.total.fat.toFixed(1)}g`);
   
   return result;

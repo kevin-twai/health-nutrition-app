@@ -57,7 +57,7 @@ async function main() {
     console.error('❌ 初始化失敗:', error);
     process.exit(1);
   } finally {
-    await mongodb.disconnect();
+    await mongodb.close();
     process.exit(0);
   }
 }

@@ -151,6 +151,7 @@ export interface DetectionMetadata {
   componentsDetected: number;       // 檢測到的成分數量
   componentsFromKB: number;         // 來自知識庫的成分數量
   componentsFromVision: number;     // 來自 Vision API 的成分數量
+  warnings?: string[];              // 警告訊息（可選）
 }
 
 /**
