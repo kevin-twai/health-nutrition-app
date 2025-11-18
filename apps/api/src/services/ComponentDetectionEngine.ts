@@ -491,24 +491,41 @@ Respond in JSON format:
    * 根據料理類型選擇合適的 prompt
    */
   private selectPromptForDishType(dishType: DishType, dishName: string): string {
+    // 添加料理名稱作為上下文
+    const dishContext = this.language === 'zh-TW'
+      ? `\n\n**料理名稱**：${dishName}\n請根據此料理名稱識別成分。如果料理名稱包含特定食材（如「豆腐干絲」），請優先識別該食材，而非相似的其他食材（如「麵條」）。\n\n`
+      : `\n\n**Dish Name**: ${dishName}\nPlease identify components based on this dish name. If the dish name contains specific ingredients (e.g., "dried tofu strips"), prioritize identifying that ingredient over similar alternatives (e.g., "noodles").\n\n`;
+    
+    let basePrompt: string;
+    
     switch (dishType) {
       case DishType.SOUP:
-        return generateSoupComponentPrompt(this.language);
+        basePrompt = generateSoupComponentPrompt(this.language);
+        break;
       case DishType.FRIED_RICE:
-        return generateFriedRiceComponentPrompt(this.language);
+        basePrompt = generateFriedRiceComponentPrompt(this.language);
+        break;
       case DishType.STIR_FRY:
-        return generateStirFryComponentPrompt(this.language);
+        basePrompt = generateStirFryComponentPrompt(this.language);
+        break;
       case DishType.BENTO:
-        return generateBentoComponentPrompt(this.language);
+        basePrompt = generateBentoComponentPrompt(this.language);
+        break;
       case DishType.NOODLES:
-        return generateNoodlesComponentPrompt(this.language);
+        basePrompt = generateNoodlesComponentPrompt(this.language);
+        break;
       case DishType.DUMPLING:
-        return generateDumplingComponentPrompt(this.language);
+        basePrompt = generateDumplingComponentPrompt(this.language);
+        break;
       case DishType.BARBECUE:
-        return generateBarbecueComponentPrompt(this.language);
+        basePrompt = generateBarbecueComponentPrompt(this.language);
+        break;
       default:
         return generateGenericComponentPrompt(dishName, this.language);
     }
+    
+    // 將料理名稱上下文插入到 prompt 開頭
+    return dishContext + basePrompt;
   }
 
   /**

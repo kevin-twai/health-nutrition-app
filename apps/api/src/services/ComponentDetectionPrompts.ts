@@ -314,7 +314,19 @@ export function generateStirFryComponentPrompt(language: 'zh-TW' | 'en' = 'zh-TW
 - 估算油的使用量（從表面光澤判斷）
 - 區分主要食材和調味配料
 - 對於炒飯和炒麵，要識別所有混合的成分
-- 對於宮保雞丁等特色菜，注意特殊配料（花生、乾辣椒）`;
+- 對於宮保雞丁等特色菜，注意特殊配料（花生、乾辣椒）
+
+**易混淆食材辨識（非常重要）**：
+- **豆腐干絲 vs 麵條**：
+  * 豆腐干絲：顏色偏淡黃或米白色，質地較硬挺，表面較乾燥，有豆製品特有的質感
+  * 麵條：顏色偏白或淡黃，質地較軟，表面較光滑有光澤，吸收湯汁後會膨脹
+  * 如果料理名稱包含「豆腐干絲」，則細長條狀食材應識別為豆腐干絲，而非麵條
+- **米粉 vs 麵條**：
+  * 米粉：較細、半透明、易斷裂
+  * 麵條：較粗、不透明、有彈性
+- **豆芽菜 vs 金針菇**：
+  * 豆芽菜：有豆子頭部、較粗
+  * 金針菇：細長、均勻、成束`;
   } else {
     return `Please carefully analyze this stir-fry image and identify all components:
 
@@ -379,7 +391,19 @@ Respond in JSON format:
 - Estimate oil usage (judge from surface gloss)
 - Distinguish main ingredients from seasoning toppings
 - For fried rice and fried noodles, identify all mixed components
-- For specialty dishes like Kung Pao Chicken, note special toppings (peanuts, dried chili)`;
+- For specialty dishes like Kung Pao Chicken, note special toppings (peanuts, dried chili)
+
+**Easily Confused Ingredients (VERY IMPORTANT)**:
+- **Dried Tofu Strips vs Noodles**:
+  * Dried tofu strips: Light yellow or off-white color, firmer texture, drier surface, has characteristic soy product texture
+  * Noodles: White or pale yellow, softer texture, smoother and glossier surface, swells after absorbing liquid
+  * If dish name contains "dried tofu strips" (豆腐干絲), thin strip-shaped ingredients should be identified as dried tofu strips, NOT noodles
+- **Rice Noodles vs Wheat Noodles**:
+  * Rice noodles: Thinner, semi-transparent, brittle
+  * Wheat noodles: Thicker, opaque, elastic
+- **Bean Sprouts vs Enoki Mushrooms**:
+  * Bean sprouts: Have bean head, thicker
+  * Enoki mushrooms: Thin, uniform, clustered`;
   }
 }
 
