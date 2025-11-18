@@ -225,8 +225,8 @@ export default function PhotoRecognition() {
         throw new Error('無法連接到後端服務器，請檢查網絡連接')
       }
       
-      console.log('📤 發送照片識別請求...')
-      const response = await fetch(`${API_URL}/api/v1/photo/recognize`, {
+      console.log('📤 發送照片識別請求（包含成分識別）...')
+      const response = await fetch(`${API_URL}/api/v1/photo/recognize-with-components?includeComponents=true`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -254,11 +254,43 @@ export default function PhotoRecognition() {
       // 檢查 API 回應結構
       if (result.success && result.data && result.data.recognition) {
         const recognition = result.data.recognition
+        const componentDetection = result.data.componentDetection
+        
         console.log('🎯 使用的 API:', result.data.apiUsed)
         console.log('🎯 辨識結果:', recognition)
+        console.log('🍽️ 成分識別:', componentDetection)
         
-        // 檢查是否有 suggestions 陣列
-        if (recognition.suggestions && recognition.suggestions.length > 0) {
+        // 檢查是否有成分識別結果
+        if (componentDetection && componentDetection.success && componentDetection.components) {
+          console.log('✅ 成分識別成功，檢測到', componentDetection.components.length, '個成分')
+          
+          // 使用成分識別結果
+          const components = componentDetection.components.map((comp: any) => ({
+            name: comp.name,
+            category: comp.category,
+            portion: `${comp.estimatedPortion}g`,
+            confidence: comp.confidence,
+            calories: comp.nutrition?.calories || 0,
+            protein: comp.nutrition?.protein || 0,
+            carbs: comp.nutrition?.carbohydrates || 0,
+            fat: comp.nutrition?.fat || 0
+          }))
+          
+          analysisResult = {
+            foods: components,
+            totalCalories: componentDetection.nutritionSummary?.total?.calories || 0,
+            totalProtein: Math.round((componentDetection.nutritionSummary?.total?.protein || 0) * 10) / 10,
+            totalCarbs: Math.round((componentDetection.nutritionSummary?.total?.carbohydrates || 0) * 10) / 10,
+            totalFat: Math.round((componentDetection.nutritionSummary?.total?.fat || 0) * 10) / 10,
+            description: `${componentDetection.mainDish?.name || '料理'} - 檢測到 ${components.length} 個成分`,
+            hasComponents: true,
+            mainDish: componentDetection.mainDish
+          }
+          
+          console.log('✅ 成分識別結果:', analysisResult)
+        }
+        // 檢查是否有 suggestions 陣列（標準識別）
+        else if (recognition.suggestions && recognition.suggestions.length > 0) {
           const recognizedFoods = recognition.suggestions.map((suggestion: any) => ({
             name: suggestion.food.name,
             confidence: suggestion.confidence,
@@ -277,12 +309,13 @@ export default function PhotoRecognition() {
             totalProtein: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.protein, 0) * 10) / 10,
             totalCarbs: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.carbs, 0) * 10) / 10,
             totalFat: Math.round(recognizedFoods.reduce((sum: number, food: any) => sum + food.fat, 0) * 10) / 10,
-            description: recognition.description || '使用 OpenAI Vision API 辨識'
+            description: recognition.description || '使用 OpenAI Vision API 辨識',
+            hasComponents: false
           }
           
           console.log('✅ OpenAI Vision API 識別成功:', analysisResult)
         } else {
-          console.warn('⚠️ API 回應中沒有 suggestions')
+          console.warn('⚠️ API 回應中沒有 suggestions 或 components')
           throw new Error('API 回應格式不正確')
         }
       } else {
@@ -575,23 +608,54 @@ export default function PhotoRecognition() {
       // 更新食物列表
       const foodsList = document.getElementById('foods-list')
       if (foodsList) {
-        foodsList.innerHTML = analysisResult.foods.map((food: any) => `
-          <div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-bottom: 12px;">
-            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
-              <h4 style="font-size: 16px; font-weight: 500; color: #111827; margin: 0;">${food.name}</h4>
-              <span style="background-color: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-                ${Math.round(food.confidence * 100)}% 信心度
-              </span>
+        // 如果有成分識別結果，顯示主料理信息
+        let headerHTML = ''
+        if (analysisResult.hasComponents && analysisResult.mainDish) {
+          headerHTML = `
+            <div style="background-color: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+              <h3 style="font-size: 18px; font-weight: 600; color: #166534; margin: 0 0 8px 0;">
+                🍽️ ${analysisResult.mainDish.name}
+              </h3>
+              <p style="color: #15803d; margin: 0; font-size: 14px;">
+                料理類型: ${analysisResult.mainDish.dishType} | 烹飪方式: ${analysisResult.mainDish.cookingMethod}
+              </p>
+              <p style="color: #15803d; margin: 4px 0 0 0; font-size: 14px;">
+                檢測到 ${analysisResult.foods.length} 個成分
+              </p>
             </div>
-            <p style="color: #6b7280; margin: 4px 0; font-size: 14px;">份量: ${food.portion}</p>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; font-size: 12px;">
-              <div><strong>${food.calories}</strong> 卡路里</div>
-              <div><strong>${food.protein}g</strong> 蛋白質</div>
-              <div><strong>${food.carbs}g</strong> 碳水</div>
-              <div><strong>${food.fat}g</strong> 脂肪</div>
+          `
+        }
+        
+        const foodsHTML = analysisResult.foods.map((food: any) => {
+          const categoryBadge = food.category ? `
+            <span style="background-color: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-left: 8px;">
+              ${food.category}
+            </span>
+          ` : ''
+          
+          return `
+            <div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div>
+                  <h4 style="font-size: 16px; font-weight: 500; color: #111827; margin: 0; display: inline-block;">${food.name}</h4>
+                  ${categoryBadge}
+                </div>
+                <span style="background-color: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                  ${Math.round(food.confidence * 100)}% 信心度
+                </span>
+              </div>
+              <p style="color: #6b7280; margin: 4px 0; font-size: 14px;">份量: ${food.portion}</p>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; font-size: 12px;">
+                <div><strong>${Math.round(food.calories)}</strong> 卡路里</div>
+                <div><strong>${food.protein}g</strong> 蛋白質</div>
+                <div><strong>${food.carbs}g</strong> 碳水</div>
+                <div><strong>${food.fat}g</strong> 脂肪</div>
+              </div>
             </div>
-          </div>
-        `).join('')
+          `
+        }).join('')
+        
+        foodsList.innerHTML = headerHTML + foodsHTML
       }
       
       // 更新營養總計
@@ -600,7 +664,7 @@ export default function PhotoRecognition() {
       const carbsEl = document.getElementById('total-carbs')
       const fatEl = document.getElementById('total-fat')
       
-      if (caloriesEl) caloriesEl.textContent = analysisResult.totalCalories.toString()
+      if (caloriesEl) caloriesEl.textContent = Math.round(analysisResult.totalCalories).toString()
       if (proteinEl) proteinEl.textContent = analysisResult.totalProtein + 'g'
       if (carbsEl) carbsEl.textContent = analysisResult.totalCarbs + 'g'
       if (fatEl) fatEl.textContent = analysisResult.totalFat + 'g'
