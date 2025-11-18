@@ -159,29 +159,60 @@ Notes:
    */
   private createAsianCuisineTemplate(): string {
     if (this.language === 'zh-TW') {
-      return `你是一個專精於亞洲料理的食物識別專家。請仔細分析這張圖片。
+      return `你是一個專精於亞洲料理的食物識別專家。
 
-亞洲料理識別重點：
-1. **料理類型判斷**：
-   - 如果看到多種食材混合在一起（如海帶、豆干、滷蛋等），這可能是「涼拌小菜」或「滷味拼盤」，而不是單一食材
-   - 涼拌小菜特徵：多種食材、切成絲或片、有油光、顏色豐富
-   - 滷味拼盤特徵：多種滷製食材、深褐色、有滷汁
-   
-2. **食材識別**：
-   - 注意區分相似食材：
-     * 豆腐干絲 vs 麵條：干絲較粗、有韌性、顏色偏黃、表面粗糙
-     * 油炸豆腐 vs 豆腐干絲：油炸豆腐是金黃色方塊、外皮酥脆；豆腐干絲是細長條狀
-     * 米粉 vs 粉絲：米粉較粗、不透明；粉絲較細、半透明
-   - 識別所有可見的食材，包括配菜和調味料
-   - 如果是拼盤或小菜，請列出所有食材，而不是只列出主要食材
-   - 特別注意烹飪方式對食材外觀的影響（油炸、滷製、涼拌等）
-   
-3. **烹飪方式**：
-   - 涼拌、快炒、清蒸、紅燒、滷製等
-   - 注意表面特徵（油光、醬色、焦痕等）
-   
-4. **料理類型**：
-   - 中式、台式、日式、韓式等
+## 核心任務（最優先）
+**你的首要任務是：仔細觀察圖片，識別並列出所有可見的食材到 foods 列表中。**
+
+## 識別步驟（請按順序執行）
+
+### 步驟 1：仔細觀察圖片
+- 從整體到細節觀察圖片
+- 注意不同位置的食材（表面、中間、底部）
+- 識別顏色、形狀、質地等視覺特徵
+- 注意是否有多種食材混合在一起
+
+### 步驟 2：識別每一種食材
+**請列出所有可見的食材，包括：**
+- 主要食材（如肉類、主菜、主食）
+- 配菜（如蔬菜、豆製品）
+- 小配料（如蔥花、香菜、芝麻、蒜片）
+- 調味料（如醬汁、油、醬料）
+
+**不要遺漏任何可見的食材！**
+
+### 步驟 3：估算份量
+- 為每種食材估算合理的份量（公克或毫升）
+- 參考常見份量標準：
+  * 豆腐：每塊約 30-50g
+  * 蔬菜絲：每份約 20-30g
+  * 蔥花、香菜：約 5-10g
+  * 湯底：約 200-300ml
+  * 肉片：每片約 20-30g
+
+### 步驟 4：撰寫描述
+- 在完成 foods 列表後，撰寫整體描述
+- description 用於補充說明料理特色、烹飪方式等
+- description 不應限制 foods 列表的內容
+
+## 食材識別重點
+
+### 料理類型判斷
+- 如果看到多種食材混合在一起（如海帶、豆干、滷蛋等），這可能是「涼拌小菜」或「滷味拼盤」
+- 涼拌小菜特徵：多種食材、切成絲或片、有油光、顏色豐富
+- 滷味拼盤特徵：多種滷製食材、深褐色、有滷汁
+- 湯品特徵：有湯底和多種配料
+
+### 區分相似食材
+- 豆腐干絲 vs 麵條：干絲較粗、有韌性、顏色偏黃、表面粗糙
+- 油炸豆腐 vs 豆腐干絲：油炸豆腐是金黃色方塊、外皮酥脆；豆腐干絲是細長條狀
+- 米粉 vs 粉絲：米粉較粗、不透明；粉絲較細、半透明
+
+### 烹飪方式識別
+- 涼拌、快炒、清蒸、紅燒、滷製等
+- 注意表面特徵（油光、醬色、焦痕等）
+
+## JSON 格式說明
 
 請以 JSON 格式回應：
 {
@@ -201,35 +232,109 @@ Notes:
   "overallDescription": "整體描述"
 }
 
-**特別注意**：
-- 如果圖片中有多種不同的食材（如海帶、豆干、滷蛋），請識別為「涼拌小菜」或「滷味拼盤」，並列出所有食材
-- 不要將拼盤中的某一種食材當作整道菜的名稱（例如：不要只說「豆腐干絲」，而應該說「涼拌小菜（含海帶、豆干、滷蛋等）」）
-- **重要**：foods 列表必須包含所有可見的食材。如果你在 description 或 overallDescription 中提到了某個食材，那麼該食材也必須出現在 foods 列表中
-- 例如：如果 description 提到「泡麵配料包含麵條、蔬菜和肉片」，那麼 foods 列表必須包含「麵條」、「蔬菜」和「肉片」這三個項目`;
-    } else {
-      return `You are a food recognition expert specializing in Asian cuisine. Please carefully analyze this image.
+## 完整性檢查清單
 
-Asian Cuisine Recognition Focus:
-1. **Dish Type Identification**:
-   - If you see multiple ingredients mixed together (e.g., kelp, dried tofu, braised egg), this may be "cold dressed appetizers" or "braised platter", not a single ingredient
-   - Cold dressed appetizers features: Multiple ingredients, cut into strips or slices, oil sheen, colorful
-   - Braised platter features: Multiple braised ingredients, dark brown, with braising liquid
-   
-2. **Ingredient Identification**:
-   - Distinguish similar ingredients:
-     * Dried tofu strips vs noodles: strips are thicker, chewier, yellowish, rough surface
-     * Fried tofu vs dried tofu strips: fried tofu is golden cube with crispy skin; dried tofu strips are thin long strips
-     * Rice noodles vs glass noodles: rice noodles are thicker, opaque; glass noodles are thinner, translucent
-   - Identify all visible ingredients including side dishes and seasonings
-   - If it's a platter or appetizers, list all ingredients, not just the main one
-   - Pay special attention to how cooking methods affect ingredient appearance (fried, braised, cold dressed, etc.)
-   
-3. **Cooking Methods**:
-   - Cold dressed, stir-fried, steamed, braised, etc.
-   - Note surface features (oil sheen, sauce color, char marks, etc.)
-   
-4. **Cuisine Type**:
-   - Chinese, Taiwanese, Japanese, Korean, etc.
+在提交回應前，請確認：
+- [ ] 已識別所有可見的主要食材
+- [ ] 已識別所有可見的配菜
+- [ ] 已識別所有可見的小配料（蔥花、香菜、蒜片等）
+- [ ] 已識別調味料或醬汁（如果可見）
+- [ ] foods 列表中至少有 3 種食材（如果圖片中有多種食材）
+- [ ] 每種食材都有合理的份量估算
+- [ ] 沒有遺漏任何明顯可見的食材
+
+## 重要原則
+
+1. **foods 列表是獨立的結構化數據**
+   - foods 列表必須包含圖片中的所有可見食材
+   - 即使某個食材在 description 中未提及，只要在圖片中可見，就必須加入 foods 列表
+   - foods 列表是營養計算的基礎，必須完整準確
+
+2. **description 是補充說明**
+   - description 用於描述整體料理特色、烹飪方式、口味等
+   - description 不應限制或影響 foods 列表的內容
+   - 不要因為 description 簡短就減少 foods 列表中的食材
+
+3. **識別所有食材，不只是主要食材**
+   - 如果是拼盤或小菜，請列出所有食材
+   - 不要只列出主要食材而忽略配菜
+   - 小配料（蔥花、香菜、芝麻等）也要列出
+
+## 範例
+
+### 範例 1：涼拌干絲
+如果圖片中有涼拌干絲，foods 列表應包含：
+- 豆腐干絲（80g）
+- 芹菜絲（20g）
+- 胡蘿蔔絲（15g）
+- 香菜（5g）
+- 麻油（5ml）
+
+**不要只回應「豆腐干絲」，必須列出所有可見的食材！**
+
+### 範例 2：味噌湯
+如果圖片中有味噌湯，foods 列表應包含：
+- 味噌湯底（250ml）
+- 豆腐（30g）
+- 海帶芽（10g）
+- 蔥花（5g）
+
+**不要只回應「味噌湯」，必須列出湯底和所有配料！**`;
+    } else {
+      return `You are a food recognition expert specializing in Asian cuisine.
+
+## Core Task (Highest Priority)
+**Your primary task is: Carefully observe the image, identify and list ALL visible ingredients in the foods list.**
+
+## Identification Steps (Follow in Order)
+
+### Step 1: Carefully Observe the Image
+- Observe the image from overall to details
+- Note ingredients at different positions (surface, middle, bottom)
+- Identify colors, shapes, textures, and other visual features
+- Note if multiple ingredients are mixed together
+
+### Step 2: Identify Every Ingredient
+**Please list ALL visible ingredients, including:**
+- Main ingredients (such as meat, main dishes, staples)
+- Side dishes (such as vegetables, soy products)
+- Small garnishes (such as scallions, cilantro, sesame, garlic slices)
+- Seasonings (such as sauces, oils, condiments)
+
+**Do not miss any visible ingredients!**
+
+### Step 3: Estimate Portions
+- Estimate reasonable portions for each ingredient (grams or milliliters)
+- Reference common portion standards:
+  * Tofu: Each piece about 30-50g
+  * Vegetable strips: Each serving about 20-30g
+  * Scallions, cilantro: About 5-10g
+  * Soup base: About 200-300ml
+  * Meat slices: Each slice about 20-30g
+
+### Step 4: Write Description
+- After completing the foods list, write an overall description
+- Description is for supplementary information about dish characteristics, cooking methods, etc.
+- Description should not limit the content of the foods list
+
+## Ingredient Identification Focus
+
+### Dish Type Identification
+- If you see multiple ingredients mixed together (e.g., kelp, dried tofu, braised egg), this may be "cold dressed appetizers" or "braised platter"
+- Cold dressed appetizers features: Multiple ingredients, cut into strips or slices, oil sheen, colorful
+- Braised platter features: Multiple braised ingredients, dark brown, with braising liquid
+- Soup features: Has soup base and multiple ingredients
+
+### Distinguish Similar Ingredients
+- Dried tofu strips vs noodles: strips are thicker, chewier, yellowish, rough surface
+- Fried tofu vs dried tofu strips: fried tofu is golden cube with crispy skin; dried tofu strips are thin long strips
+- Rice noodles vs glass noodles: rice noodles are thicker, opaque; glass noodles are thinner, translucent
+
+### Cooking Method Identification
+- Cold dressed, stir-fried, steamed, braised, etc.
+- Note surface features (oil sheen, sauce color, char marks, etc.)
+
+## JSON Format
 
 Respond in JSON format:
 {
@@ -249,11 +354,54 @@ Respond in JSON format:
   "overallDescription": "overall description"
 }
 
-**Special Notes**:
-- If the image contains multiple different ingredients (e.g., kelp, dried tofu, braised egg), identify as "cold dressed appetizers" or "braised platter" and list all ingredients
-- Don't name the dish after just one ingredient in the platter (e.g., don't just say "dried tofu strips", but say "cold dressed appetizers (with kelp, dried tofu, braised egg, etc.)")
-- **Important**: The foods list must include all visible ingredients. If you mention an ingredient in the description or overallDescription, that ingredient must also appear in the foods list
-- For example: If the description mentions "instant noodles with noodles, vegetables, and meat slices", the foods list must include "noodles", "vegetables", and "meat slices" as separate items`;
+## Completeness Checklist
+
+Before submitting your response, please confirm:
+- [ ] Identified all visible main ingredients
+- [ ] Identified all visible side dishes
+- [ ] Identified all visible small garnishes (scallions, cilantro, garlic slices, etc.)
+- [ ] Identified seasonings or sauces (if visible)
+- [ ] Foods list contains at least 3 ingredients (if the image has multiple ingredients)
+- [ ] Each ingredient has a reasonable portion estimate
+- [ ] No obvious visible ingredients are missing
+
+## Important Principles
+
+1. **The foods list is independent structured data**
+   - The foods list must include all visible ingredients in the image
+   - Even if an ingredient is not mentioned in the description, if it's visible in the image, it must be added to the foods list
+   - The foods list is the foundation for nutrition calculation and must be complete and accurate
+
+2. **Description is supplementary information**
+   - Description is for describing overall dish characteristics, cooking methods, flavors, etc.
+   - Description should not limit or affect the content of the foods list
+   - Don't reduce ingredients in the foods list just because the description is brief
+
+3. **Identify all ingredients, not just main ones**
+   - If it's a platter or appetizers, list all ingredients
+   - Don't just list main ingredients and ignore side dishes
+   - Small garnishes (scallions, cilantro, sesame, etc.) should also be listed
+
+## Examples
+
+### Example 1: Cold Dressed Tofu Strips
+If the image shows cold dressed tofu strips, the foods list should include:
+- Dried tofu strips (80g)
+- Celery strips (20g)
+- Carrot strips (15g)
+- Cilantro (5g)
+- Sesame oil (5ml)
+
+**Don't just respond with "dried tofu strips", must list all visible ingredients!**
+
+### Example 2: Miso Soup
+If the image shows miso soup, the foods list should include:
+- Miso soup base (250ml)
+- Tofu (30g)
+- Wakame (10g)
+- Scallions (5g)
+
+**Don't just respond with "miso soup", must list soup base and all ingredients!**`;
     }
   }
 
@@ -523,29 +671,125 @@ Special Notes:
 
   private createTaiwanesePrompt(): string {
     if (this.language === 'zh-TW') {
-      return `你是一個專精於台式料理的食物識別專家。請仔細分析這張圖片中的台灣料理。
+      return `你是一個專精於台式料理的食物識別專家。
 
-台式料理識別重點：
-1. **台灣特色食材**：
-   - 豆製品：豆腐干絲、豆干、臭豆腐、豆花
-   - 蔬菜：糯米椒、過貓、山蘇、龍鬚菜、空心菜
-   - 醬料：沙茶醬、甜辣醬、醬油膏、烏醋
-   - 配料：油蔥酥、蒜酥、香菜、九層塔
-2. **烹飪方式**：
-   - 快炒（熱炒）：大火快炒，常用蒜片、辣椒
-   - 滷味：醬油滷製，五香味
-   - 涼拌：麻油、醬油、醋調味
-   - 羹湯：勾芡濃稠
-3. **台式熱炒特徵**：
-   - 常見食材：糯米椒、豆干、三層肉、蛤蜊、九層塔
-   - 調味：蒜片、辣椒、醬油、米酒
-   - 特色：鍋氣重、油亮、香氣濃郁
-4. **原住民料理**（如適用）：
-   - 特色食材：馬告（山胡椒）、刺蔥、小米、山豬肉
-   - 烹飪方式：竹筒飯、石板烤肉、醃漬
-5. **常見菜餚**：
-   - 三杯雞、蚵仔煎、滷肉飯、蚵仔麵線、臭豆腐
-   - 涼拌菜：涼拌干絲、涼拌海蜇皮、涼拌小黃瓜
+## 核心任務（最優先）
+**你的首要任務是：仔細觀察圖片，識別並列出台式料理中所有可見的食材到 foods 列表中。**
+
+台式料理常有多種食材混合（如熱炒、滷味拼盤、小吃），請逐一識別每一種食材，不要遺漏！
+
+## 識別步驟（請按順序執行）
+
+### 步驟 1：仔細觀察圖片
+- 從整體到細節觀察台式料理
+- 注意不同位置的食材（表面、中間、底部）
+- 識別顏色、形狀、質地等視覺特徵
+- 注意台式料理的特色配料（蒜片、辣椒、九層塔、油蔥酥等）
+
+### 步驟 2：識別每一種食材
+
+**請列出所有可見的食材，包括：**
+
+#### A. 主要食材（主菜、主食）
+- 肉類：三層肉、豬肉片、雞肉、牛肉、海鮮
+- 豆製品：豆干、豆腐干絲、臭豆腐、豆腐
+- 蔬菜：糯米椒、過貓、山蘇、空心菜、高麗菜
+- 主食：米飯、麵條、米粉、粄條
+
+#### B. 配菜和配料
+- 常見配菜：糯米椒、青椒、洋蔥、蔥段、芹菜
+- 台式特色配料：
+  * 蒜片（台式熱炒必備）
+  * 辣椒片或辣椒段
+  * 九層塔（三杯料理、熱炒常用）
+  * 油蔥酥（滷肉飯、麵線常用）
+  * 香菜（小吃常用）
+  * 花生粉（小吃常用）
+
+#### C. 調味料和醬汁
+- 台式醬料：沙茶醬、甜辣醬、醬油膏、烏醋
+- 一般調味：醬油、麻油、米酒、糖
+- 注意表面的醬色和油光
+
+### 步驟 3：台式料理類型識別
+
+根據料理類型，注意不同的食材組合：
+
+#### 台式熱炒
+**特徵**：大火快炒、鍋氣重、油亮、香氣濃郁
+**必須識別的元素**：
+- 主食材：糯米椒、豆干、三層肉、蛤蜊、花枝、蝦等
+- 配料：蒜片（必備）、辣椒、九層塔、蔥段
+- 調味：醬油、米酒、糖
+**常見菜餚**：炒豆干、炒糯米椒、三杯雞、宮保雞丁、炒花枝
+
+#### 滷味拼盤
+**特徵**：醬油滷製、深褐色、五香味、多種食材
+**必須識別的元素**：
+- 豆製品：豆干、豆腐、豆皮
+- 蛋類：滷蛋、鵪鶉蛋
+- 肉類：豬耳朵、豬腳、雞翅、雞腳
+- 蔬菜：海帶、筍干、高麗菜
+- 內臟：豬血、鴨血、大腸、豬肝
+**注意**：滷味拼盤通常有 3-6 種食材，請全部列出
+
+#### 涼拌小菜
+**特徵**：冷食、多種食材混合、有油光
+**必須識別的元素**：
+- 主食材：豆腐干絲、海蜇皮、小黃瓜、木耳
+- 配菜：芹菜絲、胡蘿蔔絲、香菜、蔥絲
+- 調味：麻油、醬油、醋、蒜末
+**常見菜餚**：涼拌干絲、涼拌海蜇皮、涼拌小黃瓜
+
+#### 台式小吃
+**特徵**：街頭小吃、多種配料、醬料豐富
+**必須識別的元素**：
+- 主體：蚵仔煎、臭豆腐、蚵仔麵線、肉圓、碗粿
+- 配料：香菜、酸菜、泡菜、蒜泥、辣椒
+- 醬料：甜辣醬、醬油膏、蒜泥醬
+**注意**：小吃通常有多種配料和醬料，請全部列出
+
+#### 原住民料理（如適用）
+**特色食材**：
+- 香料：馬告（山胡椒）、刺蔥
+- 主食：小米、芋頭、地瓜
+- 肉類：山豬肉、飛魚、溪魚
+- 野菜：過貓、山蘇、龍葵
+**烹飪方式**：竹筒飯、石板烤肉、醃漬
+**注意**：如有原住民特色食材，請特別標註
+
+### 步驟 4：台式料理常見食材識別重點
+
+#### 豆製品識別
+- **豆腐干絲**：淡黃色、細長條狀（寬 2-3mm）、有韌性、表面粗糙
+  * 區分麵條：干絲較粗、不透明、顏色偏黃、有豆香
+- **豆干**：方塊狀、淡黃色或深褐色（滷過）、有韌性
+- **臭豆腐**：金黃色（炸過）或深褐色（滷過）、有孔洞、特殊氣味
+
+#### 蔬菜識別
+- **糯米椒**：細長、有皺褶、綠色、長約 5-8cm
+  * 區分青椒：糯米椒較小、較細、有皺褶；青椒較大、光滑
+- **過貓**：深綠色、捲曲狀、嫩葉
+- **山蘇**：深綠色、長條狀、有光澤
+- **空心菜**：深綠色、莖中空、葉片尖
+
+#### 配料識別
+- **蒜片**：白色或淡黃色、薄片狀、台式熱炒必備
+- **九層塔**：深綠色、葉片有香氣、三杯料理必備
+- **油蔥酥**：金黃色、碎末狀、香脆
+- **辣椒**：紅色或綠色、片狀或段狀
+
+### 步驟 5：估算份量
+- 主食材：通常 80-150g
+- 配菜：每種通常 20-50g
+- 小配料（蒜片、辣椒、九層塔）：每種通常 5-15g
+- 調味料：每種通常 5-15ml 或 g
+
+### 步驟 6：撰寫描述
+- 在完成 foods 列表後，撰寫整體描述
+- description 用於補充說明料理特色、烹飪方式、口味等
+
+## JSON 格式說明
 
 請以 JSON 格式回應：
 {
@@ -558,6 +802,7 @@ Special Notes:
       "cookingMethod": "烹飪方式",
       "visualFeatures": "視覺特徵（顏色、質地、形狀）",
       "isTaiwaneseSpecialty": true,
+      "role": "主食材/配菜/配料/調味料",
       "description": "詳細描述"
     }
   ],
@@ -565,38 +810,282 @@ Special Notes:
   "dishType": "菜餚類型（熱炒/滷味/涼拌/小吃等）",
   "isIndigenousFood": false,
   "seasonings": ["調味料列表"],
+  "taiwaneseFeatures": {
+    "hasGarlic": false,
+    "hasBasil": false,
+    "hasShallots": false,
+    "hasChili": false
+  },
   "overallDescription": "整體描述"
 }
+
+## 完整性檢查清單
+
+在提交回應前，請確認：
+- [ ] 已識別所有可見的主要食材
+- [ ] 已識別所有可見的配菜
+- [ ] 已識別台式特色配料（蒜片、辣椒、九層塔、油蔥酥等）
+- [ ] 已識別調味料或醬汁
+- [ ] foods 列表中至少有 3 種食材（如果圖片中有多種食材）
+- [ ] 每種食材都有合理的份量估算
+- [ ] 每種食材都標註了角色（主食材/配菜/配料/調味料）
+- [ ] 沒有遺漏任何明顯可見的食材
+- [ ] 如果是熱炒，是否識別了蒜片和辣椒
+- [ ] 如果是滷味拼盤，是否列出了所有滷製食材
+- [ ] 如果有原住民特色食材，是否特別標註
+
+## 重要原則
+
+1. **必須識別所有可見的食材**
+   - 台式料理常有多種食材混合（熱炒、滷味、小吃）
+   - 不要只識別主食材，配菜和配料也要列出
+   - 特別注意台式特色配料：蒜片、辣椒、九層塔、油蔥酥
+
+2. **台式熱炒必須識別蒜片和辣椒**
+   - 台式熱炒的特色就是大量使用蒜片和辣椒
+   - 如果是熱炒類料理，請仔細尋找蒜片（白色薄片）和辣椒（紅色或綠色）
+   - 蒜片通常在食材表面或混合其中
+
+3. **滷味拼盤必須列出所有食材**
+   - 滷味拼盤通常有 3-6 種不同的滷製食材
+   - 請逐一識別每種食材（豆干、滷蛋、海帶、豬血等）
+   - 不要只回應「滷味」，要列出具體的食材
+
+4. **注意台式特色食材**
+   - 糯米椒（細長、有皺褶）
+   - 豆腐干絲（淡黃色、細長條狀）
+   - 九層塔（深綠色葉片）
+   - 油蔥酥（金黃色碎末）
+
+5. **原住民料理特別標註**
+   - 如果有馬告、刺蔥、小米、山豬肉等原住民特色食材
+   - 請在 JSON 中設定 "isIndigenousFood": true
+   - 並在食材描述中特別說明
+
+## 範例
+
+### 範例 1：炒豆干（台式熱炒）
+如果圖片中有炒豆干，foods 列表應包含：
+- 豆干（100g）- 主食材
+- 糯米椒（50g）- 配菜
+- 蒜片（10g）- 配料（台式熱炒必備）
+- 辣椒片（5g）- 配料
+- 蔥段（10g）- 配料
+- 醬油（10ml）- 調味料
+- 米酒（5ml）- 調味料
+
+**不要只回應「炒豆干」，必須列出所有可見的食材，特別是蒜片和辣椒！**
+
+### 範例 2：三杯雞
+如果圖片中有三杯雞，foods 列表應包含：
+- 雞肉（150g）- 主食材
+- 九層塔（15g）- 配料（三杯料理必備）
+- 蒜片（10g）- 配料
+- 薑片（10g）- 配料
+- 辣椒（5g）- 配料
+- 醬油（15ml）- 調味料
+- 麻油（10ml）- 調味料
+- 米酒（10ml）- 調味料
+
+**三杯料理的特色是九層塔，必須識別！**
+
+### 範例 3：滷味拼盤
+如果圖片中有滷味拼盤，foods 列表應包含：
+- 豆干（50g）- 主食材
+- 滷蛋（60g）- 主食材
+- 海帶（30g）- 配菜
+- 豬血（40g）- 主食材
+- 高麗菜（30g）- 配菜
+- 醬油（滷汁）- 調味料
+
+**滷味拼盤通常有多種食材，請全部列出，不要只回應「滷味」！**
+
+### 範例 4：涼拌干絲
+如果圖片中有涼拌干絲，foods 列表應包含：
+- 豆腐干絲（80g）- 主食材
+- 芹菜絲（20g）- 配菜
+- 胡蘿蔔絲（15g）- 配菜
+- 香菜（5g）- 配料
+- 麻油（5ml）- 調味料
+- 醬油（10ml）- 調味料
+
+**涼拌菜有多種食材混合，請全部列出！**
+
+### 範例 5：蚵仔煎（台式小吃）
+如果圖片中有蚵仔煎，foods 列表應包含：
+- 蚵仔（50g）- 主食材
+- 雞蛋（50g）- 主食材
+- 地瓜粉漿（30g）- 主食材
+- 小白菜（20g）- 配菜
+- 香菜（5g）- 配料
+- 甜辣醬（15ml）- 調味料
+
+**小吃通常有多種配料和醬料，請全部列出！**
+
+### 範例 6：馬告烤肉（原住民料理）
+如果圖片中有馬告烤肉，foods 列表應包含：
+- 豬肉（150g）- 主食材
+- 馬告（山胡椒）（3g）- 香料（原住民特色）
+- 刺蔥（5g）- 香料（原住民特色）
+- 鹽（2g）- 調味料
+
+**原住民料理要特別標註特色食材，並設定 "isIndigenousFood": true**
+
+## 台式料理識別重點總結
+
+1. **台灣特色食材**：
+   - 豆製品：豆腐干絲、豆干、臭豆腐、豆花
+   - 蔬菜：糯米椒、過貓、山蘇、龍鬚菜、空心菜
+   - 醬料：沙茶醬、甜辣醬、醬油膏、烏醋
+   - 配料：油蔥酥、蒜酥、香菜、九層塔
+
+2. **烹飪方式**：
+   - 快炒（熱炒）：大火快炒，常用蒜片、辣椒
+   - 滷味：醬油滷製，五香味
+   - 涼拌：麻油、醬油、醋調味
+   - 羹湯：勾芡濃稠
+
+3. **台式熱炒特徵**：
+   - 常見食材：糯米椒、豆干、三層肉、蛤蜊、九層塔
+   - 調味：蒜片、辣椒、醬油、米酒
+   - 特色：鍋氣重、油亮、香氣濃郁
+
+4. **原住民料理**（如適用）：
+   - 特色食材：馬告（山胡椒）、刺蔥、小米、山豬肉
+   - 烹飪方式：竹筒飯、石板烤肉、醃漬
+
+5. **常見菜餚**：
+   - 三杯雞、蚵仔煎、滷肉飯、蚵仔麵線、臭豆腐
+   - 涼拌菜：涼拌干絲、涼拌海蜇皮、涼拌小黃瓜
 
 特別注意：
 - 仔細區分豆腐干絲和麵條（干絲較粗、有韌性、顏色偏黃）
 - 識別糯米椒（細長、有皺褶）vs 青椒（較大、光滑）
-- 注意台式熱炒的蒜片和辣椒
-- 如果有原住民特色食材（馬告、刺蔥等），請特別標註`;
+- 注意台式熱炒的蒜片和辣椒（必備配料）
+- 如果有原住民特色食材（馬告、刺蔥等），請特別標註
+- 滷味拼盤要列出所有滷製食材，不要只回應「滷味」
+- 台式小吃要列出所有配料和醬料
+- 如果只識別到 1-2 種食材，可能有遺漏，請再仔細觀察`;
     } else {
-      return `You are a food recognition expert specializing in Taiwanese cuisine. Please carefully analyze the Taiwanese dishes in this image.
+      return `You are a food recognition expert specializing in Taiwanese cuisine.
 
-Taiwanese Cuisine Recognition Focus:
-1. **Taiwanese Specialty Ingredients**:
-   - Soy products: dried tofu strips, dried tofu, stinky tofu, tofu pudding
-   - Vegetables: shishito peppers, guomao fern, mountain lettuce, loofah, water spinach
-   - Sauces: shacha sauce, sweet chili sauce, soy sauce paste, black vinegar
-   - Toppings: fried shallots, fried garlic, cilantro, basil
-2. **Cooking Methods**:
-   - Stir-frying (re chao): high heat quick fry, often with garlic and chili
-   - Braising (lu wei): soy sauce braised, five-spice flavor
-   - Cold dressed: sesame oil, soy sauce, vinegar seasoning
-   - Thick soup: thickened with starch
-3. **Taiwanese Stir-Fry Characteristics**:
-   - Common ingredients: shishito peppers, dried tofu, pork belly, clams, basil
-   - Seasonings: garlic slices, chili, soy sauce, rice wine
-   - Features: wok hei, glossy, aromatic
-4. **Indigenous Cuisine** (if applicable):
-   - Specialty ingredients: maqaw (mountain pepper), prickly ash, millet, wild boar
-   - Cooking methods: bamboo tube rice, stone-grilled meat, pickling
-5. **Common Dishes**:
-   - Three-cup chicken, oyster omelet, braised pork rice, oyster vermicelli, stinky tofu
-   - Cold dishes: cold dressed tofu strips, cold dressed jellyfish, cold dressed cucumber
+## Core Task (Highest Priority)
+**Your primary task is: Carefully observe the image, identify and list ALL visible ingredients in the Taiwanese dish to the foods list.**
+
+Taiwanese dishes often have multiple ingredients mixed together (such as stir-fries, braised platters, snacks). Please identify each ingredient one by one, don't miss any!
+
+## Identification Steps (Follow in Order)
+
+### Step 1: Carefully Observe the Image
+- Observe the Taiwanese dish from overall to details
+- Note ingredients at different positions (surface, middle, bottom)
+- Identify colors, shapes, textures, and other visual features
+- Note Taiwanese specialty toppings (garlic slices, chili, basil, fried shallots, etc.)
+
+### Step 2: Identify Each Ingredient
+
+**Please list ALL visible ingredients, including:**
+
+#### A. Main Ingredients (main dishes, staples)
+- Meat: pork belly, pork slices, chicken, beef, seafood
+- Soy products: dried tofu, dried tofu strips, stinky tofu, tofu
+- Vegetables: shishito peppers, guomao fern, mountain lettuce, water spinach, cabbage
+- Staples: rice, noodles, rice noodles, ban tiao
+
+#### B. Side Dishes and Toppings
+- Common sides: shishito peppers, bell peppers, onions, scallion sections, celery
+- Taiwanese specialty toppings:
+  * Garlic slices (essential for Taiwanese stir-fries)
+  * Chili slices or sections
+  * Basil (common in three-cup dishes and stir-fries)
+  * Fried shallots (common in braised pork rice and vermicelli)
+  * Cilantro (common in snacks)
+  * Peanut powder (common in snacks)
+
+#### C. Seasonings and Sauces
+- Taiwanese sauces: shacha sauce, sweet chili sauce, soy sauce paste, black vinegar
+- General seasonings: soy sauce, sesame oil, rice wine, sugar
+- Note the sauce color and oil sheen on the surface
+
+### Step 3: Taiwanese Dish Type Identification
+
+Based on dish type, note different ingredient combinations:
+
+#### Taiwanese Stir-Fry
+**Features**: High heat quick fry, wok hei, glossy, aromatic
+**Must identify elements**:
+- Main ingredients: shishito peppers, dried tofu, pork belly, clams, squid, shrimp, etc.
+- Toppings: garlic slices (essential), chili, basil, scallion sections
+- Seasonings: soy sauce, rice wine, sugar
+**Common dishes**: Stir-fried dried tofu, stir-fried shishito peppers, three-cup chicken, kung pao chicken, stir-fried squid
+
+#### Braised Platter
+**Features**: Soy sauce braised, dark brown, five-spice flavor, multiple ingredients
+**Must identify elements**:
+- Soy products: dried tofu, tofu, tofu skin
+- Eggs: braised eggs, quail eggs
+- Meat: pig ears, pig feet, chicken wings, chicken feet
+- Vegetables: kelp, dried bamboo shoots, cabbage
+- Offal: pig blood, duck blood, intestines, liver
+**Note**: Braised platters usually have 3-6 ingredients, list them all
+
+#### Cold Dressed Appetizers
+**Features**: Cold food, multiple ingredients mixed, oil sheen
+**Must identify elements**:
+- Main ingredients: dried tofu strips, jellyfish, cucumber, wood ear mushroom
+- Sides: celery strips, carrot strips, cilantro, scallion strips
+- Seasonings: sesame oil, soy sauce, vinegar, minced garlic
+**Common dishes**: Cold dressed tofu strips, cold dressed jellyfish, cold dressed cucumber
+
+#### Taiwanese Snacks
+**Features**: Street food, multiple toppings, rich sauces
+**Must identify elements**:
+- Main body: oyster omelet, stinky tofu, oyster vermicelli, ba-wan, rice cake
+- Toppings: cilantro, pickled vegetables, kimchi, garlic paste, chili
+- Sauces: sweet chili sauce, soy sauce paste, garlic sauce
+**Note**: Snacks usually have multiple toppings and sauces, list them all
+
+#### Indigenous Cuisine (if applicable)
+**Specialty ingredients**:
+- Spices: maqaw (mountain pepper), prickly ash
+- Staples: millet, taro, sweet potato
+- Meat: wild boar, flying fish, stream fish
+- Wild vegetables: guomao fern, mountain lettuce, nightshade
+**Cooking methods**: Bamboo tube rice, stone-grilled meat, pickling
+**Note**: If indigenous specialty ingredients are present, mark specifically
+
+### Step 4: Common Taiwanese Ingredient Identification Focus
+
+#### Soy Product Identification
+- **Dried tofu strips**: Light yellow, thin long strips (width 2-3mm), chewy, rough surface
+  * Distinguish from noodles: strips are thicker, opaque, yellowish, bean aroma
+- **Dried tofu**: Square blocks, light yellow or dark brown (braised), chewy
+- **Stinky tofu**: Golden (fried) or dark brown (braised), with holes, special smell
+
+#### Vegetable Identification
+- **Shishito peppers**: Thin and long, wrinkled, green, about 5-8cm long
+  * Distinguish from bell peppers: shishito peppers are smaller, thinner, wrinkled; bell peppers are larger, smooth
+- **Guomao fern**: Dark green, curled, tender leaves
+- **Mountain lettuce**: Dark green, long strips, glossy
+- **Water spinach**: Dark green, hollow stems, pointed leaves
+
+#### Topping Identification
+- **Garlic slices**: White or light yellow, thin slices, essential for Taiwanese stir-fries
+- **Basil**: Dark green, aromatic leaves, essential for three-cup dishes
+- **Fried shallots**: Golden, crumbled, crispy
+- **Chili**: Red or green, sliced or sectioned
+
+### Step 5: Estimate Portions
+- Main ingredients: usually 80-150g
+- Side dishes: each usually 20-50g
+- Small toppings (garlic slices, chili, basil): each usually 5-15g
+- Seasonings: each usually 5-15ml or g
+
+### Step 6: Write Description
+- After completing the foods list, write an overall description
+- Description is for supplementary information about dish characteristics, cooking methods, flavors, etc.
+
+## JSON Format
 
 Respond in JSON format:
 {
@@ -609,6 +1098,7 @@ Respond in JSON format:
       "cookingMethod": "cooking method",
       "visualFeatures": "visual features (color, texture, shape)",
       "isTaiwaneseSpecialty": true,
+      "role": "main ingredient/side dish/topping/seasoning",
       "description": "detailed description"
     }
   ],
@@ -616,14 +1106,162 @@ Respond in JSON format:
   "dishType": "dish type (stir-fry/braised/cold dressed/snack, etc.)",
   "isIndigenousFood": false,
   "seasonings": ["list of seasonings"],
+  "taiwaneseFeatures": {
+    "hasGarlic": false,
+    "hasBasil": false,
+    "hasShallots": false,
+    "hasChili": false
+  },
   "overallDescription": "overall description"
 }
+
+## Completeness Checklist
+
+Before submitting your response, please confirm:
+- [ ] Identified all visible main ingredients
+- [ ] Identified all visible side dishes
+- [ ] Identified Taiwanese specialty toppings (garlic slices, chili, basil, fried shallots, etc.)
+- [ ] Identified seasonings or sauces
+- [ ] Foods list contains at least 3 ingredients (if the image has multiple ingredients)
+- [ ] Each ingredient has a reasonable portion estimate
+- [ ] Each ingredient is marked with role (main ingredient/side dish/topping/seasoning)
+- [ ] No obvious visible ingredients are missing
+- [ ] If it's a stir-fry, identified garlic slices and chili
+- [ ] If it's a braised platter, listed all braised ingredients
+- [ ] If indigenous specialty ingredients are present, marked specifically
+
+## Important Principles
+
+1. **Must identify all visible ingredients**
+   - Taiwanese dishes often have multiple ingredients mixed (stir-fries, braised dishes, snacks)
+   - Don't just identify main ingredients, list side dishes and toppings too
+   - Pay special attention to Taiwanese specialty toppings: garlic slices, chili, basil, fried shallots
+
+2. **Taiwanese stir-fries must identify garlic slices and chili**
+   - The characteristic of Taiwanese stir-fries is heavy use of garlic slices and chili
+   - If it's a stir-fry dish, carefully look for garlic slices (white thin slices) and chili (red or green)
+   - Garlic slices are usually on the surface or mixed in
+
+3. **Braised platters must list all ingredients**
+   - Braised platters usually have 3-6 different braised ingredients
+   - Please identify each ingredient one by one (dried tofu, braised eggs, kelp, pig blood, etc.)
+   - Don't just respond with "braised food", list specific ingredients
+
+4. **Note Taiwanese specialty ingredients**
+   - Shishito peppers (thin and long, wrinkled)
+   - Dried tofu strips (light yellow, thin long strips)
+   - Basil (dark green leaves)
+   - Fried shallots (golden crumbles)
+
+5. **Indigenous cuisine special marking**
+   - If there are indigenous specialty ingredients like maqaw, prickly ash, millet, wild boar
+   - Please set "isIndigenousFood": true in JSON
+   - And specifically note in ingredient description
+
+## Examples
+
+### Example 1: Stir-Fried Dried Tofu (Taiwanese Stir-Fry)
+If the image shows stir-fried dried tofu, the foods list should include:
+- Dried tofu (100g) - main ingredient
+- Shishito peppers (50g) - side dish
+- Garlic slices (10g) - topping (essential for Taiwanese stir-fry)
+- Chili slices (5g) - topping
+- Scallion sections (10g) - topping
+- Soy sauce (10ml) - seasoning
+- Rice wine (5ml) - seasoning
+
+**Don't just respond with "stir-fried dried tofu", must list all visible ingredients, especially garlic slices and chili!**
+
+### Example 2: Three-Cup Chicken
+If the image shows three-cup chicken, the foods list should include:
+- Chicken (150g) - main ingredient
+- Basil (15g) - topping (essential for three-cup dishes)
+- Garlic slices (10g) - topping
+- Ginger slices (10g) - topping
+- Chili (5g) - topping
+- Soy sauce (15ml) - seasoning
+- Sesame oil (10ml) - seasoning
+- Rice wine (10ml) - seasoning
+
+**The characteristic of three-cup dishes is basil, must identify!**
+
+### Example 3: Braised Platter
+If the image shows a braised platter, the foods list should include:
+- Dried tofu (50g) - main ingredient
+- Braised egg (60g) - main ingredient
+- Kelp (30g) - side dish
+- Pig blood (40g) - main ingredient
+- Cabbage (30g) - side dish
+- Soy sauce (braising liquid) - seasoning
+
+**Braised platters usually have multiple ingredients, list them all, don't just respond with "braised food"!**
+
+### Example 4: Cold Dressed Tofu Strips
+If the image shows cold dressed tofu strips, the foods list should include:
+- Dried tofu strips (80g) - main ingredient
+- Celery strips (20g) - side dish
+- Carrot strips (15g) - side dish
+- Cilantro (5g) - topping
+- Sesame oil (5ml) - seasoning
+- Soy sauce (10ml) - seasoning
+
+**Cold dressed dishes have multiple ingredients mixed, list them all!**
+
+### Example 5: Oyster Omelet (Taiwanese Snack)
+If the image shows oyster omelet, the foods list should include:
+- Oysters (50g) - main ingredient
+- Egg (50g) - main ingredient
+- Sweet potato starch batter (30g) - main ingredient
+- Baby bok choy (20g) - side dish
+- Cilantro (5g) - topping
+- Sweet chili sauce (15ml) - seasoning
+
+**Snacks usually have multiple toppings and sauces, list them all!**
+
+### Example 6: Maqaw Grilled Meat (Indigenous Cuisine)
+If the image shows maqaw grilled meat, the foods list should include:
+- Pork (150g) - main ingredient
+- Maqaw (mountain pepper) (3g) - spice (indigenous specialty)
+- Prickly ash (5g) - spice (indigenous specialty)
+- Salt (2g) - seasoning
+
+**Indigenous cuisine should specially mark specialty ingredients and set "isIndigenousFood": true**
+
+## Taiwanese Cuisine Recognition Focus Summary
+
+1. **Taiwanese Specialty Ingredients**:
+   - Soy products: dried tofu strips, dried tofu, stinky tofu, tofu pudding
+   - Vegetables: shishito peppers, guomao fern, mountain lettuce, loofah, water spinach
+   - Sauces: shacha sauce, sweet chili sauce, soy sauce paste, black vinegar
+   - Toppings: fried shallots, fried garlic, cilantro, basil
+
+2. **Cooking Methods**:
+   - Stir-frying (re chao): high heat quick fry, often with garlic slices and chili
+   - Braising (lu wei): soy sauce braised, five-spice flavor
+   - Cold dressed: sesame oil, soy sauce, vinegar seasoning
+   - Thick soup: thickened with starch
+
+3. **Taiwanese Stir-Fry Characteristics**:
+   - Common ingredients: shishito peppers, dried tofu, pork belly, clams, basil
+   - Seasonings: garlic slices, chili, soy sauce, rice wine
+   - Features: wok hei, glossy, aromatic
+
+4. **Indigenous Cuisine** (if applicable):
+   - Specialty ingredients: maqaw (mountain pepper), prickly ash, millet, wild boar
+   - Cooking methods: bamboo tube rice, stone-grilled meat, pickling
+
+5. **Common Dishes**:
+   - Three-cup chicken, oyster omelet, braised pork rice, oyster vermicelli, stinky tofu
+   - Cold dishes: cold dressed tofu strips, cold dressed jellyfish, cold dressed cucumber
 
 Special Notes:
 - Carefully distinguish dried tofu strips from noodles (strips are thicker, chewier, yellowish)
 - Identify shishito peppers (thin, wrinkled) vs bell peppers (larger, smooth)
-- Note garlic slices and chili in Taiwanese stir-fries
-- If indigenous ingredients (maqaw, prickly ash, etc.) are present, please mark specifically`;
+- Note garlic slices and chili in Taiwanese stir-fries (essential toppings)
+- If indigenous specialty ingredients (maqaw, prickly ash, etc.) are present, mark specifically
+- Braised platters should list all braised ingredients, don't just respond with "braised food"
+- Taiwanese snacks should list all toppings and sauces
+- If only 1-2 ingredients are identified, there may be omissions, observe carefully again`;
     }
   }
 
@@ -1494,51 +2132,109 @@ Respond in JSON format with indigenous origin, cultural significance, etc.`;
 
   private createColdDishPrompt(): string {
     if (this.language === 'zh-TW') {
-      return `你是一個專精於涼拌菜識別的食物專家。請仔細分析這張圖片中的涼拌菜。
+      return `你是一個專精於涼拌菜識別的食物專家。
 
-涼拌菜識別重點：
-1. **涼拌菜特徵**：
+## 核心任務（最優先）
+**你的首要任務是：仔細觀察圖片，識別並列出涼拌菜中所有混合的食材到 foods 列表中。**
+
+涼拌菜通常包含多種食材混合在一起，請逐一識別每一種食材，不要遺漏！
+
+## 識別步驟（請按順序執行）
+
+### 步驟 1：仔細觀察圖片
+- 從整體到細節觀察涼拌菜
+- 注意不同顏色的食材（綠色、橙色、白色、黃色、紅色等）
+- 注意不同形狀的食材（絲狀、片狀、塊狀、顆粒狀）
+- 注意不同質地的食材（軟嫩、脆爽、有韌性）
+- 觀察表面的油光和醬色
+
+### 步驟 2：識別每一種食材並分類
+
+**涼拌菜通常有 3-6 種食材，請按以下分類逐一識別：**
+
+#### A. 主食材（通常 1-2 種）
+主食材是涼拌菜的主體，份量最多：
+- 豆腐干絲（最常見）：淡黃色、細長條狀、有韌性、表面粗糙
+- 海蜇皮：半透明、片狀、脆爽
+- 木耳：黑色或褐色、片狀、軟嫩
+- 黃瓜：綠色、片狀或條狀、清脆
+- 海帶：深綠色或褐色、片狀、軟滑
+- 豆芽：白色、細長、有根莖
+
+#### B. 配菜（通常 2-4 種）
+配菜增加涼拌菜的色彩和口感：
+- 芹菜絲：深綠色、細長、有纖維感
+- 胡蘿蔔絲：橙色、細長、脆爽
+- 香菜：深綠色、葉狀、香氣濃郁
+- 蔥絲：白色或淺綠色、細長
+- 辣椒絲：紅色或綠色、細長
+- 紅椒絲：鮮紅色、細長、光滑
+- 黃椒絲：黃色、細長、光滑
+- 紫洋蔥絲：紫色、細長
+
+#### C. 調味料（通常 1-3 種）
+調味料可能不明顯，但要注意痕跡：
+- 麻油（芝麻油）：表面有油光
+- 醬油：深褐色醬汁
+- 醋：透明液體
+- 蒜末：白色小顆粒
+- 薑絲：淡黃色細絲
+- 芝麻：白色或黑色小顆粒
+- 花生碎：淺褐色顆粒
+
+### 步驟 3：識別技巧
+
+**注意不同顏色和形狀來區分食材：**
+
+1. **顏色識別**：
+   - 綠色系：芹菜絲（深綠）、蔥絲（淺綠）、香菜（深綠）、黃瓜（翠綠）
+   - 橙色系：胡蘿蔔絲（橙色）
+   - 白色系：豆腐干絲（淡黃白）、豆芽（白色）、蔥白（白色）
+   - 紅色系：辣椒絲（紅色）、紅椒絲（鮮紅）
+   - 黃色系：豆腐干絲（淡黃）、黃椒絲（黃色）
+
+2. **形狀識別**：
+   - 細長絲狀：豆腐干絲、芹菜絲、胡蘿蔔絲、蔥絲、辣椒絲
+   - 片狀：海蜇皮、木耳、黃瓜片
+   - 顆粒狀：蒜末、芝麻、花生碎
+   - 葉狀：香菜
+
+3. **質地識別**：
+   - 有韌性：豆腐干絲
+   - 脆爽：芹菜絲、胡蘿蔔絲、黃瓜
+   - 軟嫩：木耳
+   - 半透明：海蜇皮
+
+4. **區分相似食材**：
+   - 豆腐干絲 vs 麵條：干絲較粗（2-3mm）、有韌性、顏色偏黃、表面粗糙
+   - 芹菜絲 vs 蔥絲：芹菜較粗、綠色較深、有纖維感
+   - 胡蘿蔔絲 vs 紅椒絲：胡蘿蔔橙色、紅椒鮮紅色
+
+### 步驟 4：估算份量
+- 主食材：通常 60-100g
+- 配菜：每種通常 10-30g
+- 調味料：每種通常 5-15ml 或 g
+
+### 步驟 5：撰寫描述
+- 在完成 foods 列表後，撰寫整體描述
+- description 用於補充說明涼拌菜的特色、口味等
+
+## 涼拌菜特徵
+
+1. **視覺特徵**：
    - 食材切成絲狀或片狀
    - 顏色豐富多彩（多種食材混合）
    - 表面可見油光（麻油）
    - 食材混合均勻
-   - 通常裝在盤子中
+   - 通常裝在盤子或碗中
    - 常溫或冷藏狀態
 
-2. **常見涼拌菜食材**：
-   - 主食材：
-     * 豆腐干絲（最常見）
-     * 海蜇皮
-     * 木耳
-     * 黃瓜
-     * 海帶
-   - 配菜：
-     * 芹菜絲
-     * 胡蘿蔔絲
-     * 香菜
-     * 蔥絲
-     * 辣椒絲
-   - 調味料：
-     * 麻油（芝麻油）
-     * 醬油
-     * 醋
-     * 糖
-     * 蒜末
-     * 薑絲
+2. **常見搭配**：
+   - 涼拌干絲：豆腐干絲 + 芹菜絲 + 胡蘿蔔絲 + 香菜 + 麻油
+   - 涼拌海蜇皮：海蜇皮 + 黃瓜絲 + 胡蘿蔔絲 + 蒜末 + 醋
+   - 涼拌木耳：木耳 + 香菜 + 辣椒絲 + 蒜末 + 醬油
 
-3. **識別要點**：
-   - **必須識別所有可見的食材**（至少3種以上）
-   - 注意區分相似食材：
-     * 豆腐干絲 vs 麵條（干絲較粗、有韌性、顏色偏黃）
-     * 芹菜絲 vs 蔥絲（芹菜較粗、綠色較深）
-     * 胡蘿蔔絲 vs 紅椒絲（胡蘿蔔橙色、紅椒鮮紅）
-   - 識別調味料的痕跡（油光、醬色）
-   - 注意食材的切法（絲/片/塊）
-
-4. **涼拌菜完整性檢查**：
-   - 主食材：至少1種
-   - 配菜：至少2-3種
-   - 調味料：至少識別出麻油或醬油
+## JSON 格式說明
 
 請以 JSON 格式回應：
 {
@@ -1549,8 +2245,8 @@ Respond in JSON format with indigenous origin, cultural significance, etc.`;
       "portion": 50,
       "category": "食材類別",
       "role": "主食材/配菜/調味料",
-      "cuttingStyle": "切法（絲/片/塊）",
-      "visualFeatures": "視覺特徵",
+      "cuttingStyle": "切法（絲/片/塊/顆粒）",
+      "visualFeatures": "視覺特徵（顏色、質地、形狀）",
       "description": "描述"
     }
   ],
@@ -1566,48 +2262,297 @@ Respond in JSON format with indigenous origin, cultural significance, etc.`;
   "overallDescription": "整體描述"
 }
 
+## 完整性檢查清單
+
+在提交回應前，請確認：
+- [ ] 已識別所有可見的主食材（至少 1 種）
+- [ ] 已識別所有可見的配菜（至少 2-3 種）
+- [ ] 已識別調味料或醬汁（至少 1 種，如麻油、醬油）
+- [ ] foods 列表中至少有 3 種食材（涼拌菜通常有 3-6 種食材）
+- [ ] 每種食材都有合理的份量估算
+- [ ] 每種食材都標註了角色（主食材/配菜/調味料）
+- [ ] 沒有遺漏任何明顯可見的食材
+
+## 重要原則
+
+1. **必須識別所有混合的食材**
+   - 涼拌菜的特點就是多種食材混合
+   - 不要只識別主食材，配菜和調味料也要列出
+   - 如果只識別到 1-2 種食材，很可能有遺漏，請再仔細觀察
+
+2. **注意不同顏色和形狀**
+   - 利用顏色差異來識別不同食材
+   - 利用形狀差異來區分相似食材
+   - 綠色、橙色、白色、紅色等不同顏色通常代表不同食材
+
+3. **最小食材數量**
+   - 涼拌菜通常有 3-6 種食材
+   - 如果圖片中明顯有多種顏色和形狀，foods 列表應至少包含 3 種食材
+   - 簡單的涼拌菜至少有：1 種主食材 + 2 種配菜
+
+## 範例
+
+### 範例 1：涼拌干絲（標準版）
+如果圖片中有涼拌干絲，foods 列表應包含：
+- 豆腐干絲（80g）- 主食材
+- 芹菜絲（20g）- 配菜
+- 胡蘿蔔絲（15g）- 配菜
+- 香菜（5g）- 配菜
+- 麻油（5ml）- 調味料
+
+**不要只回應「豆腐干絲」，必須列出所有可見的食材！**
+
+### 範例 2：涼拌干絲（豪華版）
+如果圖片中有更豐富的涼拌干絲，foods 列表應包含：
+- 豆腐干絲（80g）- 主食材
+- 芹菜絲（20g）- 配菜
+- 胡蘿蔔絲（15g）- 配菜
+- 香菜（5g）- 配菜
+- 蔥絲（5g）- 配菜
+- 辣椒絲（3g）- 配菜
+- 麻油（5ml）- 調味料
+- 醬油（10ml）- 調味料
+- 芝麻（2g）- 調味料
+
+### 範例 3：涼拌海蜇皮
+如果圖片中有涼拌海蜇皮，foods 列表應包含：
+- 海蜇皮（60g）- 主食材
+- 黃瓜絲（25g）- 配菜
+- 胡蘿蔔絲（15g）- 配菜
+- 香菜（5g）- 配菜
+- 蒜末（5g）- 調味料
+- 醋（10ml）- 調味料
+- 麻油（5ml）- 調味料
+
+### 範例 4：涼拌木耳
+如果圖片中有涼拌木耳，foods 列表應包含：
+- 木耳（50g）- 主食材
+- 香菜（10g）- 配菜
+- 辣椒絲（5g）- 配菜
+- 蔥絲（5g）- 配菜
+- 蒜末（5g）- 調味料
+- 醬油（10ml）- 調味料
+- 醋（5ml）- 調味料
+
 特別注意：
 - 涼拌菜通常有多種食材，請仔細識別每一種
+- 利用顏色和形狀來區分不同食材
 - 豆腐干絲是最常見的主食材，注意區分
-- 不要遺漏細小的配菜（如香菜、蔥絲）
-- 注意表面的油光（麻油）
-- 如果只識別到1-2種食材，可能有遺漏，請再仔細觀察`;
+- 不要遺漏細小的配菜（如香菜、蔥絲、芝麻）
+- 注意表面的油光（麻油）和醬色（醬油）
+- 如果只識別到 1-2 種食材，可能有遺漏，請再仔細觀察
+- 涼拌菜通常至少有 3 種食材，最多可達 6-8 種`;
     } else {
-      return `You are a food expert specializing in cold dressed dish identification. Please carefully analyze the cold dressed dishes in this image.
+      return `You are a food expert specializing in cold dressed dish identification.
 
-Cold Dressed Dish Recognition Focus:
-1. **Cold Dressed Dish Characteristics**:
+## Core Task (Highest Priority)
+**Your primary task is: Carefully observe the image, identify and list ALL mixed ingredients in the cold dressed dish to the foods list.**
+
+Cold dressed dishes usually contain multiple ingredients mixed together. Please identify each ingredient one by one, don't miss any!
+
+## Identification Steps (Follow in Order)
+
+### Step 1: Carefully Observe the Image
+- Observe the cold dressed dish from overall to details
+- Note ingredients of different colors (green, orange, white, yellow, red, etc.)
+- Note ingredients of different shapes (strips, slices, chunks, granules)
+- Note ingredients of different textures (soft, crispy, chewy)
+- Observe the oil sheen and sauce color on the surface
+
+### Step 2: Identify Each Ingredient and Classify
+
+**Cold dressed dishes usually have 3-6 ingredients. Please identify them by the following categories:**
+
+#### A. Main Ingredients (usually 1-2 types)
+Main ingredients are the body of the cold dressed dish, with the largest portion:
+- Dried tofu strips (most common): light yellow, thin long strips, chewy, rough surface
+- Jellyfish: translucent, sliced, crispy
+- Wood ear mushroom: black or brown, sliced, soft
+- Cucumber: green, sliced or strips, crispy
+- Kelp: dark green or brown, sliced, smooth
+- Bean sprouts: white, thin and long, with stems
+
+#### B. Vegetables (usually 2-4 types)
+Vegetables add color and texture to cold dressed dishes:
+- Celery strips: dark green, thin and long, fibrous
+- Carrot strips: orange, thin and long, crispy
+- Cilantro: dark green, leafy, aromatic
+- Scallion strips: white or light green, thin and long
+- Chili strips: red or green, thin and long
+- Red bell pepper strips: bright red, thin and long, smooth
+- Yellow bell pepper strips: yellow, thin and long, smooth
+- Purple onion strips: purple, thin and long
+
+#### C. Seasonings (usually 1-3 types)
+Seasonings may not be obvious, but note the traces:
+- Sesame oil: oil sheen on surface
+- Soy sauce: dark brown sauce
+- Vinegar: clear liquid
+- Minced garlic: white small granules
+- Ginger strips: light yellow thin strips
+- Sesame seeds: white or black small granules
+- Crushed peanuts: light brown granules
+
+### Step 3: Identification Techniques
+
+**Use different colors and shapes to distinguish ingredients:**
+
+1. **Color Identification**:
+   - Green series: celery strips (dark green), scallion strips (light green), cilantro (dark green), cucumber (emerald green)
+   - Orange series: carrot strips (orange)
+   - White series: dried tofu strips (light yellow-white), bean sprouts (white), scallion white (white)
+   - Red series: chili strips (red), red bell pepper strips (bright red)
+   - Yellow series: dried tofu strips (light yellow), yellow bell pepper strips (yellow)
+
+2. **Shape Identification**:
+   - Thin long strips: dried tofu strips, celery strips, carrot strips, scallion strips, chili strips
+   - Sliced: jellyfish, wood ear mushroom, cucumber slices
+   - Granules: minced garlic, sesame seeds, crushed peanuts
+   - Leafy: cilantro
+
+3. **Texture Identification**:
+   - Chewy: dried tofu strips
+   - Crispy: celery strips, carrot strips, cucumber
+   - Soft: wood ear mushroom
+   - Translucent: jellyfish
+
+4. **Distinguish Similar Ingredients**:
+   - Dried tofu strips vs noodles: strips are thicker (2-3mm), chewy, yellowish, rough surface
+   - Celery strips vs scallion strips: celery is thicker, darker green, fibrous
+   - Carrot strips vs red bell pepper strips: carrot is orange, bell pepper is bright red
+
+### Step 4: Estimate Portions
+- Main ingredients: usually 60-100g
+- Vegetables: each usually 10-30g
+- Seasonings: each usually 5-15ml or g
+
+### Step 5: Write Description
+- After completing the foods list, write an overall description
+- Description is for supplementary information about the characteristics and flavors of the cold dressed dish
+
+## Cold Dressed Dish Characteristics
+
+1. **Visual Features**:
    - Ingredients cut into strips or slices
    - Colorful (multiple ingredients mixed)
    - Visible oil sheen (sesame oil)
    - Ingredients evenly mixed
-   - Usually served on a plate
+   - Usually served on a plate or in a bowl
    - Room temperature or chilled
 
-2. **Common Cold Dressed Ingredients**:
-   - Main ingredients: Dried tofu strips, jellyfish, wood ear mushroom, cucumber, kelp
-   - Vegetables: Celery strips, carrot strips, cilantro, scallion strips, chili strips
-   - Seasonings: Sesame oil, soy sauce, vinegar, sugar, minced garlic, ginger strips
+2. **Common Combinations**:
+   - Cold dressed tofu strips: dried tofu strips + celery strips + carrot strips + cilantro + sesame oil
+   - Cold dressed jellyfish: jellyfish + cucumber strips + carrot strips + minced garlic + vinegar
+   - Cold dressed wood ear: wood ear + cilantro + chili strips + minced garlic + soy sauce
 
-3. **Identification Points**:
-   - **Must identify all visible ingredients** (at least 3 or more)
-   - Distinguish similar ingredients
-   - Identify seasoning traces
-   - Note cutting style
+## JSON Format
 
-4. **Completeness Check**:
-   - Main ingredient: At least 1
-   - Vegetables: At least 2-3
-   - Seasonings: At least sesame oil or soy sauce
+Respond in JSON format:
+{
+  "foods": [
+    {
+      "name": "ingredient name",
+      "confidence": 0.95,
+      "portion": 50,
+      "category": "food category",
+      "role": "main ingredient/vegetable/seasoning",
+      "cuttingStyle": "cutting style (strips/slices/chunks/granules)",
+      "visualFeatures": "visual features (color, texture, shape)",
+      "description": "description"
+    }
+  ],
+  "dishType": "cold dressed dish",
+  "cookingMethod": "cold dressed",
+  "totalIngredients": 5,
+  "seasonings": ["list of seasonings"],
+  "completenessCheck": {
+    "hasMainIngredient": true,
+    "hasVegetables": true,
+    "hasSeasonings": true
+  },
+  "overallDescription": "overall description"
+}
 
-Respond in JSON format with all ingredients, roles, cutting styles, and completeness check.
+## Completeness Checklist
+
+Before submitting your response, please confirm:
+- [ ] Identified all visible main ingredients (at least 1 type)
+- [ ] Identified all visible vegetables (at least 2-3 types)
+- [ ] Identified seasonings or sauces (at least 1 type, such as sesame oil, soy sauce)
+- [ ] Foods list contains at least 3 ingredients (cold dressed dishes usually have 3-6 ingredients)
+- [ ] Each ingredient has a reasonable portion estimate
+- [ ] Each ingredient is labeled with a role (main ingredient/vegetable/seasoning)
+- [ ] No obvious visible ingredients are missing
+
+## Important Principles
+
+1. **Must identify all mixed ingredients**
+   - The characteristic of cold dressed dishes is multiple ingredients mixed together
+   - Don't just identify the main ingredient, vegetables and seasonings should also be listed
+   - If only 1-2 ingredients are identified, there are likely omissions, please observe more carefully
+
+2. **Pay attention to different colors and shapes**
+   - Use color differences to identify different ingredients
+   - Use shape differences to distinguish similar ingredients
+   - Different colors like green, orange, white, red usually represent different ingredients
+
+3. **Minimum ingredient count**
+   - Cold dressed dishes usually have 3-6 ingredients
+   - If the image clearly has multiple colors and shapes, the foods list should contain at least 3 ingredients
+   - Simple cold dressed dishes have at least: 1 main ingredient + 2 vegetables
+
+## Examples
+
+### Example 1: Cold Dressed Tofu Strips (Standard)
+If the image shows cold dressed tofu strips, the foods list should include:
+- Dried tofu strips (80g) - main ingredient
+- Celery strips (20g) - vegetable
+- Carrot strips (15g) - vegetable
+- Cilantro (5g) - vegetable
+- Sesame oil (5ml) - seasoning
+
+**Don't just respond with "dried tofu strips", must list all visible ingredients!**
+
+### Example 2: Cold Dressed Tofu Strips (Deluxe)
+If the image shows richer cold dressed tofu strips, the foods list should include:
+- Dried tofu strips (80g) - main ingredient
+- Celery strips (20g) - vegetable
+- Carrot strips (15g) - vegetable
+- Cilantro (5g) - vegetable
+- Scallion strips (5g) - vegetable
+- Chili strips (3g) - vegetable
+- Sesame oil (5ml) - seasoning
+- Soy sauce (10ml) - seasoning
+- Sesame seeds (2g) - seasoning
+
+### Example 3: Cold Dressed Jellyfish
+If the image shows cold dressed jellyfish, the foods list should include:
+- Jellyfish (60g) - main ingredient
+- Cucumber strips (25g) - vegetable
+- Carrot strips (15g) - vegetable
+- Cilantro (5g) - vegetable
+- Minced garlic (5g) - seasoning
+- Vinegar (10ml) - seasoning
+- Sesame oil (5ml) - seasoning
+
+### Example 4: Cold Dressed Wood Ear
+If the image shows cold dressed wood ear, the foods list should include:
+- Wood ear mushroom (50g) - main ingredient
+- Cilantro (10g) - vegetable
+- Chili strips (5g) - vegetable
+- Scallion strips (5g) - vegetable
+- Minced garlic (5g) - seasoning
+- Soy sauce (10ml) - seasoning
+- Vinegar (5ml) - seasoning
 
 Special Notes:
 - Cold dressed dishes usually have multiple ingredients, identify each carefully
-- Dried tofu strips are the most common main ingredient
-- Don't miss small garnishes (cilantro, scallion strips)
-- Note the oil sheen on surface
-- If only 1-2 ingredients identified, there may be omissions`;
+- Use colors and shapes to distinguish different ingredients
+- Dried tofu strips are the most common main ingredient, pay attention to distinguish
+- Don't miss small garnishes (cilantro, scallion strips, sesame seeds)
+- Note the oil sheen (sesame oil) and sauce color (soy sauce) on the surface
+- If only 1-2 ingredients are identified, there may be omissions, please observe more carefully
+- Cold dressed dishes usually have at least 3 ingredients, up to 6-8 ingredients`;
     }
   }
 
@@ -1741,58 +2686,116 @@ Special Notes:
     if (this.language === 'zh-TW') {
       return `你是一個專精於湯品識別的食物專家。請仔細分析這張圖片中的湯品，並詳細識別每一種食材和份量。
 
-湯品識別重點：
-1. **湯品類型**：
-   - 清湯：清澈、淡色、清淡
-   - 濃湯：濃稠、勾芡、奶白色或深色
-   - 羹湯：勾芡、濃稠、有料
-   - 火鍋湯：紅色（麻辣）或白色（清湯）
-   - 味噌湯：淡褐色、有味噌顆粒、日式
+## 核心任務（最優先）
+**你的首要任務是：識別湯底和所有配料，不要遺漏任何可見的食材！**
 
-2. **湯底識別**：
-   - 清湯：雞湯、排骨湯、魚湯、柴魚高湯
-   - 濃湯：玉米濃湯、南瓜濃湯
-   - 特色湯：味噌湯、酸辣湯、番茄湯
-   - 羹湯：魚翅羹、酸辣羹、蚵仔麵線
+## 湯品識別步驟（請按順序執行）
 
-3. **配料識別（非常重要！）**：
-   **請仔細識別湯中的每一種食材，包括：**
-   
-   a. **蔬菜類**：
-      - 白菜、高麗菜、大白菜
-      - 蘿蔔、紅蘿蔔、白蘿蔔
-      - 香菇、金針菇、杏鮑菇
-      - 海帶、海帶芽、紫菜
-      - 洋蔥、蔥、青蔥
-      - 玉米、玉米筍
-   
-   b. **蛋白質類**：
-      - 豆腐（嫩豆腐、板豆腐、油豆腐）
-      - 肉片（豬肉、牛肉、雞肉）
-      - 魚片、魚肉、魚丸
-      - 蛋（水煮蛋、溫泉蛋）
-      - 海鮮（蝦、蛤蜊、花枝）
-   
-   c. **麵食類**：
-      - 麵條、烏龍麵、拉麵
-      - 米粉、粉絲、冬粉
-   
-   d. **其他配料**：
-      - 丸子（貢丸、魚丸、肉丸）
-      - 餃子、餛飩、水餃
-      - 年糕、魚板
+### 步驟 1：識別湯底
+- 觀察湯的顏色、濃稠度、透明度
+- 判斷湯底類型：
+  * 清湯：清澈、淡色、清淡（雞湯、排骨湯、魚湯、柴魚高湯）
+  * 濃湯：濃稠、勾芡、奶白色或深色（玉米濃湯、南瓜濃湯）
+  * 羹湯：勾芡、濃稠、有料（魚翅羹、酸辣羹、蚵仔麵線）
+  * 味噌湯：淡褐色、有味噌顆粒、日式
+  * 火鍋湯：紅色（麻辣）或白色（清湯）
+- 估算湯底份量（通常 200-300ml）
 
-4. **份量估算**：
-   - 豆腐：每塊約30-50g
-   - 海帶：每片約10-20g
-   - 蔬菜：每份約30-50g
-   - 肉片：每片約20-30g
-   - 湯底：約200-300ml
+### 步驟 2：識別配料（從表面到底部）
+**請按照以下順序仔細觀察湯中的配料：**
 
-5. **調味料識別**：
-   - 味噌、鹽、醬油、醋
-   - 胡椒、香油、辣油
-   - 蔥花、香菜、薑絲
+#### 2.1 浮在表面的配料
+- 蔥花（5-10g）
+- 香菜（5-10g）
+- 油花、麻油
+- 芝麻、海苔
+- 薑絲（5g）
+- 辣椒油、辣椒片
+
+#### 2.2 中間層的配料
+- 豆腐（嫩豆腐、板豆腐、油豆腐）：每塊 30-50g
+- 肉片（豬肉、牛肉、雞肉）：每片 20-30g
+- 魚片、魚肉：每片 30-40g
+- 蔬菜（白菜、高麗菜、大白菜）：每份 30-50g
+- 香菇、金針菇、杏鮑菇：每份 20-30g
+- 海鮮（蝦、蛤蜊、花枝）：每隻/個 20-40g
+- 蛋（水煮蛋、溫泉蛋）：每個 50-60g
+
+#### 2.3 沉在底部的配料
+- 海帶、海帶芽：每片 10-20g
+- 紫菜：5-10g
+- 麵條、烏龍麵、拉麵：每份 80-120g
+- 米粉、粉絲、冬粉：每份 50-80g
+- 丸子（貢丸、魚丸、肉丸）：每個 15-25g
+- 餃子、餛飩、水餃：每個 20-30g
+- 年糕、魚板：每片 20-30g
+- 蘿蔔、紅蘿蔔、白蘿蔔：每塊 30-50g
+- 玉米、玉米筍：每根 20-30g
+
+### 步驟 3：估算份量
+**請為每種配料估算合理的份量，參考以下標準：**
+
+| 食材類型 | 參考份量 |
+|---------|---------|
+| 湯底 | 200-300ml |
+| 豆腐（每塊） | 30-50g |
+| 海帶/海帶芽（每片） | 10-20g |
+| 蔬菜（每份） | 30-50g |
+| 肉片（每片） | 20-30g |
+| 蔥花/香菜 | 5-10g |
+| 丸子（每個） | 15-25g |
+| 麵條（每份） | 80-120g |
+| 米粉/粉絲（每份） | 50-80g |
+
+### 步驟 4：完整性檢查
+**在提交回應前，請確認：**
+- [ ] 已識別湯底類型和份量
+- [ ] 已識別浮在表面的所有配料（蔥花、香菜、油等）
+- [ ] 已識別中間層的所有配料（豆腐、肉片、蔬菜等）
+- [ ] 已識別沉在底部的所有配料（海帶、麵條、丸子等）
+- [ ] foods 列表中至少有 3-5 種配料（如果湯中有多種配料）
+- [ ] 每種配料都有合理的份量估算
+- [ ] 沒有遺漏任何明顯可見的配料
+
+## 常見湯品配料範例
+
+### 味噌湯
+**必須識別的配料（至少 3-5 種）：**
+- 味噌湯底（250ml）
+- 豆腐（嫩豆腐或板豆腐，30-50g）
+- 海帶芽（10-15g）
+- 蔥花（5-10g）
+- 可能有：魚板（20g）、油豆腐（30g）、香菇（20g）、蘿蔔（30g）
+
+### 排骨湯
+**必須識別的配料（至少 3-5 種）：**
+- 排骨湯底（250ml）
+- 排骨（80-100g）
+- 白蘿蔔（50-80g）
+- 薑片（5g）
+- 蔥段（10g）
+- 可能有：玉米（40g）、紅蘿蔔（30g）
+
+### 酸辣湯
+**必須識別的配料（至少 5-7 種）：**
+- 酸辣湯底（250ml）
+- 豆腐絲（30g）
+- 木耳（20g）
+- 筍絲（30g）
+- 蛋花（30g）
+- 香菜（5g）
+- 可能有：肉絲（30g）、紅蘿蔔絲（20g）、香菇絲（20g）
+
+### 蔬菜湯
+**必須識別的配料（至少 4-6 種）：**
+- 清湯湯底（250ml）
+- 高麗菜（40g）
+- 紅蘿蔔（30g）
+- 玉米（30g）
+- 香菇（20g）
+- 可能有：番茄（40g）、洋蔥（30g）、芹菜（20g）
+
+## JSON 格式說明
 
 請以 JSON 格式回應：
 {
@@ -1805,7 +2808,7 @@ Special Notes:
       "category": "食材類別",
       "inSoup": true,
       "visualFeatures": "視覺特徵（顏色、形狀、大小）",
-      "position": "位置（浮在表面/沉在底部/中間）",
+      "position": "位置（浮在表面/中間/沉在底部）",
       "description": "詳細描述"
     }
   ],
@@ -1822,74 +2825,146 @@ Special Notes:
   "overallDescription": "整體描述"
 }
 
-**特別注意（非常重要！）**：
-1. **必須識別湯中的每一種食材** - 不要只說"味噌湯"，要列出所有配料
-2. **每種食材都要估算份量** - 以公克(g)或毫升(ml)為單位
-3. **注意不同位置的食材** - 浮在表面的、沉在底部的、中間的
-4. **區分相似食材** - 如：嫩豆腐 vs 板豆腐、海帶 vs 海帶芽
-5. **識別小配料** - 蔥花、薑絲、芝麻等小配料也要列出
-6. **湯底也要計算份量** - 估算湯的總量（通常200-300ml）
+## 重要原則
 
-**味噌湯常見配料**：
-- 豆腐（嫩豆腐或板豆腐）
-- 海帶芽或海帶
-- 蔥花
-- 可能有：魚板、油豆腐、香菇、蘿蔔等`;
+1. **必須識別湯底和所有配料**
+   - 湯底是獨立的食材，必須列入 foods 列表
+   - 不要只說"味噌湯"或"排骨湯"，要列出湯底和所有配料
+   - 每種配料都是獨立的食材，都要列入 foods 列表
+
+2. **最小配料數量要求**
+   - 如果湯中明顯有多種配料，foods 列表應至少包含 3-5 種配料（不含湯底）
+   - 如果只識別到 1-2 種配料，可能有遺漏，請再仔細觀察
+
+3. **按位置識別配料**
+   - 從表面到底部，逐層觀察
+   - 不要遺漏浮在表面的小配料（蔥花、香菜、芝麻等）
+   - 注意沉在底部的配料（海帶、麵條、丸子等）
+
+4. **份量估算要準確**
+   - 每種配料都要估算份量
+   - 參考上述份量標準表
+   - 湯底份量通常 200-300ml
+
+5. **區分相似食材**
+   - 嫩豆腐 vs 板豆腐：嫩豆腐較軟、易碎；板豆腐較硬、有形狀
+   - 海帶 vs 海帶芽：海帶較大片、深綠色；海帶芽較小、淺綠色
+   - 蔥花 vs 蔥段：蔥花是切碎的、浮在表面；蔥段是長條狀、在湯中
+
+**不要只回應湯品名稱，必須列出湯底和所有配料！**`;
     } else {
       return `You are a food expert specializing in soup identification. Please carefully analyze the soup in this image and identify every ingredient with portion sizes.
 
-Soup Recognition Focus:
-1. **Soup Types**:
-   - Clear soup: Clear, light color, light taste
-   - Thick soup: Thick, thickened, milky white or dark
-   - Thick stew: Thickened, thick, with ingredients
-   - Hot pot soup: Red (spicy) or white (clear)
-   - Miso soup: Light brown, has miso particles, Japanese style
+## Core Task (Highest Priority)
+**Your primary task is: Identify the soup base and ALL ingredients - don't miss any visible components!**
 
-2. **Soup Base Identification**:
-   - Clear soup: Chicken soup, pork rib soup, fish soup, dashi broth
-   - Thick soup: Corn soup, pumpkin soup
-   - Specialty soup: Miso soup, hot and sour soup, tomato soup
-   - Thick stew: Shark fin soup, hot and sour stew, oyster vermicelli
+## Soup Identification Steps (Follow in Order)
 
-3. **Ingredient Identification (VERY IMPORTANT!)**:
-   **Please identify every ingredient in the soup, including:**
-   
-   a. **Vegetables**:
-      - Cabbage, napa cabbage, Chinese cabbage
-      - Radish, carrot, daikon
-      - Mushrooms (shiitake, enoki, king oyster)
-      - Kelp, wakame, seaweed
-      - Onion, scallion, green onion
-      - Corn, baby corn
-   
-   b. **Protein**:
-      - Tofu (silken tofu, firm tofu, fried tofu)
-      - Meat slices (pork, beef, chicken)
-      - Fish slices, fish meat, fish balls
-      - Egg (boiled egg, onsen egg)
-      - Seafood (shrimp, clams, squid)
-   
-   c. **Noodles**:
-      - Noodles, udon, ramen
-      - Rice noodles, glass noodles, vermicelli
-   
-   d. **Other Ingredients**:
-      - Meatballs (pork balls, fish balls, meat balls)
-      - Dumplings, wontons, potstickers
-      - Rice cakes, fish cakes
+### Step 1: Identify Soup Base
+- Observe soup color, consistency, transparency
+- Determine soup base type:
+  * Clear soup: Clear, light color, light taste (chicken broth, pork rib broth, fish broth, dashi)
+  * Thick soup: Thick, thickened, milky white or dark (corn soup, pumpkin soup)
+  * Thick stew: Thickened, thick, with ingredients (shark fin soup, hot and sour stew, oyster vermicelli)
+  * Miso soup: Light brown, has miso particles, Japanese style
+  * Hot pot soup: Red (spicy) or white (clear)
+- Estimate soup base portion (usually 200-300ml)
 
-4. **Portion Estimation**:
-   - Tofu: Each piece about 30-50g
-   - Kelp: Each piece about 10-20g
-   - Vegetables: Each serving about 30-50g
-   - Meat slices: Each slice about 20-30g
-   - Soup base: About 200-300ml
+### Step 2: Identify Ingredients (From Surface to Bottom)
+**Please observe soup ingredients in the following order:**
 
-5. **Seasoning Identification**:
-   - Miso, salt, soy sauce, vinegar
-   - Pepper, sesame oil, chili oil
-   - Scallions, cilantro, ginger strips
+#### 2.1 Ingredients Floating on Surface
+- Scallions (5-10g)
+- Cilantro (5-10g)
+- Oil droplets, sesame oil
+- Sesame seeds, seaweed
+- Ginger strips (5g)
+- Chili oil, chili flakes
+
+#### 2.2 Ingredients in Middle Layer
+- Tofu (silken tofu, firm tofu, fried tofu): Each piece 30-50g
+- Meat slices (pork, beef, chicken): Each slice 20-30g
+- Fish slices, fish meat: Each slice 30-40g
+- Vegetables (cabbage, napa cabbage, Chinese cabbage): Each serving 30-50g
+- Mushrooms (shiitake, enoki, king oyster): Each serving 20-30g
+- Seafood (shrimp, clams, squid): Each piece 20-40g
+- Egg (boiled egg, onsen egg): Each 50-60g
+
+#### 2.3 Ingredients at Bottom
+- Kelp, wakame: Each piece 10-20g
+- Seaweed: 5-10g
+- Noodles, udon, ramen: Each serving 80-120g
+- Rice noodles, glass noodles, vermicelli: Each serving 50-80g
+- Meatballs (pork balls, fish balls, meat balls): Each 15-25g
+- Dumplings, wontons, potstickers: Each 20-30g
+- Rice cakes, fish cakes: Each piece 20-30g
+- Radish, carrot, daikon: Each piece 30-50g
+- Corn, baby corn: Each piece 20-30g
+
+### Step 3: Estimate Portions
+**Please estimate reasonable portions for each ingredient, reference the following standards:**
+
+| Ingredient Type | Reference Portion |
+|----------------|------------------|
+| Soup base | 200-300ml |
+| Tofu (each piece) | 30-50g |
+| Kelp/Wakame (each piece) | 10-20g |
+| Vegetables (each serving) | 30-50g |
+| Meat slices (each slice) | 20-30g |
+| Scallions/Cilantro | 5-10g |
+| Meatballs (each) | 15-25g |
+| Noodles (each serving) | 80-120g |
+| Rice noodles/Vermicelli (each serving) | 50-80g |
+
+### Step 4: Completeness Check
+**Before submitting your response, please confirm:**
+- [ ] Identified soup base type and portion
+- [ ] Identified all ingredients floating on surface (scallions, cilantro, oil, etc.)
+- [ ] Identified all ingredients in middle layer (tofu, meat slices, vegetables, etc.)
+- [ ] Identified all ingredients at bottom (kelp, noodles, meatballs, etc.)
+- [ ] Foods list contains at least 3-5 ingredients (if soup has multiple ingredients)
+- [ ] Each ingredient has a reasonable portion estimate
+- [ ] No obvious visible ingredients are missing
+
+## Common Soup Ingredient Examples
+
+### Miso Soup
+**Must identify ingredients (at least 3-5 types):**
+- Miso soup base (250ml)
+- Tofu (silken or firm tofu, 30-50g)
+- Wakame (10-15g)
+- Scallions (5-10g)
+- Possibly: Fish cake (20g), fried tofu (30g), mushrooms (20g), radish (30g)
+
+### Pork Rib Soup
+**Must identify ingredients (at least 3-5 types):**
+- Pork rib broth (250ml)
+- Pork ribs (80-100g)
+- Daikon radish (50-80g)
+- Ginger slices (5g)
+- Scallion segments (10g)
+- Possibly: Corn (40g), carrot (30g)
+
+### Hot and Sour Soup
+**Must identify ingredients (at least 5-7 types):**
+- Hot and sour soup base (250ml)
+- Tofu strips (30g)
+- Wood ear mushroom (20g)
+- Bamboo shoot strips (30g)
+- Egg ribbons (30g)
+- Cilantro (5g)
+- Possibly: Pork strips (30g), carrot strips (20g), mushroom strips (20g)
+
+### Vegetable Soup
+**Must identify ingredients (at least 4-6 types):**
+- Clear broth base (250ml)
+- Cabbage (40g)
+- Carrot (30g)
+- Corn (30g)
+- Mushrooms (20g)
+- Possibly: Tomato (40g), onion (30g), celery (20g)
+
+## JSON Format
 
 Respond in JSON format:
 {
@@ -1902,7 +2977,7 @@ Respond in JSON format:
       "category": "ingredient category",
       "inSoup": true,
       "visualFeatures": "visual features (color, shape, size)",
-      "position": "position (floating/bottom/middle)",
+      "position": "position (floating on surface/middle/at bottom)",
       "description": "detailed description"
     }
   ],
@@ -1919,19 +2994,33 @@ Respond in JSON format:
   "overallDescription": "overall description"
 }
 
-**Special Notes (VERY IMPORTANT!)**:
-1. **Must identify every ingredient in the soup** - Don't just say "miso soup", list all ingredients
-2. **Estimate portion for each ingredient** - In grams (g) or milliliters (ml)
-3. **Note ingredients at different positions** - Floating on surface, at bottom, in middle
-4. **Distinguish similar ingredients** - E.g., silken tofu vs firm tofu, kelp vs wakame
-5. **Identify small garnishes** - Scallions, ginger strips, sesame seeds, etc.
-6. **Calculate soup base portion** - Estimate total soup volume (usually 200-300ml)
+## Important Principles
 
-**Common Miso Soup Ingredients**:
-- Tofu (silken or firm)
-- Wakame or kelp
-- Scallions
-- Possibly: Fish cake, fried tofu, mushrooms, radish, etc.`;
+1. **Must identify soup base and all ingredients**
+   - Soup base is an independent ingredient, must be included in foods list
+   - Don't just say "miso soup" or "pork rib soup", list soup base and all ingredients
+   - Each ingredient is independent, all must be included in foods list
+
+2. **Minimum ingredient count requirement**
+   - If soup clearly has multiple ingredients, foods list should contain at least 3-5 ingredients (excluding soup base)
+   - If only 1-2 ingredients identified, there may be omissions, please observe more carefully
+
+3. **Identify ingredients by position**
+   - Observe layer by layer from surface to bottom
+   - Don't miss small garnishes floating on surface (scallions, cilantro, sesame, etc.)
+   - Note ingredients at bottom (kelp, noodles, meatballs, etc.)
+
+4. **Accurate portion estimation**
+   - Estimate portion for each ingredient
+   - Reference the portion standards table above
+   - Soup base portion usually 200-300ml
+
+5. **Distinguish similar ingredients**
+   - Silken tofu vs firm tofu: Silken tofu is softer, easily broken; firm tofu is harder, holds shape
+   - Kelp vs wakame: Kelp is larger pieces, dark green; wakame is smaller, light green
+   - Chopped scallions vs scallion segments: Chopped scallions are minced, float on surface; scallion segments are long strips, in soup
+
+**Don't just respond with soup name, must list soup base and all ingredients!**`;
     }
   }
 
@@ -1944,34 +3033,122 @@ Respond in JSON format:
 
   private createMixedDishPrompt(): string {
     if (this.language === 'zh-TW') {
-      return `你是一個專精於混合菜餚識別的食物專家。請仔細分析這張圖片中的複雜菜餚。
+      return `你是一個專精於混合菜餚識別的食物專家。
 
-混合菜餚識別重點：
-1. **混合菜餚特徵**：
-   - 包含多種食材（3種以上）
-   - 食材類型多樣（蔬菜、肉類、豆製品等）
-   - 可能有多種烹飪方式
-   - 擺盤複雜
+## 核心任務（最優先）
+**你的首要任務是：逐一識別圖片中的每一種食材，不要遺漏任何可見的食材。**
 
-2. **識別策略**：
-   - **逐一識別每種食材**
-   - 從大到小、從明顯到細微
-   - 注意隱藏在下層的食材
-   - 識別醬汁和調味料
+混合菜餚通常包含多種食材混合在一起，請務必仔細觀察並列出所有食材。
 
-3. **常見混合菜餚**：
-   - 便當（多種菜色）
-   - 拌飯（石鍋拌飯、丼飯）
-   - 炒飯（蛋炒飯、海鮮炒飯）
-   - 炒麵（什錦炒麵）
-   - 火鍋（多種食材）
-   - 定食（主菜+配菜+飯+湯）
+## 識別步驟（請按順序執行）
 
-4. **完整性檢查**：
-   - 主食：飯、麵、粉
-   - 主菜：肉類、海鮮、豆製品
-   - 配菜：蔬菜、蛋
-   - 調味料：醬汁、香料
+### 步驟 1：整體觀察
+- 判斷菜餚類型（便當、拌飯、炒飯、炒麵、定食等）
+- 觀察食材的分布和層次
+- 注意是否有多個區域或隔間
+
+### 步驟 2：系統化識別策略
+
+**請按照以下順序逐一識別每種食材：**
+
+#### 2.1 從大到小識別
+1. **大塊食材**（最明顯）
+   - 主要肉類（雞腿、排骨、魚片等）
+   - 大塊蔬菜（花椰菜、高麗菜等）
+   - 主食（飯、麵、粉）
+
+2. **中等食材**
+   - 切塊的肉類（肉片、肉絲）
+   - 切塊的蔬菜（胡蘿蔔、馬鈴薯等）
+   - 豆製品（豆腐、豆干）
+   - 蛋類（煎蛋、滷蛋）
+
+3. **小型食材**（容易遺漏）
+   - 小配料（蔥花、香菜、芝麻、蒜片）
+   - 小蔬菜（豆芽、玉米粒、豌豆）
+   - 調味料（醬汁、油、香料）
+
+#### 2.2 從明顯到細微識別
+1. **表面可見的食材**
+   - 最上層的食材
+   - 顏色鮮豔、對比明顯的食材
+   - 形狀特殊、容易辨識的食材
+
+2. **部分可見的食材**
+   - 半遮蓋的食材
+   - 混合在一起的食材
+   - 需要仔細觀察才能發現的食材
+
+3. **隱藏的食材**（特別注意）
+   - 藏在下層的食材（飯下、麵下、湯底）
+   - 混在醬汁中的食材
+   - 被其他食材遮蓋的配料
+
+### 步驟 3：分層檢查
+
+**請特別注意不同層次的食材：**
+
+- **上層**：表面可見的食材
+  * 配菜、裝飾、醬汁
+  * 例如：蔥花、芝麻、香菜
+
+- **中層**：主要食材層
+  * 主菜、配菜、蔬菜
+  * 例如：肉類、豆腐、蔬菜
+
+- **下層**：基底食材（容易被忽略）
+  * 主食、湯底、醬汁
+  * 例如：米飯、麵條、湯底
+  * **重要**：即使被遮蓋，也要識別出來
+
+### 步驟 4：完整性檢查
+
+在完成識別後，請確認是否包含以下各類食材：
+
+#### 主食類（必須識別）
+- [ ] 米飯、炒飯、白飯
+- [ ] 麵條、炒麵、湯麵
+- [ ] 粉類、米粉、冬粉
+
+#### 主菜類（必須識別）
+- [ ] 肉類（豬、牛、雞、羊）
+- [ ] 海鮮（魚、蝦、蟹、貝類）
+- [ ] 豆製品（豆腐、豆干、豆皮）
+- [ ] 蛋類（煎蛋、滷蛋、炒蛋）
+
+#### 配菜類（必須識別）
+- [ ] 綠色蔬菜（青菜、花椰菜、豆芽）
+- [ ] 根莖類（胡蘿蔔、馬鈴薯、蘿蔔）
+- [ ] 其他蔬菜（玉米、豌豆、菇類）
+
+#### 調味料類（不要遺漏）
+- [ ] 醬汁（醬油、蠔油、辣椒醬）
+- [ ] 油脂（麻油、食用油）
+- [ ] 小配料（蔥花、香菜、蒜片、薑絲、芝麻）
+
+## 常見混合菜餚類型
+
+### 便當類
+- 特徵：多個隔間，每個隔間有不同菜色
+- 必須識別：主菜、配菜1、配菜2、配菜3、米飯
+- 範例：排骨便當應包含：排骨、高麗菜、滷蛋、豆干、白飯
+
+### 拌飯類
+- 特徵：多種食材鋪在飯上
+- 必須識別：米飯（底層）、所有配料（上層）
+- 範例：石鍋拌飯應包含：米飯、牛肉、蔬菜、蛋、芝麻、辣椒醬
+
+### 炒飯/炒麵類
+- 特徵：食材混合炒在一起
+- 必須識別：主食、所有混合的食材
+- 範例：海鮮炒飯應包含：米飯、蝦仁、花枝、蛋、蔥花、豌豆、胡蘿蔔
+
+### 定食類
+- 特徵：主菜+多個配菜+飯+湯
+- 必須識別：每一道菜的所有食材
+- 範例：日式定食應包含：主菜（魚/肉）、米飯、味噌湯、醃漬物、小菜
+
+## JSON 格式說明
 
 請以 JSON 格式回應：
 {
@@ -1999,50 +3176,312 @@ Respond in JSON format:
   "overallDescription": "整體描述"
 }
 
-特別注意：
-- 混合菜餚通常有很多食材，請仔細識別每一種
-- 注意不同層次的食材（上層、中層、下層）
-- 不要遺漏小配菜和調味料
-- 如果是便當或定食，請識別所有菜色
-- 估算每種食材的份量`;
+## 完整性檢查清單
+
+在提交回應前，請確認：
+- [ ] 已識別所有主食（飯、麵、粉）
+- [ ] 已識別所有主菜（肉類、海鮮、豆製品、蛋類）
+- [ ] 已識別所有配菜（各種蔬菜）
+- [ ] 已識別所有小配料（蔥花、香菜、蒜片、芝麻等）
+- [ ] 已識別所有調味料（醬汁、油）
+- [ ] 已檢查上層、中層、下層的食材
+- [ ] 已檢查被遮蓋或隱藏的食材
+- [ ] foods 列表中至少有 5-8 種食材（混合菜餚通常有多種食材）
+- [ ] 每種食材都有合理的份量估算
+- [ ] 沒有遺漏任何明顯可見的食材
+
+## 重要原則
+
+1. **逐一識別，不要概括**
+   - ❌ 錯誤：「便當」
+   - ✅ 正確：「排骨（100g）、高麗菜（50g）、滷蛋（60g）、豆干（30g）、白飯（200g）」
+
+2. **不要遺漏隱藏的食材**
+   - 特別注意被遮蓋的主食（飯、麵）
+   - 注意混在醬汁中的小配料
+   - 注意沉在湯底的食材
+
+3. **從大到小，從明顯到細微**
+   - 先識別大塊、明顯的食材
+   - 再識別中等大小的食材
+   - 最後識別小配料和調味料
+
+4. **分層檢查**
+   - 上層：表面食材
+   - 中層：主要食材
+   - 下層：基底食材（不要忘記）
+
+## 範例
+
+### 範例 1：排骨便當
+如果圖片中有排骨便當，foods 列表應包含：
+- 白飯（200g）- 下層
+- 炸排骨（120g）- 主菜
+- 高麗菜（50g）- 配菜
+- 滷蛋（60g）- 配菜
+- 豆干（30g）- 配菜
+- 醬汁（10ml）- 調味料
+
+**不要只回應「排骨便當」，必須列出所有食材！**
+
+### 範例 2：石鍋拌飯
+如果圖片中有石鍋拌飯，foods 列表應包含：
+- 米飯（250g）- 下層
+- 牛肉片（80g）- 主菜
+- 菠菜（30g）- 配菜
+- 豆芽（30g）- 配菜
+- 胡蘿蔔絲（20g）- 配菜
+- 香菇（20g）- 配菜
+- 蛋黃（50g）- 配菜
+- 芝麻（5g）- 調味料
+- 辣椒醬（15g）- 調味料
+- 麻油（5ml）- 調味料
+
+**不要只回應「石鍋拌飯」，必須列出所有食材，包括底層的米飯！**
+
+### 範例 3：海鮮炒飯
+如果圖片中有海鮮炒飯，foods 列表應包含：
+- 米飯（200g）- 主食
+- 蝦仁（50g）- 主菜
+- 花枝（40g）- 主菜
+- 蛋（50g）- 配菜
+- 蔥花（10g）- 配菜
+- 豌豆（20g）- 配菜
+- 胡蘿蔔丁（15g）- 配菜
+- 玉米粒（15g）- 配菜
+- 醬油（10ml）- 調味料
+
+**不要只回應「海鮮炒飯」，必須列出所有混合的食材！**
+
+特別提醒：
+- 混合菜餚的 foods 列表通常應該有 5-10 種以上的食材
+- 如果你只識別出 1-3 種食材，請再仔細觀察，很可能遺漏了其他食材
+- 特別注意檢查下層的主食（飯、麵）是否已識別`;
     } else {
-      return `You are a food expert specializing in mixed dish identification. Please carefully analyze the complex dishes in this image.
+      return `You are a food expert specializing in mixed dish identification.
 
-Mixed Dish Recognition Focus:
-1. **Mixed Dish Characteristics**:
-   - Contains multiple ingredients (3 or more)
-   - Diverse ingredient types (vegetables, meat, soy products, etc.)
-   - May have multiple cooking methods
-   - Complex presentation
+## Core Task (Highest Priority)
+**Your primary task is: Identify each ingredient in the image one by one, do not miss any visible ingredients.**
 
-2. **Identification Strategy**:
-   - **Identify each ingredient one by one**
-   - From large to small, from obvious to subtle
-   - Note ingredients hidden in lower layers
-   - Identify sauces and seasonings
+Mixed dishes usually contain multiple ingredients mixed together, please observe carefully and list all ingredients.
 
-3. **Common Mixed Dishes**:
-   - Bento (multiple dishes)
-   - Mixed rice (bibimbap, donburi)
-   - Fried rice (egg fried rice, seafood fried rice)
-   - Fried noodles (mixed fried noodles)
-   - Hot pot (multiple ingredients)
-   - Set meal (main dish + sides + rice + soup)
+## Identification Steps (Follow in Order)
 
-4. **Completeness Check**:
-   - Staple: Rice, noodles, vermicelli
-   - Main dish: Meat, seafood, soy products
-   - Side dishes: Vegetables, eggs
-   - Seasonings: Sauces, spices
+### Step 1: Overall Observation
+- Determine dish type (bento, mixed rice, fried rice, fried noodles, set meal, etc.)
+- Observe ingredient distribution and layers
+- Note if there are multiple sections or compartments
 
-Respond in JSON format with all ingredients, roles, positions, and main components.
+### Step 2: Systematic Identification Strategy
 
-Special Notes:
-- Mixed dishes usually have many ingredients, identify each carefully
-- Note ingredients at different layers (top, middle, bottom)
-- Don't miss small side dishes and seasonings
-- If it's a bento or set meal, identify all dishes
-- Estimate portion of each ingredient`;
+**Please identify each ingredient in the following order:**
+
+#### 2.1 From Large to Small
+1. **Large Ingredients** (Most obvious)
+   - Main meats (chicken leg, pork chop, fish fillet, etc.)
+   - Large vegetables (broccoli, cabbage, etc.)
+   - Staples (rice, noodles, vermicelli)
+
+2. **Medium Ingredients**
+   - Sliced meats (meat slices, shredded meat)
+   - Chopped vegetables (carrots, potatoes, etc.)
+   - Soy products (tofu, dried tofu)
+   - Eggs (fried egg, braised egg)
+
+3. **Small Ingredients** (Easy to miss)
+   - Small garnishes (scallions, cilantro, sesame, garlic slices)
+   - Small vegetables (bean sprouts, corn kernels, peas)
+   - Seasonings (sauces, oils, spices)
+
+#### 2.2 From Obvious to Subtle
+1. **Surface Visible Ingredients**
+   - Top layer ingredients
+   - Brightly colored, high contrast ingredients
+   - Uniquely shaped, easily identifiable ingredients
+
+2. **Partially Visible Ingredients**
+   - Half-covered ingredients
+   - Mixed ingredients
+   - Ingredients requiring careful observation
+
+3. **Hidden Ingredients** (Special attention)
+   - Ingredients hidden in lower layers (under rice, noodles, soup base)
+   - Ingredients mixed in sauce
+   - Ingredients covered by other ingredients
+
+### Step 3: Layer-by-Layer Check
+
+**Please pay special attention to ingredients at different layers:**
+
+- **Top Layer**: Surface visible ingredients
+  * Side dishes, garnishes, sauces
+  * Example: Scallions, sesame, cilantro
+
+- **Middle Layer**: Main ingredient layer
+  * Main dishes, side dishes, vegetables
+  * Example: Meats, tofu, vegetables
+
+- **Bottom Layer**: Base ingredients (easily overlooked)
+  * Staples, soup base, sauces
+  * Example: Rice, noodles, soup base
+  * **Important**: Even if covered, must identify
+
+### Step 4: Completeness Check
+
+After identification, confirm if the following categories are included:
+
+#### Staples (Must identify)
+- [ ] Rice, fried rice, white rice
+- [ ] Noodles, fried noodles, soup noodles
+- [ ] Vermicelli, rice noodles, glass noodles
+
+#### Main Dishes (Must identify)
+- [ ] Meats (pork, beef, chicken, lamb)
+- [ ] Seafood (fish, shrimp, crab, shellfish)
+- [ ] Soy products (tofu, dried tofu, tofu skin)
+- [ ] Eggs (fried egg, braised egg, scrambled egg)
+
+#### Side Dishes (Must identify)
+- [ ] Green vegetables (greens, broccoli, bean sprouts)
+- [ ] Root vegetables (carrots, potatoes, radish)
+- [ ] Other vegetables (corn, peas, mushrooms)
+
+#### Seasonings (Don't miss)
+- [ ] Sauces (soy sauce, oyster sauce, chili sauce)
+- [ ] Oils (sesame oil, cooking oil)
+- [ ] Small garnishes (scallions, cilantro, garlic slices, ginger, sesame)
+
+## Common Mixed Dish Types
+
+### Bento
+- Features: Multiple compartments, different dishes in each
+- Must identify: Main dish, side dish 1, side dish 2, side dish 3, rice
+- Example: Pork chop bento should include: pork chop, cabbage, braised egg, dried tofu, white rice
+
+### Mixed Rice
+- Features: Multiple ingredients on top of rice
+- Must identify: Rice (bottom layer), all toppings (top layer)
+- Example: Bibimbap should include: rice, beef, vegetables, egg, sesame, chili sauce
+
+### Fried Rice/Noodles
+- Features: Ingredients mixed and stir-fried together
+- Must identify: Staple, all mixed ingredients
+- Example: Seafood fried rice should include: rice, shrimp, squid, egg, scallions, peas, carrots
+
+### Set Meal
+- Features: Main dish + multiple sides + rice + soup
+- Must identify: All ingredients in each dish
+- Example: Japanese set meal should include: main dish (fish/meat), rice, miso soup, pickles, side dishes
+
+## JSON Format
+
+Respond in JSON format:
+{
+  "foods": [
+    {
+      "name": "ingredient name",
+      "confidence": 0.95,
+      "portion": 100,
+      "category": "food category",
+      "role": "staple/main dish/side dish/seasoning",
+      "position": "position (top/middle/bottom layer)",
+      "visualFeatures": "visual features",
+      "description": "description"
+    }
+  ],
+  "dishType": "mixed dish",
+  "dishName": "dish name (e.g., bento, mixed rice, etc.)",
+  "totalIngredients": 8,
+  "mainComponents": {
+    "staple": "staple food",
+    "mainDish": "main dish",
+    "sideDishes": ["list of side dishes"]
+  },
+  "cookingMethods": ["list of cooking methods"],
+  "overallDescription": "overall description"
+}
+
+## Completeness Checklist
+
+Before submitting response, confirm:
+- [ ] Identified all staples (rice, noodles, vermicelli)
+- [ ] Identified all main dishes (meats, seafood, soy products, eggs)
+- [ ] Identified all side dishes (various vegetables)
+- [ ] Identified all small garnishes (scallions, cilantro, garlic slices, sesame, etc.)
+- [ ] Identified all seasonings (sauces, oils)
+- [ ] Checked ingredients in top, middle, bottom layers
+- [ ] Checked covered or hidden ingredients
+- [ ] Foods list contains at least 5-8 ingredients (mixed dishes usually have multiple ingredients)
+- [ ] Each ingredient has reasonable portion estimate
+- [ ] No obvious visible ingredients are missing
+
+## Important Principles
+
+1. **Identify one by one, don't generalize**
+   - ❌ Wrong: "Bento"
+   - ✅ Correct: "Pork chop (100g), cabbage (50g), braised egg (60g), dried tofu (30g), white rice (200g)"
+
+2. **Don't miss hidden ingredients**
+   - Pay special attention to covered staples (rice, noodles)
+   - Note small garnishes mixed in sauce
+   - Note ingredients at bottom of soup
+
+3. **From large to small, from obvious to subtle**
+   - First identify large, obvious ingredients
+   - Then identify medium-sized ingredients
+   - Finally identify small garnishes and seasonings
+
+4. **Layer-by-layer check**
+   - Top layer: Surface ingredients
+   - Middle layer: Main ingredients
+   - Bottom layer: Base ingredients (don't forget)
+
+## Examples
+
+### Example 1: Pork Chop Bento
+If image shows pork chop bento, foods list should include:
+- White rice (200g) - bottom layer
+- Fried pork chop (120g) - main dish
+- Cabbage (50g) - side dish
+- Braised egg (60g) - side dish
+- Dried tofu (30g) - side dish
+- Sauce (10ml) - seasoning
+
+**Don't just respond "pork chop bento", must list all ingredients!**
+
+### Example 2: Bibimbap
+If image shows bibimbap, foods list should include:
+- Rice (250g) - bottom layer
+- Beef slices (80g) - main dish
+- Spinach (30g) - side dish
+- Bean sprouts (30g) - side dish
+- Carrot strips (20g) - side dish
+- Mushrooms (20g) - side dish
+- Egg yolk (50g) - side dish
+- Sesame (5g) - seasoning
+- Chili sauce (15g) - seasoning
+- Sesame oil (5ml) - seasoning
+
+**Don't just respond "bibimbap", must list all ingredients including bottom layer rice!**
+
+### Example 3: Seafood Fried Rice
+If image shows seafood fried rice, foods list should include:
+- Rice (200g) - staple
+- Shrimp (50g) - main dish
+- Squid (40g) - main dish
+- Egg (50g) - side dish
+- Scallions (10g) - side dish
+- Peas (20g) - side dish
+- Carrot cubes (15g) - side dish
+- Corn kernels (15g) - side dish
+- Soy sauce (10ml) - seasoning
+
+**Don't just respond "seafood fried rice", must list all mixed ingredients!**
+
+Special Reminder:
+- Mixed dish foods list should usually have 5-10+ ingredients
+- If you only identify 1-3 ingredients, please observe more carefully, likely missing other ingredients
+- Pay special attention to check if bottom layer staples (rice, noodles) are identified`;
     }
   }
 
