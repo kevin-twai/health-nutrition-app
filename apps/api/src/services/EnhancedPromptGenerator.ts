@@ -199,7 +199,9 @@ Notes:
 
 **特別注意**：
 - 如果圖片中有多種不同的食材（如海帶、豆干、滷蛋），請識別為「涼拌小菜」或「滷味拼盤」，並列出所有食材
-- 不要將拼盤中的某一種食材當作整道菜的名稱（例如：不要只說「豆腐干絲」，而應該說「涼拌小菜（含海帶、豆干、滷蛋等）」）`;
+- 不要將拼盤中的某一種食材當作整道菜的名稱（例如：不要只說「豆腐干絲」，而應該說「涼拌小菜（含海帶、豆干、滷蛋等）」）
+- **重要**：foods 列表必須包含所有可見的食材。如果你在 description 或 overallDescription 中提到了某個食材，那麼該食材也必須出現在 foods 列表中
+- 例如：如果 description 提到「泡麵配料包含麵條、蔬菜和肉片」，那麼 foods 列表必須包含「麵條」、「蔬菜」和「肉片」這三個項目`;
     } else {
       return `You are a food recognition expert specializing in Asian cuisine. Please carefully analyze this image.
 
@@ -241,7 +243,9 @@ Respond in JSON format:
 
 **Special Notes**:
 - If the image contains multiple different ingredients (e.g., kelp, dried tofu, braised egg), identify as "cold dressed appetizers" or "braised platter" and list all ingredients
-- Don't name the dish after just one ingredient in the platter (e.g., don't just say "dried tofu strips", but say "cold dressed appetizers (with kelp, dried tofu, braised egg, etc.)")`;
+- Don't name the dish after just one ingredient in the platter (e.g., don't just say "dried tofu strips", but say "cold dressed appetizers (with kelp, dried tofu, braised egg, etc.)")
+- **Important**: The foods list must include all visible ingredients. If you mention an ingredient in the description or overallDescription, that ingredient must also appear in the foods list
+- For example: If the description mentions "instant noodles with noodles, vegetables, and meat slices", the foods list must include "noodles", "vegetables", and "meat slices" as separate items`;
     }
   }
 
