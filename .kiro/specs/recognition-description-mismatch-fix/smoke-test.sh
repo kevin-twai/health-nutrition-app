@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 配置
-API_URL="${API_URL:-https://health-nutrition-app.onrender.com}"
+API_URL="${API_URL:-https://health-nutrition-api.onrender.com}"
 TOKEN="${AUTH_TOKEN:-}"
 TEST_IMAGE="${TEST_IMAGE:-test-images/bento.jpg}"
 

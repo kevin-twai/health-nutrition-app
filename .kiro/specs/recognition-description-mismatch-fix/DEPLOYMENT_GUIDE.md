@@ -60,7 +60,7 @@ Render 會自動檢測到 main 分支的更新並開始部署：
 
 ```bash
 # 測試成分識別端點
-curl -X POST https://health-nutrition-app.onrender.com/api/v1/photo/recognize-with-components \
+curl -X POST https://health-nutrition-api.onrender.com/api/v1/photo/recognize-with-components \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -F "photo=@test-images/bento.jpg"
 ```
@@ -160,7 +160,7 @@ Render 會自動部署 main 分支的更新。
 #!/bin/bash
 
 # 設置變數
-API_URL="https://health-nutrition-app.onrender.com"
+API_URL="https://health-nutrition-api.onrender.com"
 TOKEN="YOUR_AUTH_TOKEN"
 TEST_IMAGE="test-images/bento.jpg"
 
