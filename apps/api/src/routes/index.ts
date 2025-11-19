@@ -80,6 +80,14 @@ export async function registerRoutes(app: Express): Promise<void> {
       apiGatewayConfig.general.rateLimit,
       componentAdjustmentRoutes()
     );
+
+    // 識別一致性監控路由
+    console.log('註冊識別一致性監控路由...');
+    const recognitionMonitoringRoutes = (await import('./recognition-monitoring')).default;
+    app.use('/api/v1/recognition-monitoring', 
+      apiGatewayConfig.general.rateLimit,
+      recognitionMonitoringRoutes
+    );
     
     console.log('✅ 所有路由註冊完成');
   } catch (error) {
