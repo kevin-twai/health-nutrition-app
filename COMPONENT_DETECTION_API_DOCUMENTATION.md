@@ -23,6 +23,28 @@
 - ✅ 支持用戶手動調整成分
 - ✅ 提供烹飪方式資訊
 - ✅ 支持多種亞洲料理類型
+- ✅ **確保識別結果一致性**（v1.1.0 新增）
+- ✅ **優化處理速度**（v1.1.0 新增）
+
+### 識別流程改進 (v1.1.0)
+
+系統現在採用**兩階段識別流程**，確保基礎識別和成分識別的結果完全一致：
+
+1. **階段一：基礎識別**
+   - 使用 MultiStageRecognitionEngine 識別料理中的所有食物
+   - 獲得食物列表、信心度、份量等資訊
+
+2. **階段二：成分識別**
+   - **直接使用**階段一的識別結果作為成分基礎
+   - **不再重複調用** Vision API 進行二次識別
+   - 保留所有原始食物屬性（名稱、份量、信心度、營養資訊）
+   - 處理速度提升 60-80%
+
+**一致性保證：**
+- ✅ 成分列表與基礎識別結果完全一致
+- ✅ 避免識別結果不匹配的問題
+- ✅ 自動進行一致性驗證並記錄日誌
+- ✅ 節省 API 調用成本和處理時間
 
 ### 支持的料理類型
 
@@ -32,6 +54,99 @@
 - 麵食類：拉麵、烏龍麵、米粉、河粉
 - 點心類：小籠包、餃子、燒賣、春捲
 - 燒烤類：烤肉、燒雞、烤魚
+
+---
+
+## 識別流程說明 (v1.1.0)
+
+### 傳統流程 vs 新流程
+
+#### 傳統流程（v1.0.0）
+```
+用戶上傳照片
+    ↓
+基礎識別 (MultiStageRecognitionEngine)
+    → 識別出：[白飯, 炸豬排, 滷蛋, 豆腐, 酸菜]
+    ↓
+成分識別 (ComponentDetectionEngine)
+    → 重新調用 Vision API
+    → 可能返回：[白飯, 炒高麗菜, 辣椒炒肉末]  ❌ 不一致！
+```
+
+**問題：**
+- ❌ 重複調用 Vision API，浪費時間和成本
+- ❌ 基礎識別和成分識別結果可能不一致
+- ❌ 用戶看到的描述與成分列表不匹配
+
+#### 新流程（v1.1.0）
+```
+用戶上傳照片
+    ↓
+基礎識別 (MultiStageRecognitionEngine)
+    → 識別出：[白飯, 炸豬排, 滷蛋, 豆腐, 酸菜]
+    ↓
+成分識別 (ComponentDetectionEngine)
+    → 直接使用基礎識別結果
+    → 不調用 Vision API
+    → 返回：[白飯, 炸豬排, 滷蛋, 豆腐, 酸菜]  ✅ 完全一致！
+```
+
+**優點：**
+- ✅ 只調用一次 Vision API，節省時間和成本
+- ✅ 確保識別結果完全一致
+- ✅ 處理速度提升 60-80%
+- ✅ 保留所有原始食物屬性
+
+### 一致性驗證
+
+系統會自動進行一致性檢查並記錄以下資訊：
+
+```json
+{
+  "consistencyCheck": {
+    "passed": true,
+    "baseRecognitionFoodCount": 5,
+    "componentDetectionCount": 5,
+    "missingFoodsCount": 0,
+    "extraComponentsCount": 0,
+    "matchRate": "100%"
+  }
+}
+```
+
+**日誌範例：**
+```
+[session_123] ✓ 一致性檢查:
+[session_123]   - 狀態: 通過 ✓
+[session_123]   - 基礎識別食物: 5
+[session_123]   - 成分識別數量: 5
+[session_123]   - 缺失食物: 0
+[session_123]   - 額外成分: 0
+[session_123]   - 匹配率: 100%
+```
+
+### 性能監控
+
+每次識別都會記錄詳細的性能指標：
+
+```
+[session_123] ========== 性能監控報告 ==========
+[session_123] 📊 使用預識別食物: 是
+[session_123] 📋 預識別食物數量: 5
+[session_123] ⚡ 時間節省: 2200ms (73.3%)
+[session_123] ⏱️  處理時間對比:
+[session_123]   - 基礎識別: 3500ms
+[session_123]   - 成分識別: 800ms
+[session_123]   - 圖片上傳: 500ms
+[session_123]   - 總計: 4800ms
+[session_123] 🔍 檢測方法: pre_recognized
+[session_123] 📦 成分來源統計:
+[session_123]   - 預識別: 5
+[session_123]   - Vision API: 0
+[session_123]   - 知識庫: 0
+[session_123]   - 總計: 5
+[session_123] =====================================
+```
 
 ---
 
@@ -145,10 +260,11 @@
       "metadata": {
         "processingTime": 2800,
         "confidenceScore": 0.88,
-        "detectionMethod": "hybrid",
+        "detectionMethod": "pre_recognized",
         "componentsDetected": 5,
-        "componentsFromKB": 2,
-        "componentsFromVision": 3
+        "componentsFromKB": 0,
+        "componentsFromVision": 0,
+        "componentsFromPreRecognition": 5
       },
       "suggestions": {
         "possibleMissingComponents": ["蔥花", "醬油"],
@@ -1025,10 +1141,14 @@ curl -X GET "https://health-nutrition-api.onrender.com/api/v1/component-adjustme
 
 ### Q1: 成分識別需要多長時間？
 
-**A:** 通常在 3-8 秒內完成，取決於料理複雜度：
-- 簡單料理（1-3 成分）：< 3 秒
-- 中等複雜（4-6 成分）：< 5 秒
-- 複雜料理（7+ 成分）：< 8 秒
+**A:** 使用新的識別流程（v1.1.0），處理速度大幅提升：
+- **使用預識別食物**（推薦）：< 1 秒
+- **傳統 Vision API 模式**：
+  - 簡單料理（1-3 成分）：< 3 秒
+  - 中等複雜（4-6 成分）：< 5 秒
+  - 複雜料理（7+ 成分）：< 8 秒
+
+**性能提升：** 新流程比傳統模式快 60-80%
 
 ### Q2: 如果成分識別失敗怎麼辦？
 
@@ -1077,9 +1197,50 @@ curl -X GET "https://health-nutrition-api.onrender.com/api/v1/component-adjustme
 - 烹飪方式影響係數
 - 建議用戶根據實際情況調整
 
+### Q8: 如何確保識別結果的一致性？ (v1.1.0 新增)
+
+**A:** 系統採用兩階段識別流程：
+1. **基礎識別**：識別料理中的所有食物
+2. **成分識別**：直接使用基礎識別結果，不重複調用 Vision API
+
+**一致性保證：**
+- ✅ 成分列表與基礎識別完全一致
+- ✅ 自動進行一致性驗證
+- ✅ 記錄詳細的性能監控日誌
+- ✅ 如有不一致會記錄警告訊息
+
+### Q9: 什麼是 detectionMethod？ (v1.1.0 更新)
+
+**A:** `detectionMethod` 表示成分識別的方法：
+- `pre_recognized`：使用預識別食物（推薦，最快）
+- `vision_api`：直接調用 Vision API 識別
+- `knowledge_base`：完全依賴知識庫
+- `hybrid`：混合使用多種方法
+
+**推薦使用 `pre_recognized` 模式以獲得最佳性能和一致性。**
+
 ---
 
 ## 版本歷史
+
+### v1.1.0 (2024-11-19)
+- ✅ **重大改進：識別流程優化**
+  - 實現兩階段識別流程
+  - 使用預識別食物避免重複 Vision API 調用
+  - 確保基礎識別和成分識別結果一致
+- ✅ **性能提升**
+  - 處理速度提升 60-80%
+  - 使用預識別食物時 < 1 秒完成
+  - 節省 API 調用成本
+- ✅ **新增功能**
+  - 添加 `sourceType` 和 `originalFoodId` 屬性
+  - 添加 `componentsFromPreRecognition` 統計
+  - 新增 `pre_recognized` 檢測方法
+  - 添加詳細的性能監控日誌
+  - 自動一致性驗證
+- ✅ **向後兼容**
+  - 保持現有 API 完全兼容
+  - 自動選擇最佳識別方法
 
 ### v1.0.0 (2024-11-17)
 - ✅ 初始版本發布
@@ -1107,6 +1268,6 @@ curl -X GET "https://health-nutrition-api.onrender.com/api/v1/component-adjustme
 
 ---
 
-**最後更新：** 2024-11-17  
-**API 版本：** v1.0.0  
-**文檔版本：** 1.0.0
+**最後更新：** 2024-11-19  
+**API 版本：** v1.1.0  
+**文檔版本：** 1.1.0

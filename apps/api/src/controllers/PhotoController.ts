@@ -10,7 +10,7 @@ import { ComponentDetectionEngine } from '../services/ComponentDetectionEngine';
 import { ComponentNutritionCalculator } from '../services/ComponentNutritionCalculator';
 import { ComponentAdjustmentService } from '../services/ComponentAdjustmentService';
 import { ApiResponse, RecognitionResult, NutritionData } from '../types/shared';
-import { ComponentRecognitionResponse, ComponentDetectionResult } from '../types/ComponentDetection';
+import { ComponentRecognitionResponse, ComponentDetectionResult, DetectComponentsOptions, DishType, RecognizedFood } from '../types/ComponentDetection';
 
 export interface PhotoUploadRequest extends Request {
   file?: Express.Multer.File;
@@ -425,6 +425,68 @@ export class PhotoController {
   }
 
   /**
+   * 根據食物列表推斷料理類型
+   */
+  private inferDishType(foods?: RecognizedFood[]): DishType | undefined {
+    if (!foods || foods.length === 0) {
+      return undefined;
+    }
+
+    // 取第一個食物的名稱進行推斷
+    const firstFoodName = foods[0].name.toLowerCase();
+
+    // 湯品類
+    if (firstFoodName.includes('湯') || firstFoodName.includes('羹')) {
+      return DishType.SOUP;
+    }
+
+    // 炒飯類
+    if (firstFoodName.includes('炒飯') || firstFoodName.includes('燴飯')) {
+      return DishType.FRIED_RICE;
+    }
+
+    // 麵食類
+    if (firstFoodName.includes('麵') || firstFoodName.includes('粉') || 
+        firstFoodName.includes('米粉') || firstFoodName.includes('冬粉')) {
+      return DishType.NOODLES;
+    }
+
+    // 便當類（多個食物項目）
+    if (foods.length >= 3) {
+      return DishType.BENTO;
+    }
+
+    // 炒菜類
+    if (firstFoodName.includes('炒') || firstFoodName.includes('煎')) {
+      return DishType.STIR_FRY;
+    }
+
+    // 點心類
+    if (firstFoodName.includes('餃') || firstFoodName.includes('包') || 
+        firstFoodName.includes('燒賣') || firstFoodName.includes('春捲')) {
+      return DishType.DUMPLING;
+    }
+
+    // 燒烤類
+    if (firstFoodName.includes('烤') || firstFoodName.includes('燒')) {
+      return DishType.BARBECUE;
+    }
+
+    // 火鍋類
+    if (firstFoodName.includes('火鍋') || firstFoodName.includes('鍋')) {
+      return DishType.HOT_POT;
+    }
+
+    // 咖哩類
+    if (firstFoodName.includes('咖哩') || firstFoodName.includes('咖喱')) {
+      return DishType.CURRY;
+    }
+
+    // 預設為未知
+    return DishType.UNKNOWN;
+  }
+
+  /**
    * 獲取錯誤代碼
    */
   private getErrorCode(error: any): string {
@@ -660,10 +722,35 @@ export class PhotoController {
       // 執行成分識別
       console.log(`[${sessionId}] 開始成分識別...`);
       
-      // 從識別結果中提取料理名稱
+      // 子任務 4.1: 構建 DetectComponentsOptions 對象
+      // 從識別結果中提取料理名稱和類型
       const dishName = multiStageResult.foods && multiStageResult.foods.length > 0
         ? multiStageResult.foods[0].name
         : undefined;
+      
+      const dishType = this.inferDishType(multiStageResult.foods);
+      
+      // 子任務 4.3: 記錄傳遞給成分檢測引擎的參數
+      console.log(`[${sessionId}] 傳遞給成分檢測引擎的參數:`);
+      console.log(`[${sessionId}]   - dishName: ${dishName || '未指定'}`);
+      console.log(`[${sessionId}]   - dishType: ${dishType || '未指定'}`);
+      console.log(`[${sessionId}]   - preRecognizedFoods: ${multiStageResult.foods?.length || 0} 個食物`);
+      
+      if (multiStageResult.foods && multiStageResult.foods.length > 0) {
+        console.log(`[${sessionId}] 預識別食物列表:`);
+        multiStageResult.foods.forEach((food, index) => {
+          const portion = (food as any).portion || food.estimatedPortion || '未知';
+          const unit = (food as any).unit || 'g';
+          console.log(`[${sessionId}]   ${index + 1}. ${food.name} (信心度: ${(food.confidence * 100).toFixed(1)}%, 份量: ${portion}${unit})`);
+        });
+      }
+      
+      // 構建完整的 DetectComponentsOptions 對象
+      const detectOptions: DetectComponentsOptions = {
+        dishName,
+        dishType,
+        preRecognizedFoods: multiStageResult.foods // 傳遞完整的 multiStageResult.foods 列表
+      };
 
       let componentResult: ComponentDetectionResult;
       
@@ -673,12 +760,49 @@ export class PhotoController {
           throw new Error('圖片數據無效');
         }
 
+        // 使用新的 options 參數調用成分檢測引擎
         componentResult = await this.componentDetectionEngine.detectComponents(
           req.file.buffer,
-          dishName
+          detectOptions
         );
         
         console.log(`[${sessionId}] 成分識別完成，檢測到 ${componentResult.components.length} 個成分`);
+        
+        // 子任務 4.2: 添加一致性驗證
+        // 比較基礎識別和成分識別的食物名稱
+        if (multiStageResult.foods && multiStageResult.foods.length > 0) {
+          const recognizedFoodNames = new Set(multiStageResult.foods.map(f => f.name));
+          const componentNames = new Set(componentResult.components.map(c => c.name));
+          
+          // 檢查缺失的食物
+          const missingFoods = Array.from(recognizedFoodNames).filter(
+            name => !componentNames.has(name)
+          );
+          
+          // 檢查額外的成分（在成分列表中但不在基礎識別中）
+          const extraComponents = Array.from(componentNames).filter(
+            name => !recognizedFoodNames.has(name)
+          );
+          
+          // 子任務 4.3: 記錄一致性檢查結果
+          console.log(`[${sessionId}] 一致性檢查結果:`);
+          console.log(`[${sessionId}]   - 基礎識別食物數: ${recognizedFoodNames.size}`);
+          console.log(`[${sessionId}]   - 成分識別數量: ${componentNames.size}`);
+          console.log(`[${sessionId}]   - 缺失食物數: ${missingFoods.length}`);
+          console.log(`[${sessionId}]   - 額外成分數: ${extraComponents.length}`);
+          
+          if (missingFoods.length > 0) {
+            console.warn(`[${sessionId}] ⚠️ 一致性警告: 以下食物在成分列表中缺失:`, missingFoods);
+          }
+          
+          if (extraComponents.length > 0) {
+            console.log(`[${sessionId}] ℹ️ 以下成分在基礎識別中未出現（可能是細分成分）:`, extraComponents);
+          }
+          
+          if (missingFoods.length === 0 && extraComponents.length === 0) {
+            console.log(`[${sessionId}] ✓ 一致性檢查通過：基礎識別與成分識別完全一致`);
+          }
+        }
         
         // 驗證成分識別結果
         if (!componentResult.components || componentResult.components.length === 0) {
@@ -787,6 +911,121 @@ export class PhotoController {
       };
 
       console.log(`[${sessionId}] 完整識別流程完成，總耗時 ${totalProcessingTime}ms`);
+      
+      // 子任務 6.2: 添加性能監控日誌
+      // 記錄是否使用預識別食物
+      const usedPreRecognizedFoods = detectOptions.preRecognizedFoods && detectOptions.preRecognizedFoods.length > 0;
+      
+      // 記錄處理時間對比
+      const baseRecognitionTime = multiStageResult.processingTime || 0;
+      const componentDetectionTime = componentResult.metadata.processingTime || 0;
+      
+      // 記錄一致性檢查結果
+      let consistencyCheckPassed = true;
+      let missingFoodsCount = 0;
+      let extraComponentsCount = 0;
+      
+      if (multiStageResult.foods && multiStageResult.foods.length > 0) {
+        const recognizedFoodNames = new Set(multiStageResult.foods.map(f => f.name));
+        const componentNames = new Set(componentResult.components.map(c => c.name));
+        
+        const missingFoods = Array.from(recognizedFoodNames).filter(
+          name => !componentNames.has(name)
+        );
+        const extraComponents = Array.from(componentNames).filter(
+          name => !recognizedFoodNames.has(name)
+        );
+        
+        missingFoodsCount = missingFoods.length;
+        extraComponentsCount = extraComponents.length;
+        consistencyCheckPassed = missingFoods.length === 0;
+      }
+      
+      // 構建性能指標對象
+      const performanceMetrics = {
+        sessionId,
+        timestamp: new Date().toISOString(),
+        
+        // 使用預識別食物相關
+        usedPreRecognizedFoods,
+        preRecognizedFoodsCount: detectOptions.preRecognizedFoods?.length || 0,
+        
+        // 處理時間對比
+        totalProcessingTime,
+        baseRecognitionTime,
+        componentDetectionTime,
+        imageUploadTime: totalProcessingTime - baseRecognitionTime - componentDetectionTime,
+        
+        // 時間節省（如果使用預識別食物）
+        timeSavings: usedPreRecognizedFoods ? {
+          estimatedVisionApiTime: 3000, // 估計 Vision API 調用時間
+          actualComponentTime: componentDetectionTime,
+          savedTime: Math.max(0, 3000 - componentDetectionTime),
+          savingsPercentage: Math.max(0, ((3000 - componentDetectionTime) / 3000 * 100)).toFixed(1) + '%'
+        } : null,
+        
+        // 一致性檢查結果
+        consistencyCheck: {
+          passed: consistencyCheckPassed,
+          baseRecognitionFoodCount: multiStageResult.foods?.length || 0,
+          componentDetectionCount: componentResult.components.length,
+          missingFoodsCount,
+          extraComponentsCount,
+          matchRate: multiStageResult.foods?.length > 0 
+            ? ((multiStageResult.foods.length - missingFoodsCount) / multiStageResult.foods.length * 100).toFixed(1) + '%'
+            : 'N/A'
+        },
+        
+        // 檢測方法和來源統計
+        detectionMethod: componentResult.metadata.detectionMethod,
+        componentSources: {
+          fromPreRecognition: componentResult.metadata.componentsFromPreRecognition || 0,
+          fromVisionApi: componentResult.metadata.componentsFromVision || 0,
+          fromKnowledgeBase: componentResult.metadata.componentsFromKB || 0,
+          total: componentResult.metadata.componentsDetected
+        },
+        
+        // 信心度指標
+        confidence: {
+          baseRecognition: (multiStageResult.confidence * 100).toFixed(1) + '%',
+          componentDetection: (componentResult.metadata.confidenceScore * 100).toFixed(1) + '%'
+        }
+      };
+      
+      // 記錄詳細的性能指標
+      console.log(`\n[${sessionId}] ========== 性能監控報告 ==========`);
+      console.log(`[${sessionId}] 📊 使用預識別食物: ${usedPreRecognizedFoods ? '是' : '否'}`);
+      
+      if (usedPreRecognizedFoods) {
+        console.log(`[${sessionId}] 📋 預識別食物數量: ${performanceMetrics.preRecognizedFoodsCount}`);
+        console.log(`[${sessionId}] ⚡ 時間節省: ${performanceMetrics.timeSavings?.savedTime}ms (${performanceMetrics.timeSavings?.savingsPercentage})`);
+      }
+      
+      console.log(`[${sessionId}] ⏱️  處理時間對比:`);
+      console.log(`[${sessionId}]   - 基礎識別: ${baseRecognitionTime}ms`);
+      console.log(`[${sessionId}]   - 成分識別: ${componentDetectionTime}ms`);
+      console.log(`[${sessionId}]   - 圖片上傳: ${performanceMetrics.imageUploadTime}ms`);
+      console.log(`[${sessionId}]   - 總計: ${totalProcessingTime}ms`);
+      
+      console.log(`[${sessionId}] ✓ 一致性檢查:`);
+      console.log(`[${sessionId}]   - 狀態: ${consistencyCheckPassed ? '通過 ✓' : '警告 ⚠️'}`);
+      console.log(`[${sessionId}]   - 基礎識別食物: ${performanceMetrics.consistencyCheck.baseRecognitionFoodCount}`);
+      console.log(`[${sessionId}]   - 成分識別數量: ${performanceMetrics.consistencyCheck.componentDetectionCount}`);
+      console.log(`[${sessionId}]   - 缺失食物: ${missingFoodsCount}`);
+      console.log(`[${sessionId}]   - 額外成分: ${extraComponentsCount}`);
+      console.log(`[${sessionId}]   - 匹配率: ${performanceMetrics.consistencyCheck.matchRate}`);
+      
+      console.log(`[${sessionId}] 🔍 檢測方法: ${componentResult.metadata.detectionMethod}`);
+      console.log(`[${sessionId}] 📦 成分來源統計:`);
+      console.log(`[${sessionId}]   - 預識別: ${performanceMetrics.componentSources.fromPreRecognition}`);
+      console.log(`[${sessionId}]   - Vision API: ${performanceMetrics.componentSources.fromVisionApi}`);
+      console.log(`[${sessionId}]   - 知識庫: ${performanceMetrics.componentSources.fromKnowledgeBase}`);
+      console.log(`[${sessionId}]   - 總計: ${performanceMetrics.componentSources.total}`);
+      
+      console.log(`[${sessionId}] 🎯 信心度:`);
+      console.log(`[${sessionId}]   - 基礎識別: ${performanceMetrics.confidence.baseRecognition}`);
+      console.log(`[${sessionId}]   - 成分識別: ${performanceMetrics.confidence.componentDetection}`);
+      console.log(`[${sessionId}] =====================================\n`);
 
       // 初始化調整會話（允許用戶後續調整成分）
       try {

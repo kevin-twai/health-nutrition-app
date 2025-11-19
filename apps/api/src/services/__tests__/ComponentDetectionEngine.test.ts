@@ -563,4 +563,865 @@ describe('ComponentDetectionEngine', () => {
       expect(levenshteinDistance('abc', 'abd')).toBe(1);
     });
   });
+
+  describe('convertRecognizedFoodsToComponents', () => {
+    it('應該正確轉換單個食物', () => {
+      const foods = [
+        {
+          id: 'food-1',
+          name: '白飯',
+          nameEn: 'White Rice',
+          confidence: 0.95,
+          estimatedPortion: 200,
+          unit: 'g'
+        }
+      ];
+      
+      // 使用 any 來訪問私有方法進行測試
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components).toHaveLength(1);
+      expect(components[0].name).toBe('白飯');
+      expect(components[0].nameEn).toBe('White Rice');
+      expect(components[0].confidence).toBe(0.95);
+      expect(components[0].estimatedPortion).toBe(200);
+      expect(components[0].sourceType).toBe('pre_recognized');
+      expect(components[0].originalFoodId).toBe('food-1');
+      expect(components[0].knowledgeBaseMatch).toBe(false);
+    });
+
+    it('應該正確轉換多個食物', () => {
+      const foods = [
+        { id: 'food-1', name: '白飯', confidence: 0.95, estimatedPortion: 200, unit: 'g' },
+        { id: 'food-2', name: '炸豬排', confidence: 0.90, estimatedPortion: 150, unit: 'g' },
+        { id: 'food-3', name: '滷蛋', confidence: 0.85, estimatedPortion: 60, unit: 'g' }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components).toHaveLength(3);
+      expect(components.map((c: any) => c.name)).toEqual(['白飯', '炸豬排', '滷蛋']);
+      expect(components.every((c: any) => c.sourceType === 'pre_recognized')).toBe(true);
+      expect(components.every((c: any) => c.knowledgeBaseMatch === false)).toBe(true);
+    });
+
+    it('應該保留營養資訊', () => {
+      const foods = [
+        {
+          id: 'food-1',
+          name: '白飯',
+          confidence: 0.95,
+          estimatedPortion: 200,
+          unit: 'g',
+          nutrition: {
+            calories: 260,
+            protein: 5,
+            carbohydrates: 58,
+            fat: 0.5
+          }
+        }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components[0].nutritionPer100g).toBeDefined();
+      expect(components[0].nutritionPer100g.calories).toBe(260);
+      expect(components[0].nutritionPer100g.protein).toBe(5);
+      expect(components[0].nutritionPer100g.carbohydrates).toBe(58);
+      expect(components[0].nutritionPer100g.fat).toBe(0.5);
+      
+      // 檢查根據份量計算的實際營養
+      expect(components[0].actualNutrition).toBeDefined();
+      expect(components[0].actualNutrition.calories).toBe(520); // 260 * 2
+      expect(components[0].actualNutrition.protein).toBe(10); // 5 * 2
+    });
+
+    it('應該處理空列表', () => {
+      const foods: any[] = [];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components).toHaveLength(0);
+      expect(Array.isArray(components)).toBe(true);
+    });
+
+    it('應該處理缺失的可選屬性', () => {
+      const foods = [
+        {
+          id: 'food-1',
+          name: '白飯',
+          confidence: 0.95,
+          portion: 200 // 使用 portion 而不是 estimatedPortion
+        }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components).toHaveLength(1);
+      expect(components[0].estimatedPortion).toBe(200);
+      expect(components[0].nameEn).toBeUndefined();
+    });
+
+    it('應該使用預設份量當沒有提供份量時', () => {
+      const foods = [
+        {
+          id: 'food-1',
+          name: '白飯',
+          confidence: 0.95
+        }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components[0].estimatedPortion).toBe(100); // 預設值
+    });
+
+    it('應該正確推斷食物類別', () => {
+      const foods = [
+        { id: '1', name: '白飯', confidence: 0.95, estimatedPortion: 200 },
+        { id: '2', name: '炸豬排', confidence: 0.90, estimatedPortion: 150 },
+        { id: '3', name: '高麗菜', confidence: 0.85, estimatedPortion: 80 },
+        { id: '4', name: '味噌湯', confidence: 0.88, estimatedPortion: 200 }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components[0].category).toBe('grain'); // 白飯
+      expect(components[1].category).toBe('protein'); // 炸豬排
+      expect(components[2].category).toBe('vegetable'); // 高麗菜
+      expect(components[3].category).toBe('sauce'); // 味噌湯
+    });
+
+    it('應該正確推斷烹飪方式', () => {
+      const foods = [
+        { id: '1', name: '炸豬排', confidence: 0.90, estimatedPortion: 150 },
+        { id: '2', name: '炒高麗菜', confidence: 0.85, estimatedPortion: 80 },
+        { id: '3', name: '滷蛋', confidence: 0.88, estimatedPortion: 60 },
+        { id: '4', name: '蒸魚', confidence: 0.92, estimatedPortion: 120 }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components[0].cookingMethod).toBe('deep_fried'); // 炸豬排
+      expect(components[1].cookingMethod).toBe('stir_fried'); // 炒高麗菜
+      expect(components[2].cookingMethod).toBe('braised'); // 滷蛋
+      expect(components[3].cookingMethod).toBe('steamed'); // 蒸魚
+    });
+
+    it('應該處理包含完整營養資訊的食物', () => {
+      const foods = [
+        {
+          id: 'food-1',
+          name: '白飯',
+          confidence: 0.95,
+          estimatedPortion: 150,
+          nutrition: {
+            calories: 260,
+            protein: 5,
+            carbohydrates: 58,
+            fat: 0.5,
+            fiber: 1.2,
+            sodium: 5,
+            sugar: 0.1
+          }
+        }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      expect(components[0].nutritionPer100g.fiber).toBe(1.2);
+      expect(components[0].nutritionPer100g.sodium).toBe(5);
+      expect(components[0].nutritionPer100g.sugar).toBe(0.1);
+      
+      // 檢查實際營養計算（150g = 1.5倍）
+      expect(components[0].actualNutrition.calories).toBe(390); // 260 * 1.5
+      expect(components[0].actualNutrition.fiber).toBe(1.8); // 1.2 * 1.5
+    });
+
+    it('應該為每個成分生成唯一的 ID', () => {
+      const foods = [
+        { id: 'food-1', name: '白飯', confidence: 0.95, estimatedPortion: 200 },
+        { id: 'food-2', name: '炸豬排', confidence: 0.90, estimatedPortion: 150 },
+        { id: 'food-3', name: '滷蛋', confidence: 0.85, estimatedPortion: 60 }
+      ];
+      
+      const components = (engine as any).convertRecognizedFoodsToComponents(foods);
+      
+      const ids = components.map((c: any) => c.id);
+      const uniqueIds = new Set(ids);
+      
+      expect(uniqueIds.size).toBe(3); // 所有 ID 都是唯一的
+      expect(components[0].originalFoodId).toBe('food-1');
+      expect(components[1].originalFoodId).toBe('food-2');
+      expect(components[2].originalFoodId).toBe('food-3');
+    });
+  });
+
+  describe('inferCategoryFromFoodName', () => {
+    it('應該正確識別主食類', () => {
+      const grainFoods = ['白飯', '炒飯', '麵條', '米粉', '麵包', '饅頭'];
+      
+      grainFoods.forEach(food => {
+        const category = (engine as any).inferCategoryFromFoodName(food);
+        expect(category).toBe('grain');
+      });
+    });
+
+    it('應該正確識別蛋白質類', () => {
+      const proteinFoods = ['炸豬排', '雞腿', '牛肉', '魚', '蝦', '滷蛋', '豆腐'];
+      
+      proteinFoods.forEach(food => {
+        const category = (engine as any).inferCategoryFromFoodName(food);
+        expect(category).toBe('protein');
+      });
+    });
+
+    it('應該正確識別蔬菜類', () => {
+      const vegetableFoods = ['高麗菜', '青菜', '紅蘿蔔', '玉米', '菠菜', '香菇'];
+      
+      vegetableFoods.forEach(food => {
+        const category = (engine as any).inferCategoryFromFoodName(food);
+        expect(category).toBe('vegetable');
+      });
+    });
+
+    it('應該正確識別醬料類', () => {
+      const sauceFoods = ['味噌湯', '高湯', '湯底', '醬汁'];
+      
+      sauceFoods.forEach(food => {
+        const category = (engine as any).inferCategoryFromFoodName(food);
+        expect(category).toBe('sauce');
+      });
+    });
+
+    it('應該對未知食物返回 undefined', () => {
+      const category = (engine as any).inferCategoryFromFoodName('未知食物');
+      expect(category).toBeUndefined();
+    });
+  });
+
+  describe('inferCookingMethodFromFoodName', () => {
+    it('應該正確識別炸的烹飪方式', () => {
+      const friedFoods = ['炸豬排', '炸雞', '天婦羅', '唐揚雞'];
+      
+      friedFoods.forEach(food => {
+        const method = (engine as any).inferCookingMethodFromFoodName(food);
+        expect(method).toBe('deep_fried');
+      });
+    });
+
+    it('應該正確識別炒的烹飪方式', () => {
+      const stirFriedFoods = ['炒飯', '炒麵', '炒高麗菜'];
+      
+      stirFriedFoods.forEach(food => {
+        const method = (engine as any).inferCookingMethodFromFoodName(food);
+        expect(method).toBe('stir_fried');
+      });
+    });
+
+    it('應該正確識別烤的烹飪方式', () => {
+      const grilledFoods = ['烤肉', '烤魚', '燒雞'];
+      
+      grilledFoods.forEach(food => {
+        const method = (engine as any).inferCookingMethodFromFoodName(food);
+        expect(method).toBe('grilled');
+      });
+    });
+
+    it('應該正確識別蒸的烹飪方式', () => {
+      const steamedFoods = ['蒸魚', '小籠包', '蒸餃'];
+      
+      steamedFoods.forEach(food => {
+        const method = (engine as any).inferCookingMethodFromFoodName(food);
+        expect(method).toBe('steamed');
+      });
+    });
+
+    it('應該正確識別滷的烹飪方式', () => {
+      const braisedFoods = ['滷蛋', '滷肉', '燉雞'];
+      
+      braisedFoods.forEach(food => {
+        const method = (engine as any).inferCookingMethodFromFoodName(food);
+        expect(method).toBe('braised');
+      });
+    });
+
+    it('應該對未知烹飪方式返回 undefined', () => {
+      const method = (engine as any).inferCookingMethodFromFoodName('未知食物');
+      expect(method).toBeUndefined();
+    });
+  });
+
+  describe('預識別食物處理 (Pre-recognized Foods)', () => {
+    describe('detectComponents with preRecognizedFoods', () => {
+      it('應該使用預識別食物而不調用 Vision API', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        // 模擬預識別食物
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            nameEn: 'White Rice',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g',
+            nutrition: {
+              calories: 260,
+              protein: 5,
+              carbohydrates: 58,
+              fat: 0.5
+            }
+          },
+          {
+            id: 'food-2',
+            name: '炸豬排',
+            nameEn: 'Fried Pork Cutlet',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            unit: 'g',
+            nutrition: {
+              calories: 350,
+              protein: 25,
+              carbohydrates: 15,
+              fat: 22
+            }
+          }
+        ];
+        
+        // 監視 extractComponentsFromVision 方法
+        const extractSpy = jest.spyOn(engine as any, 'extractComponentsFromVision');
+        
+        const options = {
+          dishName: '便當',
+          dishType: DishType.BENTO,
+          preRecognizedFoods: preRecognizedFoods
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證不調用 Vision API
+        expect(extractSpy).not.toHaveBeenCalled();
+        
+        // 驗證結果包含預識別的食物
+        expect(result.components.length).toBeGreaterThanOrEqual(2);
+        expect(result.components.some(c => c.name === '白飯')).toBe(true);
+        expect(result.components.some(c => c.name === '炸豬排')).toBe(true);
+        
+        // 驗證 metadata
+        expect(result.metadata.detectionMethod).toBe('pre_recognized');
+        expect(result.metadata.componentsFromPreRecognition).toBe(2);
+        expect(result.metadata.componentsFromVision).toBe(0);
+        
+        extractSpy.mockRestore();
+      });
+
+      it('應該在沒有預識別食物時調用 Vision API', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        // 監視 extractComponentsFromVision 方法
+        const extractSpy = jest.spyOn(engine as any, 'extractComponentsFromVision')
+          .mockResolvedValue([
+            {
+              id: 'vision-1',
+              name: '白飯',
+              confidence: 0.9,
+              estimatedPortion: 200
+            }
+          ]);
+        
+        const options = {
+          dishName: '白飯',
+          dishType: DishType.FRIED_RICE
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證調用了 Vision API
+        expect(extractSpy).toHaveBeenCalled();
+        
+        // 驗證 metadata
+        expect(result.metadata.componentsFromPreRecognition).toBe(0);
+        
+        extractSpy.mockRestore();
+      });
+
+      it('應該支持向後兼容的舊版 API', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        // 監視 extractComponentsFromVision 方法
+        const extractSpy = jest.spyOn(engine as any, 'extractComponentsFromVision')
+          .mockResolvedValue([
+            {
+              id: 'vision-1',
+              name: '白飯',
+              confidence: 0.9,
+              estimatedPortion: 200
+            }
+          ]);
+        
+        // 使用舊版 API: detectComponents(image, dishName, dishType)
+        const result = await engine.detectComponents(
+          mockImageBuffer,
+          '白飯',
+          DishType.FRIED_RICE
+        );
+        
+        // 驗證調用了 Vision API
+        expect(extractSpy).toHaveBeenCalled();
+        
+        // 驗證結果正常
+        expect(result.components.length).toBeGreaterThan(0);
+        expect(result.mainDish.name).toBe('白飯');
+        expect(result.mainDish.type).toBe(DishType.FRIED_RICE);
+        
+        extractSpy.mockRestore();
+      });
+
+      it('應該在預識別食物為空時降級至 Vision API', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        // 監視 extractComponentsFromVision 方法
+        const extractSpy = jest.spyOn(engine as any, 'extractComponentsFromVision')
+          .mockResolvedValue([
+            {
+              id: 'vision-1',
+              name: '白飯',
+              confidence: 0.9,
+              estimatedPortion: 200
+            }
+          ]);
+        
+        const options = {
+          dishName: '白飯',
+          dishType: DishType.FRIED_RICE,
+          preRecognizedFoods: [] // 空列表
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證調用了 Vision API（降級）
+        expect(extractSpy).toHaveBeenCalled();
+        
+        extractSpy.mockRestore();
+      });
+
+      it('應該保留預識別食物的營養資訊', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g',
+            nutrition: {
+              calories: 260,
+              protein: 5,
+              carbohydrates: 58,
+              fat: 0.5,
+              fiber: 1.2,
+              sodium: 5,
+              sugar: 0.1
+            }
+          }
+        ];
+        
+        const options = {
+          dishName: '白飯',
+          dishType: DishType.FRIED_RICE,
+          preRecognizedFoods: preRecognizedFoods
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 找到白飯成分
+        const riceComponent = result.components.find(c => c.name === '白飯');
+        
+        expect(riceComponent).toBeDefined();
+        expect(riceComponent?.nutritionPer100g).toBeDefined();
+        expect(riceComponent?.nutritionPer100g?.calories).toBe(260);
+        expect(riceComponent?.nutritionPer100g?.protein).toBe(5);
+        expect(riceComponent?.actualNutrition).toBeDefined();
+      });
+
+      it('應該正確設置成分的 sourceType', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g'
+          }
+        ];
+        
+        const options = {
+          preRecognizedFoods: preRecognizedFoods
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證所有預識別的成分都有正確的 sourceType
+        const preRecognizedComponents = result.components.filter(
+          c => (c as any).sourceType === 'pre_recognized'
+        );
+        
+        expect(preRecognizedComponents.length).toBeGreaterThan(0);
+        
+        // 驗證 originalFoodId 被保留
+        const riceComponent = result.components.find(c => c.name === '白飯');
+        expect((riceComponent as any)?.originalFoodId).toBe('food-1');
+      });
+
+      it('應該推斷預識別食物的類別和烹飪方式', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '炸豬排',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            unit: 'g'
+          },
+          {
+            id: 'food-2',
+            name: '炒高麗菜',
+            confidence: 0.85,
+            estimatedPortion: 100,
+            unit: 'g'
+          }
+        ];
+        
+        const options = {
+          preRecognizedFoods: preRecognizedFoods
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證炸豬排的類別和烹飪方式
+        const porkComponent = result.components.find(c => c.name === '炸豬排');
+        expect(porkComponent?.category).toBe('protein');
+        expect(porkComponent?.cookingMethod).toBe('deep_fried');
+        
+        // 驗證炒高麗菜的類別和烹飪方式
+        const cabbageComponent = result.components.find(c => c.name === '炒高麗菜');
+        expect(cabbageComponent?.category).toBe('vegetable');
+        expect(cabbageComponent?.cookingMethod).toBe('stir_fried');
+      });
+
+      it('應該在預識別食物轉換失敗時降級至 Vision API', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        // 監視 convertRecognizedFoodsToComponents 方法使其拋出錯誤
+        const convertSpy = jest.spyOn(engine as any, 'convertRecognizedFoodsToComponents')
+          .mockImplementation(() => {
+            throw new Error('轉換失敗');
+          });
+        
+        // 監視 extractComponentsFromVision 方法
+        const extractSpy = jest.spyOn(engine as any, 'extractComponentsFromVision')
+          .mockResolvedValue([
+            {
+              id: 'vision-1',
+              name: '白飯',
+              confidence: 0.9,
+              estimatedPortion: 200
+            }
+          ]);
+        
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g'
+          }
+        ];
+        
+        const options = {
+          dishName: '白飯',
+          dishType: DishType.FRIED_RICE,
+          preRecognizedFoods: preRecognizedFoods
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證降級至 Vision API
+        expect(extractSpy).toHaveBeenCalled();
+        expect(result.components.length).toBeGreaterThan(0);
+        
+        convertSpy.mockRestore();
+        extractSpy.mockRestore();
+      });
+
+      it('應該推斷料理類型當未提供時', async () => {
+        const mockImageBuffer = Buffer.from('fake-image-data');
+        
+        const preRecognizedFoods = [
+          {
+            id: 'food-1',
+            name: '味噌湯',
+            confidence: 0.95,
+            estimatedPortion: 300,
+            unit: 'ml'
+          },
+          {
+            id: 'food-2',
+            name: '豆腐',
+            confidence: 0.90,
+            estimatedPortion: 50,
+            unit: 'g'
+          }
+        ];
+        
+        const options = {
+          preRecognizedFoods: preRecognizedFoods
+          // 沒有提供 dishType
+        };
+        
+        const result = await engine.detectComponents(mockImageBuffer, options);
+        
+        // 驗證推斷出湯品類型
+        expect(result.mainDish.type).toBe(DishType.SOUP);
+      });
+    });
+
+    describe('convertRecognizedFoodsToComponents', () => {
+      it('應該正確轉換單個食物', () => {
+        const foods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            nameEn: 'White Rice',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g'
+          }
+        ];
+        
+        const convertMethod = (engine as any).convertRecognizedFoodsToComponents.bind(engine);
+        const components = convertMethod(foods);
+        
+        expect(components).toHaveLength(1);
+        expect(components[0].name).toBe('白飯');
+        expect(components[0].nameEn).toBe('White Rice');
+        expect(components[0].confidence).toBe(0.95);
+        expect(components[0].estimatedPortion).toBe(200);
+        expect(components[0].sourceType).toBe('pre_recognized');
+        expect(components[0].originalFoodId).toBe('food-1');
+      });
+
+      it('應該正確轉換多個食物', () => {
+        const foods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g'
+          },
+          {
+            id: 'food-2',
+            name: '炸豬排',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            unit: 'g'
+          },
+          {
+            id: 'food-3',
+            name: '滷蛋',
+            confidence: 0.85,
+            estimatedPortion: 60,
+            unit: 'g'
+          }
+        ];
+        
+        const convertMethod = (engine as any).convertRecognizedFoodsToComponents.bind(engine);
+        const components = convertMethod(foods);
+        
+        expect(components).toHaveLength(3);
+        expect(components.map((c: any) => c.name)).toEqual(['白飯', '炸豬排', '滷蛋']);
+        
+        // 驗證所有成分都有正確的屬性
+        components.forEach((comp: any) => {
+          expect(comp.sourceType).toBe('pre_recognized');
+          expect(comp.originalFoodId).toBeDefined();
+          expect(comp.confidence).toBeGreaterThan(0);
+          expect(comp.estimatedPortion).toBeGreaterThan(0);
+        });
+      });
+
+      it('應該保留營養資訊', () => {
+        const foods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            unit: 'g',
+            nutrition: {
+              calories: 260,
+              protein: 5,
+              carbohydrates: 58,
+              fat: 0.5,
+              fiber: 1.2,
+              sodium: 5,
+              sugar: 0.1
+            }
+          }
+        ];
+        
+        const convertMethod = (engine as any).convertRecognizedFoodsToComponents.bind(engine);
+        const components = convertMethod(foods);
+        
+        expect(components[0].nutritionPer100g).toBeDefined();
+        expect(components[0].nutritionPer100g.calories).toBe(260);
+        expect(components[0].nutritionPer100g.protein).toBe(5);
+        expect(components[0].nutritionPer100g.fiber).toBe(1.2);
+        
+        // 驗證根據份量計算的實際營養
+        expect(components[0].actualNutrition).toBeDefined();
+        expect(components[0].actualNutrition.calories).toBe(520); // 260 * 2
+        expect(components[0].actualNutrition.protein).toBe(10); // 5 * 2
+      });
+
+      it('應該處理缺失的可選屬性', () => {
+        const foods = [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            portion: 200 // 使用 portion 而不是 estimatedPortion
+            // 沒有 nameEn, unit, nutrition
+          }
+        ];
+        
+        const convertMethod = (engine as any).convertRecognizedFoodsToComponents.bind(engine);
+        const components = convertMethod(foods);
+        
+        expect(components).toHaveLength(1);
+        expect(components[0].name).toBe('白飯');
+        expect(components[0].estimatedPortion).toBe(200);
+        expect(components[0].nameEn).toBeUndefined();
+        expect(components[0].nutritionPer100g).toBeUndefined();
+      });
+    });
+
+    describe('inferDishTypeFromComponents', () => {
+      it('應該識別湯品類型', () => {
+        const components = [
+          {
+            id: '1',
+            name: '味噌湯',
+            confidence: 0.95,
+            estimatedPortion: 300,
+            category: 'sauce' as any
+          },
+          {
+            id: '2',
+            name: '豆腐',
+            confidence: 0.90,
+            estimatedPortion: 50,
+            category: 'protein' as any
+          }
+        ];
+        
+        const inferMethod = (engine as any).inferDishTypeFromComponents.bind(engine);
+        const dishType = inferMethod(components);
+        
+        expect(dishType).toBe(DishType.SOUP);
+      });
+
+      it('應該識別麵食類型', () => {
+        const components = [
+          {
+            id: '1',
+            name: '拉麵',
+            confidence: 0.95,
+            estimatedPortion: 200
+          },
+          {
+            id: '2',
+            name: '叉燒',
+            confidence: 0.90,
+            estimatedPortion: 50,
+            category: 'protein' as any
+          }
+        ];
+        
+        const inferMethod = (engine as any).inferDishTypeFromComponents.bind(engine);
+        const dishType = inferMethod(components);
+        
+        expect(dishType).toBe(DishType.NOODLES);
+      });
+
+      it('應該識別便當類型', () => {
+        const components = [
+          {
+            id: '1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200
+          },
+          {
+            id: '2',
+            name: '炸豬排',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            category: 'protein' as any
+          },
+          {
+            id: '3',
+            name: '滷蛋',
+            confidence: 0.85,
+            estimatedPortion: 60,
+            category: 'protein' as any
+          }
+        ];
+        
+        const inferMethod = (engine as any).inferDishTypeFromComponents.bind(engine);
+        const dishType = inferMethod(components);
+        
+        expect(dishType).toBe(DishType.BENTO);
+      });
+
+      it('應該識別炒飯類型', () => {
+        const components = [
+          {
+            id: '1',
+            name: '蛋炒飯',
+            confidence: 0.95,
+            estimatedPortion: 300
+          }
+        ];
+        
+        const inferMethod = (engine as any).inferDishTypeFromComponents.bind(engine);
+        const dishType = inferMethod(components);
+        
+        expect(dishType).toBe(DishType.FRIED_RICE);
+      });
+
+      it('應該返回 UNKNOWN 當無法判斷時', () => {
+        const components = [
+          {
+            id: '1',
+            name: '未知食物',
+            confidence: 0.50,
+            estimatedPortion: 100
+          }
+        ];
+        
+        const inferMethod = (engine as any).inferDishTypeFromComponents.bind(engine);
+        const dishType = inferMethod(components);
+        
+        expect(dishType).toBe(DishType.UNKNOWN);
+      });
+    });
+  });
 });

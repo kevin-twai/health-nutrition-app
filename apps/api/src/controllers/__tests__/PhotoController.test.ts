@@ -449,6 +449,529 @@ describe('PhotoController', () => {
     });
   });
 
+  describe('recognizeWithComponents', () => {
+    it('應該將基礎識別結果傳遞給成分檢測引擎', async () => {
+      // Mock 基礎識別結果
+      const mockMultiStageResult = {
+        foods: [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            portion: 200,
+            unit: 'g',
+            nutrition: {
+              calories: 260,
+              protein: 5,
+              carbohydrates: 58,
+              fat: 0.5
+            }
+          },
+          {
+            id: 'food-2',
+            name: '炸豬排',
+            confidence: 0.90,
+            portion: 150,
+            unit: 'g',
+            nutrition: {
+              calories: 350,
+              protein: 25,
+              carbohydrates: 15,
+              fat: 22
+            }
+          }
+        ],
+        confidence: 0.92,
+        description: '白飯和炸豬排',
+        suggestions: [],
+        stages: [],
+        finalStage: 1
+      };
+
+      const mockUploadResult = {
+        imageId: 'test-image-id',
+        originalUrl: 'https://example.com/original.jpg',
+        processedUrl: 'https://example.com/processed.jpg',
+        metadata: {
+          originalSize: 1024,
+          processedSize: 512,
+          width: 800,
+          height: 600,
+          format: 'jpeg',
+          uploadedAt: new Date()
+        }
+      };
+
+      const mockComponentResult = {
+        mainDish: {
+          name: '白飯',
+          type: 'bento',
+          confidence: 0.92,
+          estimatedTotalPortion: 350
+        },
+        components: [
+          {
+            id: 'comp-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            category: 'grain',
+            sourceType: 'pre_recognized',
+            originalFoodId: 'food-1'
+          },
+          {
+            id: 'comp-2',
+            name: '炸豬排',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            category: 'protein',
+            sourceType: 'pre_recognized',
+            originalFoodId: 'food-2'
+          }
+        ],
+        nutritionSummary: {
+          total: {
+            calories: 610,
+            protein: 30,
+            carbohydrates: 73,
+            fat: 22.5
+          },
+          byComponent: [],
+          byCategory: [],
+          cookingImpact: []
+        },
+        metadata: {
+          processingTime: 1500,
+          confidenceScore: 0.92,
+          detectionMethod: 'pre_recognized',
+          componentsDetected: 2,
+          componentsFromKB: 0,
+          componentsFromVision: 0,
+          componentsFromPreRecognition: 2
+        },
+        suggestions: {
+          possibleMissingComponents: [],
+          portionAdjustments: [],
+          alternativeInterpretations: []
+        }
+      };
+
+      // Mock 服務方法
+      mockImageProcessingService.uploadAndProcessImage.mockResolvedValue(mockUploadResult);
+      
+      // Mock MultiStageRecognitionEngine
+      const mockMultiStageEngine = photoController['multiStageEngine'] as any;
+      mockMultiStageEngine.recognize = jest.fn().mockResolvedValue(mockMultiStageResult);
+      
+      // Mock ComponentDetectionEngine
+      const mockComponentEngine = photoController['componentDetectionEngine'] as any;
+      const detectComponentsSpy = jest.fn().mockResolvedValue(mockComponentResult);
+      mockComponentEngine.detectComponents = detectComponentsSpy;
+      
+      // Mock ResultValidator
+      const mockValidator = photoController['resultValidator'] as any;
+      mockValidator.validate = jest.fn().mockReturnValue({
+        errors: [],
+        warnings: [],
+        infos: []
+      });
+
+      const mockReq = {
+        file: {
+          fieldname: 'photo',
+          originalname: 'test.jpg',
+          mimetype: 'image/jpeg',
+          size: 1024,
+          buffer: Buffer.from('test-image-data')
+        },
+        body: {},
+        query: {}
+      } as any;
+
+      const mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      } as any;
+
+      await photoController.recognizeWithComponents(mockReq, mockRes);
+
+      // 驗證 detectComponents 被調用時傳遞了正確的參數
+      expect(detectComponentsSpy).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        expect.objectContaining({
+          dishName: '白飯',
+          preRecognizedFoods: mockMultiStageResult.foods
+        })
+      );
+
+      // 驗證回應成功
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            recognition: expect.objectContaining({
+              foods: mockMultiStageResult.foods
+            }),
+            componentDetection: expect.objectContaining({
+              enabled: true,
+              success: true,
+              components: mockComponentResult.components
+            })
+          })
+        })
+      );
+    });
+
+    it('應該返回一致的識別結果', async () => {
+      const mockMultiStageResult = {
+        foods: [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            portion: 200,
+            unit: 'g'
+          },
+          {
+            id: 'food-2',
+            name: '炸豬排',
+            confidence: 0.90,
+            portion: 150,
+            unit: 'g'
+          },
+          {
+            id: 'food-3',
+            name: '滷蛋',
+            confidence: 0.85,
+            portion: 60,
+            unit: 'g'
+          }
+        ],
+        confidence: 0.90,
+        description: '白飯、炸豬排和滷蛋',
+        suggestions: [],
+        stages: [],
+        finalStage: 1
+      };
+
+      const mockUploadResult = {
+        imageId: 'test-image-id',
+        originalUrl: 'https://example.com/original.jpg',
+        processedUrl: 'https://example.com/processed.jpg',
+        metadata: {
+          originalSize: 1024,
+          processedSize: 512,
+          width: 800,
+          height: 600,
+          format: 'jpeg',
+          uploadedAt: new Date()
+        }
+      };
+
+      const mockComponentResult = {
+        mainDish: {
+          name: '白飯',
+          type: 'bento',
+          confidence: 0.90,
+          estimatedTotalPortion: 410
+        },
+        components: [
+          {
+            id: 'comp-1',
+            name: '白飯',
+            confidence: 0.95,
+            estimatedPortion: 200,
+            sourceType: 'pre_recognized',
+            originalFoodId: 'food-1'
+          },
+          {
+            id: 'comp-2',
+            name: '炸豬排',
+            confidence: 0.90,
+            estimatedPortion: 150,
+            sourceType: 'pre_recognized',
+            originalFoodId: 'food-2'
+          },
+          {
+            id: 'comp-3',
+            name: '滷蛋',
+            confidence: 0.85,
+            estimatedPortion: 60,
+            sourceType: 'pre_recognized',
+            originalFoodId: 'food-3'
+          }
+        ],
+        nutritionSummary: {
+          total: {
+            calories: 700,
+            protein: 40,
+            carbohydrates: 75,
+            fat: 25
+          },
+          byComponent: [],
+          byCategory: [],
+          cookingImpact: []
+        },
+        metadata: {
+          processingTime: 1500,
+          confidenceScore: 0.90,
+          detectionMethod: 'pre_recognized',
+          componentsDetected: 3,
+          componentsFromKB: 0,
+          componentsFromVision: 0,
+          componentsFromPreRecognition: 3
+        },
+        suggestions: {
+          possibleMissingComponents: [],
+          portionAdjustments: [],
+          alternativeInterpretations: []
+        }
+      };
+
+      mockImageProcessingService.uploadAndProcessImage.mockResolvedValue(mockUploadResult);
+      
+      const mockMultiStageEngine = photoController['multiStageEngine'] as any;
+      mockMultiStageEngine.recognize = jest.fn().mockResolvedValue(mockMultiStageResult);
+      
+      const mockComponentEngine = photoController['componentDetectionEngine'] as any;
+      mockComponentEngine.detectComponents = jest.fn().mockResolvedValue(mockComponentResult);
+      
+      const mockValidator = photoController['resultValidator'] as any;
+      mockValidator.validate = jest.fn().mockReturnValue({
+        errors: [],
+        warnings: [],
+        infos: []
+      });
+
+      const mockReq = {
+        file: {
+          fieldname: 'photo',
+          originalname: 'test.jpg',
+          mimetype: 'image/jpeg',
+          size: 1024,
+          buffer: Buffer.from('test-image-data')
+        },
+        body: {},
+        query: {}
+      } as any;
+
+      const mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      } as any;
+
+      await photoController.recognizeWithComponents(mockReq, mockRes);
+
+      const responseData = mockRes.json.mock.calls[0][0].data;
+
+      // 驗證基礎識別和成分識別的食物名稱一致
+      const recognizedFoodNames = responseData.recognition.foods.map((f: any) => f.name);
+      const componentNames = responseData.componentDetection.components.map((c: any) => c.name);
+
+      expect(componentNames).toEqual(expect.arrayContaining(recognizedFoodNames));
+      expect(recognizedFoodNames.length).toBe(componentNames.length);
+    });
+
+    it('應該在成分識別失敗時降級至基礎識別', async () => {
+      const mockMultiStageResult = {
+        foods: [
+          {
+            id: 'food-1',
+            name: '白飯',
+            confidence: 0.95,
+            portion: 200,
+            unit: 'g'
+          }
+        ],
+        confidence: 0.95,
+        description: '白飯',
+        suggestions: [],
+        stages: [],
+        finalStage: 1
+      };
+
+      const mockUploadResult = {
+        imageId: 'test-image-id',
+        originalUrl: 'https://example.com/original.jpg',
+        processedUrl: 'https://example.com/processed.jpg',
+        metadata: {
+          originalSize: 1024,
+          processedSize: 512,
+          width: 800,
+          height: 600,
+          format: 'jpeg',
+          uploadedAt: new Date()
+        }
+      };
+
+      mockImageProcessingService.uploadAndProcessImage.mockResolvedValue(mockUploadResult);
+      
+      const mockMultiStageEngine = photoController['multiStageEngine'] as any;
+      mockMultiStageEngine.recognize = jest.fn().mockResolvedValue(mockMultiStageResult);
+      
+      const mockComponentEngine = photoController['componentDetectionEngine'] as any;
+      mockComponentEngine.detectComponents = jest.fn().mockRejectedValue(
+        new Error('成分識別失敗')
+      );
+      
+      const mockValidator = photoController['resultValidator'] as any;
+      mockValidator.validate = jest.fn().mockReturnValue({
+        errors: [],
+        warnings: [],
+        infos: []
+      });
+
+      const mockReq = {
+        file: {
+          fieldname: 'photo',
+          originalname: 'test.jpg',
+          mimetype: 'image/jpeg',
+          size: 1024,
+          buffer: Buffer.from('test-image-data')
+        },
+        body: {},
+        query: {}
+      } as any;
+
+      const mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      } as any;
+
+      await photoController.recognizeWithComponents(mockReq, mockRes);
+
+      // 驗證回應成功但標記成分識別失敗
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            recognition: expect.objectContaining({
+              foods: mockMultiStageResult.foods
+            }),
+            componentDetection: expect.objectContaining({
+              enabled: true,
+              success: false,
+              error: '成分識別失敗'
+            })
+          })
+        })
+      );
+    });
+
+    it('應該正確推斷料理類型', async () => {
+      const testCases = [
+        { foods: [{ id: '1', name: '味噌湯', confidence: 0.9, portion: 200, unit: 'ml' }], expectedType: 'soup' },
+        { foods: [{ id: '2', name: '炒飯', confidence: 0.9, portion: 300, unit: 'g' }], expectedType: 'fried_rice' },
+        { foods: [{ id: '3', name: '拉麵', confidence: 0.9, portion: 400, unit: 'g' }], expectedType: 'noodles' },
+        { foods: [
+          { id: '4', name: '白飯', confidence: 0.9, portion: 200, unit: 'g' },
+          { id: '5', name: '炸豬排', confidence: 0.9, portion: 150, unit: 'g' },
+          { id: '6', name: '滷蛋', confidence: 0.9, portion: 60, unit: 'g' }
+        ], expectedType: 'bento' }
+      ];
+
+      for (const testCase of testCases) {
+        const mockMultiStageResult = {
+          foods: testCase.foods,
+          confidence: 0.9,
+          description: testCase.foods.map(f => f.name).join('、'),
+          suggestions: [],
+          stages: [],
+          finalStage: 1
+        };
+
+        const mockUploadResult = {
+          imageId: 'test-image-id',
+          originalUrl: 'https://example.com/original.jpg',
+          processedUrl: 'https://example.com/processed.jpg',
+          metadata: {
+            originalSize: 1024,
+            processedSize: 512,
+            width: 800,
+            height: 600,
+            format: 'jpeg',
+            uploadedAt: new Date()
+          }
+        };
+
+        const mockComponentResult = {
+          mainDish: {
+            name: testCase.foods[0].name,
+            type: testCase.expectedType,
+            confidence: 0.9,
+            estimatedTotalPortion: 200
+          },
+          components: [],
+          nutritionSummary: {
+            total: { calories: 0, protein: 0, carbohydrates: 0, fat: 0 },
+            byComponent: [],
+            byCategory: [],
+            cookingImpact: []
+          },
+          metadata: {
+            processingTime: 1000,
+            confidenceScore: 0.9,
+            detectionMethod: 'pre_recognized',
+            componentsDetected: 0,
+            componentsFromKB: 0,
+            componentsFromVision: 0,
+            componentsFromPreRecognition: 0
+          },
+          suggestions: {
+            possibleMissingComponents: [],
+            portionAdjustments: [],
+            alternativeInterpretations: []
+          }
+        };
+
+        mockImageProcessingService.uploadAndProcessImage.mockResolvedValue(mockUploadResult);
+        
+        const mockMultiStageEngine = photoController['multiStageEngine'] as any;
+        mockMultiStageEngine.recognize = jest.fn().mockResolvedValue(mockMultiStageResult);
+        
+        const mockComponentEngine = photoController['componentDetectionEngine'] as any;
+        const detectComponentsSpy = jest.fn().mockResolvedValue(mockComponentResult);
+        mockComponentEngine.detectComponents = detectComponentsSpy;
+        
+        const mockValidator = photoController['resultValidator'] as any;
+        mockValidator.validate = jest.fn().mockReturnValue({
+          errors: [],
+          warnings: [],
+          infos: []
+        });
+
+        const mockReq = {
+          file: {
+            fieldname: 'photo',
+            originalname: 'test.jpg',
+            mimetype: 'image/jpeg',
+            size: 1024,
+            buffer: Buffer.from('test-image-data')
+          },
+          body: {},
+          query: {}
+        } as any;
+
+        const mockRes = {
+          status: jest.fn().mockReturnThis(),
+          json: jest.fn()
+        } as any;
+
+        await photoController.recognizeWithComponents(mockReq, mockRes);
+
+        // 驗證傳遞了正確的 dishType
+        expect(detectComponentsSpy).toHaveBeenCalledWith(
+          expect.any(Buffer),
+          expect.objectContaining({
+            dishType: testCase.expectedType
+          })
+        );
+      }
+    });
+  });
+
   describe('healthCheck', () => {
     it('應該返回健康狀態', async () => {
       const mockRecognitionHealth = {

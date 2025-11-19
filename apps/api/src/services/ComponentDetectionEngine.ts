@@ -22,7 +22,9 @@ import {
   EnrichedComponent,
   ComponentCategory,
   CookingMethod,
-  VisualFeatures
+  VisualFeatures,
+  RecognizedFood,
+  DetectComponentsOptions
 } from '../types/ComponentDetection';
 import {
   generateSoupComponentPrompt,
@@ -68,151 +70,733 @@ export class ComponentDetectionEngine {
   }
 
   /**
+   * 根據成分列表推斷料理類型
+   * 
+   * @param components - 成分列表
+   * @returns 推斷的料理類型
+   */
+  private inferDishTypeFromComponents(components: EnrichedComponent[]): DishType {
+    // 檢查是否有湯底
+    const hasSoup = components.some(c => 
+      c.name.includes('湯') || 
+      c.name.includes('高湯') ||
+      c.category === ComponentCategory.SAUCE
+    );
+    if (hasSoup) return DishType.SOUP;
+    
+    // 檢查是否有麵條
+    const hasNoodles = components.some(c => 
+      c.name.includes('麵') || 
+      c.name.includes('米粉') ||
+      c.name.includes('粉絲')
+    );
+    if (hasNoodles) return DishType.NOODLES;
+    
+    // 檢查是否有炒飯
+    const hasFriedRice = components.some(c => 
+      c.name.includes('炒飯')
+    );
+    if (hasFriedRice) return DishType.FRIED_RICE;
+    
+    // 檢查是否有多種獨立食物（便當特徵）
+    const hasMultipleProteins = components.filter(c => 
+      c.category === ComponentCategory.PROTEIN
+    ).length >= 2;
+    const hasRice = components.some(c => 
+      c.name.includes('飯') || c.name.includes('rice')
+    );
+    if (hasMultipleProteins && hasRice) return DishType.BENTO;
+    
+    // 檢查是否有烤製食物
+    const hasGrilled = components.some(c => 
+      c.cookingMethod === CookingMethod.GRILLED ||
+      c.name.includes('烤') ||
+      c.name.includes('燒')
+    );
+    if (hasGrilled) return DishType.BARBECUE;
+    
+    // 檢查是否有炒菜
+    const hasStirFried = components.some(c => 
+      c.cookingMethod === CookingMethod.STIR_FRIED ||
+      c.name.includes('炒')
+    );
+    if (hasStirFried) return DishType.STIR_FRY;
+    
+    // 檢查是否有點心類食物
+    const hasDumpling = components.some(c => 
+      c.name.includes('餃') || 
+      c.name.includes('包') ||
+      c.name.includes('燒賣')
+    );
+    if (hasDumpling) return DishType.DUMPLING;
+    
+    // 預設返回未知
+    return DishType.UNKNOWN;
+  }
+
+  /**
+   * 根據食物名稱推斷類別
+   * 
+   * @param foodName - 食物名稱
+   * @returns 推斷的類別
+   */
+  private inferCategoryFromFoodName(foodName: string): ComponentCategory | undefined {
+    const name = foodName.toLowerCase();
+    
+    // 主食類
+    if (name.includes('飯') || name.includes('rice') || 
+        name.includes('麵') || name.includes('noodle') ||
+        name.includes('粥') || name.includes('porridge') ||
+        name.includes('米粉') || name.includes('粉絲') ||
+        name.includes('麵包') || name.includes('bread') ||
+        name.includes('饅頭') || name.includes('包子')) {
+      return ComponentCategory.GRAIN;
+    }
+    
+    // 蛋白質類
+    if (name.includes('肉') || name.includes('meat') ||
+        name.includes('雞') || name.includes('chicken') ||
+        name.includes('豬') || name.includes('pork') ||
+        name.includes('牛') || name.includes('beef') ||
+        name.includes('魚') || name.includes('fish') ||
+        name.includes('蝦') || name.includes('shrimp') ||
+        name.includes('蛋') || name.includes('egg') ||
+        name.includes('豆腐') || name.includes('tofu') ||
+        name.includes('豆干') || name.includes('豆皮') ||
+        name.includes('貢丸') || name.includes('肉丸') ||
+        name.includes('香腸') || name.includes('sausage') ||
+        name.includes('培根') || name.includes('bacon')) {
+      return ComponentCategory.PROTEIN;
+    }
+    
+    // 蔬菜類
+    if (name.includes('菜') || name.includes('vegetable') ||
+        name.includes('青菜') || name.includes('高麗菜') ||
+        name.includes('白菜') || name.includes('cabbage') ||
+        name.includes('花椰菜') || name.includes('broccoli') ||
+        name.includes('菠菜') || name.includes('spinach') ||
+        name.includes('蘿蔔') || name.includes('radish') ||
+        name.includes('紅蘿蔔') || name.includes('carrot') ||
+        name.includes('玉米') || name.includes('corn') ||
+        name.includes('豆芽') || name.includes('bean sprout') ||
+        name.includes('筍') || name.includes('bamboo') ||
+        name.includes('菇') || name.includes('mushroom') ||
+        name.includes('木耳') || name.includes('fungus') ||
+        name.includes('海帶') || name.includes('seaweed') ||
+        name.includes('番茄') || name.includes('tomato') ||
+        name.includes('茄子') || name.includes('eggplant') ||
+        name.includes('青椒') || name.includes('pepper') ||
+        name.includes('洋蔥') || name.includes('onion') ||
+        name.includes('蔥') || name.includes('scallion')) {
+      return ComponentCategory.VEGETABLE;
+    }
+    
+    // 醬料類
+    if (name.includes('湯') || name.includes('soup') ||
+        name.includes('高湯') || name.includes('broth') ||
+        name.includes('湯底') || name.includes('stock') ||
+        name.includes('醬汁') || name.includes('gravy')) {
+      return ComponentCategory.SAUCE;
+    }
+    
+    // 調味料類
+    if (name.includes('醬') || name.includes('sauce') ||
+        name.includes('油') || name.includes('oil') ||
+        name.includes('醋') || name.includes('vinegar') ||
+        name.includes('鹽') || name.includes('salt') ||
+        name.includes('糖') || name.includes('sugar') ||
+        name.includes('辣椒') || name.includes('chili') ||
+        name.includes('胡椒') || name.includes('pepper') ||
+        name.includes('蒜') || name.includes('garlic') ||
+        name.includes('薑') || name.includes('ginger')) {
+      return ComponentCategory.SEASONING;
+    }
+    
+    // 配菜/裝飾類
+    if (name.includes('香菜') || name.includes('cilantro') ||
+        name.includes('芝麻') || name.includes('sesame') ||
+        name.includes('花生') || name.includes('peanut') ||
+        name.includes('酸菜') || name.includes('pickle') ||
+        name.includes('泡菜') || name.includes('kimchi')) {
+      return ComponentCategory.GARNISH;
+    }
+    
+    // 預設返回 undefined，讓系統自動判斷
+    return undefined;
+  }
+
+  /**
+   * 根據食物名稱推斷烹飪方式
+   * 
+   * @param foodName - 食物名稱
+   * @returns 推斷的烹飪方式
+   */
+  private inferCookingMethodFromFoodName(foodName: string): CookingMethod | undefined {
+    const name = foodName.toLowerCase();
+    
+    // 炸
+    if (name.includes('炸') || name.includes('fried') ||
+        name.includes('天婦羅') || name.includes('tempura') ||
+        name.includes('唐揚') || name.includes('karaage') ||
+        name.includes('炸雞') || name.includes('炸豬排')) {
+      return CookingMethod.DEEP_FRIED;
+    }
+    
+    // 炒
+    if (name.includes('炒') || name.includes('stir-fry') ||
+        name.includes('炒飯') || name.includes('炒麵')) {
+      return CookingMethod.STIR_FRIED;
+    }
+    
+    // 烤
+    if (name.includes('烤') || name.includes('grilled') ||
+        name.includes('燒') || name.includes('roasted') ||
+        name.includes('烤肉') || name.includes('barbecue')) {
+      return CookingMethod.GRILLED;
+    }
+    
+    // 蒸
+    if (name.includes('蒸') || name.includes('steamed') ||
+        name.includes('小籠包') || name.includes('蒸餃')) {
+      return CookingMethod.STEAMED;
+    }
+    
+    // 煮/燙
+    if (name.includes('煮') || name.includes('boiled') ||
+        name.includes('燙') || name.includes('blanched') ||
+        name.includes('湯') || name.includes('soup')) {
+      return CookingMethod.BOILED;
+    }
+    
+    // 滷/燉
+    if (name.includes('滷') || name.includes('braised') ||
+        name.includes('燉') || name.includes('stewed') ||
+        name.includes('滷蛋') || name.includes('滷肉')) {
+      return CookingMethod.BRAISED;
+    }
+    
+    // 醃製
+    if (name.includes('醃') || name.includes('pickled') ||
+        name.includes('泡菜') || name.includes('kimchi') ||
+        name.includes('酸菜') || name.includes('pickle')) {
+      return CookingMethod.PICKLED;
+    }
+    
+    // 生食
+    if (name.includes('生') || name.includes('raw') ||
+        name.includes('沙拉') || name.includes('salad') ||
+        name.includes('生魚片') || name.includes('sashimi')) {
+      return CookingMethod.RAW;
+    }
+    
+    // 預設返回 undefined，讓系統自動判斷
+    return undefined;
+  }
+
+  /**
+   * 將預識別的食物轉換為成分格式
+   * 
+   * @param foods - 預識別的食物列表
+   * @returns 轉換後的成分列表
+   */
+  private convertRecognizedFoodsToComponents(
+    foods: RecognizedFood[]
+  ): EnrichedComponent[] {
+    console.log(`   🔄 轉換 ${foods.length} 個預識別食物為成分格式...`);
+    
+    const components: EnrichedComponent[] = foods.map((food, index) => {
+      // 推斷類別和烹飪方式
+      const category = this.inferCategoryFromFoodName(food.name);
+      const cookingMethod = this.inferCookingMethodFromFoodName(food.name);
+      
+      // 構建成分對象
+      const component: EnrichedComponent = {
+        id: food.id || `pre-recognized-${Date.now()}-${index}`,
+        name: food.name,
+        nameEn: food.nameEn,
+        confidence: food.confidence,
+        estimatedPortion: food.estimatedPortion || food.portion || 100,
+        cookingMethod,
+        category,
+        sourceType: 'pre_recognized',
+        originalFoodId: food.id,
+        knowledgeBaseMatch: false
+      };
+      
+      // 如果有營養資訊，保留它
+      if (food.nutrition) {
+        component.nutritionPer100g = {
+          calories: food.nutrition.calories,
+          protein: food.nutrition.protein,
+          carbohydrates: food.nutrition.carbohydrates,
+          fat: food.nutrition.fat,
+          fiber: food.nutrition.fiber,
+          sodium: food.nutrition.sodium,
+          sugar: food.nutrition.sugar
+        };
+        
+        // 根據份量計算實際營養
+        const portionRatio = component.estimatedPortion / 100;
+        component.actualNutrition = {
+          calories: Math.round(food.nutrition.calories * portionRatio),
+          protein: Math.round(food.nutrition.protein * portionRatio * 10) / 10,
+          carbohydrates: Math.round(food.nutrition.carbohydrates * portionRatio * 10) / 10,
+          fat: Math.round(food.nutrition.fat * portionRatio * 10) / 10,
+          fiber: food.nutrition.fiber ? Math.round(food.nutrition.fiber * portionRatio * 10) / 10 : undefined,
+          sodium: food.nutrition.sodium ? Math.round(food.nutrition.sodium * portionRatio) : undefined,
+          sugar: food.nutrition.sugar ? Math.round(food.nutrition.sugar * portionRatio * 10) / 10 : undefined
+        };
+      }
+      
+      console.log(`   ✓ 轉換食物 "${food.name}": ${component.estimatedPortion}g, 類別=${category}, 烹飪方式=${cookingMethod}`);
+      
+      return component;
+    });
+    
+    console.log(`   ✅ 成功轉換 ${components.length} 個成分`);
+    return components;
+  }
+
+  /**
+   * 驗證預識別食物的格式
+   * 
+   * @param foods - 預識別的食物列表
+   * @returns 格式有效的食物列表
+   */
+  private validatePreRecognizedFoods(foods: RecognizedFood[]): RecognizedFood[] {
+    const validFoods: RecognizedFood[] = [];
+    
+    for (const food of foods) {
+      try {
+        // 檢查必要欄位
+        if (!food.name || typeof food.name !== 'string') {
+          console.warn(`   ⚠️ 預識別食物缺少有效的 name 欄位:`, food);
+          continue;
+        }
+        
+        // 檢查信心度
+        if (typeof food.confidence !== 'number' || food.confidence < 0 || food.confidence > 1) {
+          console.warn(`   ⚠️ 預識別食物 "${food.name}" 的 confidence 無效: ${food.confidence}`);
+          // 設置預設值
+          food.confidence = 0.7;
+        }
+        
+        // 檢查份量
+        const portion = food.estimatedPortion || food.portion;
+        if (typeof portion !== 'number' || portion <= 0) {
+          console.warn(`   ⚠️ 預識別食物 "${food.name}" 的份量無效: ${portion}`);
+          // 設置預設值
+          food.estimatedPortion = 100;
+        }
+        
+        // 驗證營養資訊（如果存在）
+        if (food.nutrition) {
+          if (typeof food.nutrition.calories !== 'number' || food.nutrition.calories < 0) {
+            console.warn(`   ⚠️ 預識別食物 "${food.name}" 的營養資訊無效`);
+            delete food.nutrition;
+          }
+        }
+        
+        validFoods.push(food);
+      } catch (error) {
+        console.error(`   ❌ 驗證預識別食物失敗:`, food, error);
+      }
+    }
+    
+    return validFoods;
+  }
+
+  /**
+   * 判斷是否應該使用混合模式
+   * 
+   * 當預識別食物數量較少時，補充 Vision API 識別
+   * 
+   * @param components - 當前成分列表
+   * @param dishType - 料理類型
+   * @returns 是否應該使用混合模式
+   */
+  private shouldUseHybridMode(components: EnrichedComponent[], dishType: DishType): boolean {
+    // 如果沒有 OpenAI API，無法使用混合模式
+    if (!this.openai) {
+      return false;
+    }
+    
+    // 根據料理類型設定最小成分數量閾值
+    const minComponentThresholds: Record<DishType, number> = {
+      [DishType.SOUP]: 3,           // 湯品至少需要湯底 + 2個配料
+      [DishType.FRIED_RICE]: 4,     // 炒飯至少需要飯 + 3個配料
+      [DishType.STIR_FRY]: 3,       // 炒菜至少需要主菜 + 2個配料
+      [DishType.BENTO]: 5,          // 便當至少需要飯 + 4個菜
+      [DishType.NOODLES]: 4,        // 麵食至少需要麵 + 3個配料
+      [DishType.DUMPLING]: 2,       // 點心至少需要主食 + 1個配料
+      [DishType.BARBECUE]: 3,       // 燒烤至少需要主食 + 2個配料
+      [DishType.HOT_POT]: 5,        // 火鍋至少需要湯底 + 4個配料
+      [DishType.CURRY]: 4,          // 咖哩至少需要咖哩醬 + 3個配料
+      [DishType.UNKNOWN]: 3         // 未知類型預設 3個
+    };
+    
+    const threshold = minComponentThresholds[dishType] || 3;
+    
+    // 如果成分數量少於閾值，啟用混合模式
+    if (components.length < threshold) {
+      console.log(`   料理類型 ${dishType} 需要至少 ${threshold} 個成分，當前只有 ${components.length} 個`);
+      return true;
+    }
+    
+    // 檢查是否缺少關鍵成分類別
+    const hasGrain = components.some(c => c.category === ComponentCategory.GRAIN);
+    const hasProtein = components.some(c => c.category === ComponentCategory.PROTEIN);
+    const hasVegetable = components.some(c => c.category === ComponentCategory.VEGETABLE);
+    
+    // 根據料理類型檢查關鍵成分
+    switch (dishType) {
+      case DishType.FRIED_RICE:
+      case DishType.BENTO:
+        if (!hasGrain) {
+          console.log(`   ${dishType} 缺少主食類成分，啟用混合模式`);
+          return true;
+        }
+        break;
+      
+      case DishType.SOUP:
+        const hasSauce = components.some(c => c.category === ComponentCategory.SAUCE);
+        if (!hasSauce) {
+          console.log(`   湯品缺少湯底成分，啟用混合模式`);
+          return true;
+        }
+        break;
+      
+      case DishType.STIR_FRY:
+        if (!hasVegetable && !hasProtein) {
+          console.log(`   炒菜缺少蔬菜或蛋白質成分，啟用混合模式`);
+          return true;
+        }
+        break;
+    }
+    
+    return false;
+  }
+
+  /**
+   * 合併預識別成分和 Vision API 成分，避免重複
+   * 
+   * @param preRecognizedComponents - 預識別的成分
+   * @param visionComponents - Vision API 識別的成分
+   * @returns 合併後的成分列表
+   */
+  private mergeComponents(
+    preRecognizedComponents: EnrichedComponent[],
+    visionComponents: DetectedComponent[]
+  ): EnrichedComponent[] {
+    console.log(`   🔀 合併成分: ${preRecognizedComponents.length} 個預識別 + ${visionComponents.length} 個 Vision API`);
+    
+    const mergedComponents: EnrichedComponent[] = [...preRecognizedComponents];
+    let addedCount = 0;
+    
+    // 添加 Vision API 識別的成分（如果不重複）
+    for (const visionComp of visionComponents) {
+      // 檢查是否已經存在相似的成分
+      const isDuplicate = preRecognizedComponents.some(preComp => 
+        this.isSimilarComponent(preComp.name, visionComp.name)
+      );
+      
+      if (!isDuplicate) {
+        // 添加新成分，標記為來自 Vision API
+        mergedComponents.push({
+          ...visionComp,
+          sourceType: 'vision_api',
+          knowledgeBaseMatch: false
+        } as EnrichedComponent);
+        addedCount++;
+        console.log(`   ➕ 添加 Vision API 成分: ${visionComp.name}`);
+      } else {
+        console.log(`   ⏭️  跳過重複成分: ${visionComp.name}`);
+      }
+    }
+    
+    console.log(`   ✅ 合併完成: 共 ${mergedComponents.length} 個成分 (新增 ${addedCount} 個)`);
+    return mergedComponents;
+  }
+
+  /**
    * 主要方法：檢測料理中的成分
    * 
+   * 支持兩種調用方式：
+   * 1. 舊版 API: detectComponents(image, dishName, dishType)
+   * 2. 新版 API: detectComponents(image, options)
+   * 
    * @param image - 圖片 Buffer
-   * @param dishName - 料理名稱（可選）
-   * @param dishType - 料理類型（可選）
+   * @param dishNameOrOptions - 料理名稱（舊版）或選項對象（新版）
+   * @param dishType - 料理類型（僅舊版使用）
    * @returns 成分檢測結果
    */
   async detectComponents(
     image: Buffer,
-    dishName?: string,
+    dishNameOrOptions?: string | DetectComponentsOptions,
     dishType?: DishType
   ): Promise<ComponentDetectionResult> {
     const startTime = Date.now();
     
+    // 向後兼容：檢測參數類型並統一為 options 格式
+    let options: DetectComponentsOptions;
+    
+    if (typeof dishNameOrOptions === 'string') {
+      // 舊版 API: detectComponents(image, dishName, dishType)
+      console.log('🔍 ComponentDetectionEngine: 使用舊版 API 調用');
+      options = {
+        dishName: dishNameOrOptions,
+        dishType: dishType
+      };
+    } else {
+      // 新版 API: detectComponents(image, options)
+      console.log('🔍 ComponentDetectionEngine: 使用新版 API 調用');
+      options = dishNameOrOptions || {};
+    }
+    
     console.log('🔍 ComponentDetectionEngine: 開始成分檢測...');
-    console.log(`   料理名稱: ${dishName || '未指定'}`);
-    console.log(`   料理類型: ${dishType || '未指定'}`);
+    console.log(`   料理名稱: ${options.dishName || '未指定'}`);
+    console.log(`   料理類型: ${options.dishType || '未指定'}`);
+    console.log(`   預識別食物: ${options.preRecognizedFoods?.length || 0} 個`);
 
     try {
-      // Step 1: 如果沒有提供料理類型，自動判斷
-      let detectedDishType = dishType;
-      let detectedDishName = dishName;
+      // Step 1: 檢查是否有預識別食物
+      let components: EnrichedComponent[];
+      let detectedDishType = options.dishType;
+      let detectedDishName = options.dishName;
       let dishConfidence = 1.0;
+      let detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized' = 'hybrid';
+      let componentsFromPreRecognition = 0;
+      let componentsFromVision = 0;
+      let componentsFromKB = 0;
+      let usedFallback = false;
 
-      if (!detectedDishType) {
-        // 只有在沒有料理類型時才需要判斷
-        // 如果有 dishName，將其作為上下文傳遞給 detectDishType
-        const dishInfo = await this.detectDishType(image, dishName);
-        detectedDishType = dishInfo.type;
-        
-        // 如果沒有提供 dishName，使用 detectDishType 的結果
-        if (!detectedDishName) {
-          detectedDishName = dishInfo.name;
-        }
-        
-        dishConfidence = dishInfo.confidence;
-        
-        console.log(`   自動判斷料理: ${detectedDishName} (${detectedDishType})`);
-        console.log(`   信心度: ${(dishConfidence * 100).toFixed(1)}%`);
-      } else if (!detectedDishName) {
-        // 如果有類型但沒有名稱，使用類型作為名稱
-        detectedDishName = detectedDishType;
+      // 處理預識別食物為空的情況
+      if (options.preRecognizedFoods !== undefined && options.preRecognizedFoods.length === 0) {
+        console.warn('   ⚠️ 預識別食物列表為空，降級至 Vision API 識別');
+        usedFallback = true;
+        options.preRecognizedFoods = undefined;
       }
 
-      // Step 2: 使用 Vision API 提取成分
-      const visionComponents = await this.extractComponentsFromVision(
-        image,
-        detectedDishName!,
-        detectedDishType!
-      );
+      if (options.preRecognizedFoods && options.preRecognizedFoods.length > 0) {
+        // 使用預識別食物，跳過 Vision API 調用
+        console.log(`   🎯 使用預識別食物，跳過 Vision API 調用`);
+        console.log(`   預識別食物列表: ${options.preRecognizedFoods.map(f => f.name).join(', ')}`);
+        
+        try {
+          // 驗證預識別食物格式
+          const validFoods = this.validatePreRecognizedFoods(options.preRecognizedFoods);
+          
+          if (validFoods.length === 0) {
+            throw new Error('所有預識別食物格式無效');
+          }
+          
+          if (validFoods.length < options.preRecognizedFoods.length) {
+            console.warn(`   ⚠️ ${options.preRecognizedFoods.length - validFoods.length} 個預識別食物格式無效，已過濾`);
+          }
+          
+          // 轉換預識別食物為成分格式
+          const preRecognizedComponents = this.convertRecognizedFoodsToComponents(validFoods);
+          
+          componentsFromPreRecognition = preRecognizedComponents.length;
+          
+          // 如果沒有提供料理名稱，使用第一個食物的名稱
+          if (!detectedDishName && preRecognizedComponents.length > 0) {
+            detectedDishName = preRecognizedComponents[0].name;
+          }
+          
+          // 如果沒有提供料理類型，嘗試推斷
+          if (!detectedDishType) {
+            detectedDishType = this.inferDishTypeFromComponents(preRecognizedComponents);
+            console.log(`   推斷料理類型: ${detectedDishType}`);
+          }
+          
+          // 使用知識庫增強成分資訊
+          components = await this.enrichWithKnowledgeBase(
+            preRecognizedComponents,
+            detectedDishName!,
+            detectedDishType!
+          );
+          
+          componentsFromKB = components.filter(c => c.knowledgeBaseMatch).length;
+          
+          // 檢查是否需要混合模式（預識別食物數量較少時）
+          const shouldUseHybridMode = this.shouldUseHybridMode(components, detectedDishType!);
+          
+          if (shouldUseHybridMode) {
+            console.log(`   🔄 預識別食物數量較少 (${components.length} 個)，啟用混合模式補充 Vision API 識別`);
+            
+            try {
+              // 使用 Vision API 補充識別
+              const visionComponents = await this.extractComponentsFromVision(
+                image,
+                detectedDishName!,
+                detectedDishType!
+              );
+              
+              componentsFromVision = visionComponents.length;
+              
+              // 合併結果，避免重複
+              const mergedComponents = this.mergeComponents(components, visionComponents);
+              components = mergedComponents;
+              
+              detectionMethod = 'hybrid';
+              console.log(`   ✅ 混合模式完成，共 ${components.length} 個成分`);
+              console.log(`   來自預識別: ${componentsFromPreRecognition} 個`);
+              console.log(`   來自 Vision API: ${componentsFromVision} 個`);
+              console.log(`   來自知識庫: ${componentsFromKB} 個`);
+            } catch (visionError) {
+              console.warn('   ⚠️ Vision API 補充識別失敗，僅使用預識別食物:', visionError);
+              detectionMethod = 'pre_recognized';
+            }
+          } else {
+            detectionMethod = 'pre_recognized';
+            console.log(`   ✅ 使用預識別食物完成成分檢測`);
+            console.log(`   來自預識別: ${componentsFromPreRecognition} 個`);
+            console.log(`   來自知識庫: ${componentsFromKB} 個`);
+          }
+          
+        } catch (error) {
+          console.error('   ❌ 處理預識別食物失敗，降級至 Vision API 識別');
+          console.error('   錯誤詳情:', error instanceof Error ? error.message : String(error));
+          
+          // 記錄錯誤堆疊以便調試
+          if (error instanceof Error && error.stack) {
+            console.error('   錯誤堆疊:', error.stack);
+          }
+          
+          // 降級至 Vision API 識別
+          usedFallback = true;
+          options.preRecognizedFoods = undefined;
+        }
+      }
       
-      console.log(`   Vision API 識別到 ${visionComponents.length} 個成分`);
+      // Step 2: 如果沒有預識別食物或轉換失敗，使用 Vision API
+      if (!options.preRecognizedFoods || options.preRecognizedFoods.length === 0) {
+        console.log(`   使用 Vision API 進行成分識別`);
+        
+        // Step 2.1: 如果沒有提供料理類型，自動判斷
+        if (!detectedDishType) {
+          // 只有在沒有料理類型時才需要判斷
+          // 如果有 dishName，將其作為上下文傳遞給 detectDishType
+          const dishInfo = await this.detectDishType(image, detectedDishName);
+          detectedDishType = dishInfo.type;
+          
+          // 如果沒有提供 dishName，使用 detectDishType 的結果
+          if (!detectedDishName) {
+            detectedDishName = dishInfo.name;
+          }
+          
+          dishConfidence = dishInfo.confidence;
+          
+          console.log(`   自動判斷料理: ${detectedDishName} (${detectedDishType})`);
+          console.log(`   信心度: ${(dishConfidence * 100).toFixed(1)}%`);
+        } else if (!detectedDishName) {
+          // 如果有類型但沒有名稱，使用類型作為名稱
+          detectedDishName = detectedDishType;
+        }
 
-      // Step 3: 使用知識庫增強成分資訊
-      let enrichedComponents = await this.enrichWithKnowledgeBase(
-        visionComponents,
-        detectedDishName!,
-        detectedDishType!
-      );
-      
-      console.log(`   知識庫增強後共 ${enrichedComponents.length} 個成分`);
+        // Step 2.2: 使用 Vision API 提取成分
+        const visionComponents = await this.extractComponentsFromVision(
+          image,
+          detectedDishName!,
+          detectedDishType!
+        );
+        
+        componentsFromVision = visionComponents.length;
+        console.log(`   Vision API 識別到 ${visionComponents.length} 個成分`);
 
-      // Step 3.5: 如果是湯品，應用湯品專用的份量調整
+        // Step 2.3: 使用知識庫增強成分資訊
+        components = await this.enrichWithKnowledgeBase(
+          visionComponents,
+          detectedDishName!,
+          detectedDishType!
+        );
+        
+        componentsFromKB = components.filter(c => c.knowledgeBaseMatch).length;
+        detectionMethod = visionComponents.length > 0 ? 'hybrid' : 'knowledge_base';
+        
+        console.log(`   知識庫增強後共 ${components.length} 個成分`);
+      }
+
+      // Step 3: 應用料理類型專用的份量調整
       if (detectedDishType === DishType.SOUP) {
         const dishMap = findDishComponentMap(detectedDishName!);
         const estimatedTotalPortion = dishMap?.typicalPortionRange.typical || 300;
-        enrichedComponents = this.adjustSoupComponentPortions(
-          enrichedComponents,
+        components = this.adjustSoupComponentPortions(
+          components,
           estimatedTotalPortion
         );
       }
 
-      // Step 3.6: 如果是炒菜類，應用炒菜專用的份量調整
       if (detectedDishType === DishType.STIR_FRY) {
         const dishMap = findDishComponentMap(detectedDishName!);
         const estimatedTotalPortion = dishMap?.typicalPortionRange.typical || 300;
-        enrichedComponents = this.adjustStirFryComponentPortions(
-          enrichedComponents,
+        components = this.adjustStirFryComponentPortions(
+          components,
           estimatedTotalPortion
         );
       }
 
-      // Step 3.7: 如果是便當類，應用便當專用的份量調整和區域劃分
       if (detectedDishType === DishType.BENTO) {
         const dishMap = findDishComponentMap(detectedDishName!);
         const estimatedTotalPortion = dishMap?.typicalPortionRange.typical || 500;
-        enrichedComponents = this.adjustBentoComponentPortions(
-          enrichedComponents,
+        components = this.adjustBentoComponentPortions(
+          components,
           estimatedTotalPortion
         );
       }
 
-      // Step 3.8: 如果是點心類，應用點心專用的份量調整和內餡識別
       if (detectedDishType === DishType.DUMPLING) {
         const dishMap = findDishComponentMap(detectedDishName!);
         const estimatedTotalPortion = dishMap?.typicalPortionRange.typical || 50;
-        enrichedComponents = this.adjustDumplingComponentPortions(
-          enrichedComponents,
+        components = this.adjustDumplingComponentPortions(
+          components,
           estimatedTotalPortion
         );
       }
 
-      // Step 3.9: 如果是燒烤類，應用燒烤專用的份量調整
       if (detectedDishType === DishType.BARBECUE) {
         const dishMap = findDishComponentMap(detectedDishName!);
         const estimatedTotalPortion = dishMap?.typicalPortionRange.typical || 250;
-        enrichedComponents = this.adjustBarbecueComponentPortions(
-          enrichedComponents,
+        components = this.adjustBarbecueComponentPortions(
+          components,
           estimatedTotalPortion
         );
       }
 
       // Step 4: 驗證成分的合理性
       const validationResult = this.validateComponents(
-        enrichedComponents,
+        components,
         detectedDishType!
       );
       
       // 如果是湯品，添加湯品專用驗證
       if (detectedDishType === DishType.SOUP) {
-        const soupWarnings = this.validateSoupComponents(enrichedComponents);
+        const soupWarnings = this.validateSoupComponents(components);
         validationResult.warnings.push(...soupWarnings);
       }
 
       // 如果是炒菜類，添加炒菜專用驗證
       if (detectedDishType === DishType.STIR_FRY) {
-        const stirFryWarnings = this.validateStirFryComponents(enrichedComponents);
+        const stirFryWarnings = this.validateStirFryComponents(components);
         validationResult.warnings.push(...stirFryWarnings);
       }
 
       // 如果是便當類，添加便當專用驗證
       if (detectedDishType === DishType.BENTO) {
-        const bentoWarnings = this.validateBentoComponents(enrichedComponents);
+        const bentoWarnings = this.validateBentoComponents(components);
         validationResult.warnings.push(...bentoWarnings);
       }
 
       // 如果是點心類，添加點心專用驗證
       if (detectedDishType === DishType.DUMPLING) {
-        const dumplingWarnings = this.validateDumplingComponents(enrichedComponents);
+        const dumplingWarnings = this.validateDumplingComponents(components);
         validationResult.warnings.push(...dumplingWarnings);
       }
 
       // 如果是燒烤類，添加燒烤專用驗證
       if (detectedDishType === DishType.BARBECUE) {
-        const barbecueWarnings = this.validateBarbecueComponents(enrichedComponents);
+        const barbecueWarnings = this.validateBarbecueComponents(components);
         validationResult.warnings.push(...barbecueWarnings);
       }
       
@@ -221,14 +805,14 @@ export class ComponentDetectionEngine {
       }
 
       // Step 5: 計算總份量
-      const totalPortion = enrichedComponents.reduce(
+      const totalPortion = components.reduce(
         (sum, comp) => sum + comp.estimatedPortion,
         0
       );
 
       // Step 6: 生成用戶建議
       const suggestions = this.generateSuggestions(
-        enrichedComponents,
+        components,
         detectedDishName!,
         detectedDishType!,
         validationResult
@@ -244,7 +828,7 @@ export class ComponentDetectionEngine {
           confidence: dishConfidence,
           estimatedTotalPortion: totalPortion
         },
-        components: enrichedComponents,
+        components: components,
         nutritionSummary: {
           total: {
             calories: 0,
@@ -258,11 +842,12 @@ export class ComponentDetectionEngine {
         }, // 將在 ComponentNutritionCalculator 中計算
         metadata: {
           processingTime,
-          confidenceScore: this.calculateOverallConfidence(enrichedComponents),
-          detectionMethod: visionComponents.length > 0 ? 'hybrid' : 'knowledge_base',
-          componentsDetected: enrichedComponents.length,
-          componentsFromKB: enrichedComponents.filter(c => (c as any).knowledgeBaseMatch).length,
-          componentsFromVision: visionComponents.length
+          confidenceScore: this.calculateOverallConfidence(components),
+          detectionMethod: detectionMethod,
+          componentsDetected: components.length,
+          componentsFromKB: componentsFromKB,
+          componentsFromVision: componentsFromVision,
+          componentsFromPreRecognition: componentsFromPreRecognition
         },
         suggestions
       };

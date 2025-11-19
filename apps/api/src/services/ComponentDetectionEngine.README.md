@@ -68,7 +68,13 @@ const engine = new ComponentDetectionEngine('zh-TW');
 // 讀取圖片
 const imageBuffer = fs.readFileSync('path/to/food-image.jpg');
 
-// 檢測成分
+// 方法 1: 使用新的 options 參數（推薦）
+const result = await engine.detectComponents(imageBuffer, {
+  dishName: '蛋炒飯',
+  dishType: DishType.FRIED_RICE
+});
+
+// 方法 2: 使用舊版 API（向後兼容）
 const result = await engine.detectComponents(
   imageBuffer,
   '蛋炒飯',  // 可選：料理名稱
@@ -77,6 +83,63 @@ const result = await engine.detectComponents(
 
 console.log('檢測結果:', result);
 ```
+
+### 使用預識別食物列表（推薦）
+
+當您已經有基礎識別結果時，可以直接傳遞預識別的食物列表，避免重複調用 Vision API：
+
+```typescript
+import { RecognizedFood } from './types/ComponentDetection';
+
+// 假設您已經從 MultiStageRecognitionEngine 獲得識別結果
+const recognizedFoods: RecognizedFood[] = [
+  {
+    id: 'food-1',
+    name: '白飯',
+    nameEn: 'White Rice',
+    confidence: 0.95,
+    portion: 200,
+    unit: 'g',
+    category: 'staple'
+  },
+  {
+    id: 'food-2',
+    name: '炸豬排',
+    nameEn: 'Fried Pork Cutlet',
+    confidence: 0.90,
+    portion: 150,
+    unit: 'g',
+    category: 'protein'
+  },
+  {
+    id: 'food-3',
+    name: '滷蛋',
+    nameEn: 'Braised Egg',
+    confidence: 0.85,
+    portion: 60,
+    unit: 'g',
+    category: 'protein'
+  }
+];
+
+// 使用預識別食物列表
+const result = await engine.detectComponents(imageBuffer, {
+  dishName: '便當',
+  dishType: DishType.BENTO,
+  preRecognizedFoods: recognizedFoods  // 傳遞預識別食物
+});
+
+// 結果將包含所有預識別的食物，並保留其屬性
+console.log('成分數量:', result.components.length);  // 3
+console.log('檢測方法:', result.metadata.detectionMethod);  // 'pre_recognized'
+console.log('來自預識別:', result.metadata.componentsFromPreRecognition);  // 3
+```
+
+**優點：**
+- ✅ 避免重複調用 Vision API，節省時間和成本
+- ✅ 確保基礎識別和成分識別結果一致
+- ✅ 保留所有原始食物屬性（名稱、份量、信心度、營養資訊）
+- ✅ 處理速度更快（< 1 秒）
 
 ### 自動判斷料理類型
 
@@ -88,6 +151,36 @@ const result = await engine.detectComponents(imageBuffer);
 console.log('料理名稱:', result.mainDish.name);
 console.log('料理類型:', result.mainDish.type);
 console.log('信心度:', result.mainDish.confidence);
+```
+
+### 完整的 Options 參數
+
+```typescript
+interface DetectComponentsOptions {
+  dishName?: string;              // 料理名稱（可選）
+  dishType?: DishType;            // 料理類型（可選）
+  preRecognizedFoods?: RecognizedFood[];  // 預識別食物列表（可選）
+}
+
+// 使用所有選項
+const result = await engine.detectComponents(imageBuffer, {
+  dishName: '便當',
+  dishType: DishType.BENTO,
+  preRecognizedFoods: [
+    { id: '1', name: '白飯', confidence: 0.95, portion: 200, unit: 'g' },
+    { id: '2', name: '炸豬排', confidence: 0.90, portion: 150, unit: 'g' }
+  ]
+});
+
+// 只使用預識別食物
+const result = await engine.detectComponents(imageBuffer, {
+  preRecognizedFoods: recognizedFoods
+});
+
+// 只使用料理名稱
+const result = await engine.detectComponents(imageBuffer, {
+  dishName: '蛋炒飯'
+});
 ```
 
 ### 訪問檢測結果
@@ -190,6 +283,8 @@ console.log('增強後的成分數量:', enrichedComponents.length);
       },
       knowledgeBaseMatch?: boolean;  // 是否來自知識庫
       similarComponents?: string[];  // 相似成分
+      sourceType?: 'vision_api' | 'pre_recognized' | 'knowledge_base';  // 成分來源
+      originalFoodId?: string;  // 如果來自預識別，記錄原始食物 ID
     }
   ],
   nutritionSummary: {
@@ -198,10 +293,11 @@ console.log('增強後的成分數量:', enrichedComponents.length);
   metadata: {
     processingTime: number;    // 處理時間（毫秒）
     confidenceScore: number;   // 整體信心度
-    detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+    detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized';
     componentsDetected: number;  // 檢測到的成分數量
     componentsFromKB: number;    // 來自知識庫的成分數量
     componentsFromVision: number;  // 來自 Vision API 的成分數量
+    componentsFromPreRecognition: number;  // 來自預識別的成分數量（新增）
   },
   suggestions: {
     possibleMissingComponents: string[];  // 可能缺失的成分
@@ -270,13 +366,47 @@ try {
 3. **緩存結果**：對於相同料理，可以緩存識別結果
 4. **降級策略**：當 Vision API 不可用時，完全依賴知識庫
 
+## 向後兼容性
+
+引擎支持兩種 API 調用方式：
+
+### 舊版 API（仍然支持）
+
+```typescript
+// 方式 1: 只傳圖片
+await engine.detectComponents(imageBuffer);
+
+// 方式 2: 傳圖片和料理名稱
+await engine.detectComponents(imageBuffer, '蛋炒飯');
+
+// 方式 3: 傳圖片、料理名稱和類型
+await engine.detectComponents(imageBuffer, '蛋炒飯', DishType.FRIED_RICE);
+```
+
+### 新版 API（推薦）
+
+```typescript
+// 使用 options 對象
+await engine.detectComponents(imageBuffer, {
+  dishName: '蛋炒飯',
+  dishType: DishType.FRIED_RICE,
+  preRecognizedFoods: recognizedFoods
+});
+```
+
+**遷移建議：**
+- 現有代碼無需修改，舊版 API 將繼續工作
+- 新功能（如預識別食物）只能通過新版 API 使用
+- 建議逐步遷移到新版 API 以獲得更好的靈活性
+
 ## 限制和注意事項
 
-1. **需要 OpenAI API Key**：沒有 API Key 時只能使用知識庫
+1. **需要 OpenAI API Key**：沒有 API Key 時只能使用知識庫或預識別食物
 2. **料理類型支持**：目前主要支持亞洲料理
 3. **成分識別準確率**：目標 > 75%，實際取決於圖片質量
 4. **份量估算**：存在 ±25% 的誤差範圍
 5. **知識庫覆蓋**：目前包含 5 種常見料理的映射
+6. **預識別食物**：使用預識別食物時，不會調用 Vision API 進行二次識別
 
 ## 測試
 
@@ -305,6 +435,15 @@ npm test -- ComponentDetectionEngine.test.ts --coverage
 - [ ] 支持多語言（日文、韓文等）
 
 ## 版本歷史
+
+### v1.1.0 (2024-11-19)
+- ✅ 新增預識別食物支持
+- ✅ 新增 `DetectComponentsOptions` 接口
+- ✅ 新增 `preRecognizedFoods` 參數
+- ✅ 新增 `sourceType` 和 `originalFoodId` 屬性
+- ✅ 改進向後兼容性
+- ✅ 優化處理速度（使用預識別食物時 < 1 秒）
+- ✅ 確保識別結果一致性
 
 ### v1.0.0 (2024-11-16)
 - ✅ 初始版本

@@ -5,6 +5,38 @@
  */
 
 /**
+ * 預識別食物接口（來自基礎識別階段）
+ */
+export interface RecognizedFood {
+  id: string;                       // 食物唯一識別碼
+  name: string;                     // 食物中文名稱
+  nameEn?: string;                  // 食物英文名稱
+  confidence: number;               // 信心度 (0-1)
+  estimatedPortion?: number;        // 估計份量（克）
+  portion?: number;                 // 份量（克）- 別名
+  unit?: string;                    // 單位
+  category?: string;                // 食物類別
+  nutrition?: {                     // 營養資訊
+    calories: number;
+    protein: number;
+    carbohydrates: number;
+    fat: number;
+    fiber?: number;
+    sodium?: number;
+    sugar?: number;
+  };
+}
+
+/**
+ * 成分檢測選項接口
+ */
+export interface DetectComponentsOptions {
+  dishName?: string;                // 料理名稱
+  dishType?: DishType;              // 料理類型
+  preRecognizedFoods?: RecognizedFood[]; // 預識別的食物列表
+}
+
+/**
  * 料理類型枚舉
  */
 export enum DishType {
@@ -148,10 +180,11 @@ export interface NutritionSummary {
 export interface DetectionMetadata {
   processingTime: number;           // 處理時間（毫秒）
   confidenceScore: number;          // 整體信心度分數
-  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid'; // 檢測方法
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized'; // 檢測方法
   componentsDetected: number;       // 檢測到的成分數量
   componentsFromKB: number;         // 來自知識庫的成分數量
   componentsFromVision: number;     // 來自 Vision API 的成分數量
+  componentsFromPreRecognition?: number; // 來自預識別的成分數量
   warnings?: string[];              // 警告訊息（可選）
 }
 
@@ -287,4 +320,6 @@ export interface EnrichedComponent extends DetectedComponent {
   similarComponents?: string[];     // 相似成分
   culturalContext?: string;         // 文化背景
   healthBenefits?: string[];        // 健康益處
+  sourceType?: 'vision_api' | 'pre_recognized' | 'knowledge_base'; // 成分來源類型
+  originalFoodId?: string;          // 如果來自預識別，記錄原始食物 ID
 }
