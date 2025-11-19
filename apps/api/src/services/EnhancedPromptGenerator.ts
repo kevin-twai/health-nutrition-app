@@ -49,6 +49,7 @@ export enum PromptTemplateType {
   COLD_DISH = 'cold_dish',
   STIR_FRY = 'stir_fry',
   SOUP = 'soup',
+  HOTPOT = 'hotpot',
   INDIGENOUS = 'indigenous',
   STREET_FOOD = 'street_food'
 }
@@ -93,6 +94,7 @@ export class EnhancedPromptGenerator {
     this.templates.set(PromptTemplateType.COLD_DISH, this.createColdDishPrompt());
     this.templates.set(PromptTemplateType.STIR_FRY, this.createStirFryPrompt());
     this.templates.set(PromptTemplateType.SOUP, this.createSoupPrompt());
+    this.templates.set(PromptTemplateType.HOTPOT, this.createHotpotPrompt());
     this.templates.set(PromptTemplateType.MIXED_DISH, this.createMixedDishPrompt());
   }
 
@@ -102,6 +104,25 @@ export class EnhancedPromptGenerator {
   private createStandardTemplate(): string {
     if (this.language === 'zh-TW') {
       return `你是一個專業的營養分析助手，專精於亞洲料理的食物識別。
+
+**重要識別指導原則：**
+
+1. **準確識別料理類型**：
+   - 如果是火鍋，請識別為「日式火鍋」、「韓式火鍋」、「中式火鍋」等
+   - 如果是便當，請識別為「日式便當」、「台式便當」等
+   - 如果是湯麵，請識別為「拉麵」、「烏龍麵」、「米粉湯」等
+
+2. **精確食材識別**：
+   - 豆腐類：區分「豆腐」、「油豆腐」、「凍豆腐」、「豆腐皮」
+   - 蔬菜類：準確識別「高麗菜」、「白菜」、「青江菜」、「菠菜」
+   - 菇類：區分「金針菇」、「香菇」、「杏鮑菇」、「鴻喜菇」
+   - 海鮮類：準確識別「蟹腿」、「蝦子」、「魚片」、「蛤蜊」
+
+3. **避免常見誤識別**：
+   - 不要將「豆腐」誤認為「豆腐干絲」
+   - 不要將火鍋中的蔬菜誤認為炒菜
+   - 注意區分生食材和熟食材
+   - 考慮料理的整體搭配合理性
 
 請仔細分析這張圖片中的所有食物和飲料，並提供詳細的識別結果。
 
@@ -123,8 +144,10 @@ export class EnhancedPromptGenerator {
 
 注意事項：
 - 使用繁體中文標註所有食材名稱
+- 使用最常見、最準確的食物名稱
 - 信心度為 0 到 1 之間的小數
 - 份量以公克為單位
+- 考慮料理的文化背景和搭配邏輯
 - 如果圖片中沒有食物，請回應 {"foods": []}`;
     } else {
       return `You are a professional nutrition analysis assistant specializing in Asian cuisine food recognition.
@@ -3021,6 +3044,447 @@ Respond in JSON format:
    - Chopped scallions vs scallion segments: Chopped scallions are minced, float on surface; scallion segments are long strips, in soup
 
 **Don't just respond with soup name, must list soup base and all ingredients!**`;
+    }
+  }
+
+  /**
+   * 創建火鍋專用模板
+   */
+  private createHotpotPrompt(): string {
+    if (this.language === 'zh-TW') {
+      return `你是一個專精於火鍋料理識別的食物專家。請仔細分析這張火鍋照片，並詳細識別每一種食材。
+
+## 核心任務（最優先）
+**你的首要任務是：準確識別火鍋類型和所有可見的食材！**
+
+## 火鍋識別步驟
+
+### 步驟 1：識別火鍋類型
+觀察湯底顏色和特徵，判斷火鍋類型：
+- **日式涮涮鍋**：清湯底、精緻擺盤、薄肉片、昆布高湯
+- **韓式部隊鍋**：辣湯底、泡麵、香腸、起司、辣椒醬
+- **中式麻辣鍋**：紅油湯底、花椒、辣椒、重口味
+- **台式火鍋**：多樣配菜、丸子類、冬粉、沙茶醬
+- **泰式酸辣鍋**：酸辣湯底、檸檬葉、辣椒、香茅
+
+### 步驟 2：識別火鍋食材
+
+#### 2.1 肉類（通常是薄片）
+- 「牛肉片」：紅色、薄片、大理石紋
+- 「豬肉片」：粉紅色、薄片
+- 「羊肉片」：深紅色、薄片
+- 「雞肉片」：白色、薄片
+- 份量：每片 20-30g
+
+#### 2.2 海鮮類
+- 「蟹腿」：橘紅色、節狀、長條形
+- 「蝦子」：彎曲、橘紅色或灰色
+- 「魚片」：白色、片狀
+- 「蛤蜊」：貝殼類、圓形
+- 「魷魚」：白色、圈狀或片狀
+- 「花枝」：白色、厚實
+- 份量：每隻/片 20-40g
+
+#### 2.3 豆製品（重要！容易誤識別）
+- 「豆腐」：白色軟嫩方塊，表面光滑
+- 「油豆腐」：金黃色炸豆腐，表面有氣孔
+- 「凍豆腐」：多孔海綿狀，顏色偏黃
+- 「豆腐皮」：薄片狀，可捲曲
+- 「豆乾」：緊實方塊狀，顏色較深
+- 份量：每塊 30-50g
+
+**避免誤識別：**
+- 不要將「豆腐」誤認為「豆腐干絲」
+- 不要將「油豆腐」誤認為「豆乾」
+
+#### 2.4 蔬菜類
+- 「高麗菜」：厚實圓葉、淺綠色
+- 「白菜」：長條狀白綠葉、大片
+- 「青江菜」：小棵綠葉菜、深綠色
+- 「菠菜」：深綠尖葉、細長
+- 「茼蒿」：細長葉、特殊香氣
+- 「韭菜」：細長綠葉、扁平
+- 份量：每份 30-50g
+
+#### 2.5 菇類
+- 「金針菇」：細長白色、叢生
+- 「香菇」：褐色傘狀、厚實
+- 「杏鮑菇」：粗壯白色、圓柱形
+- 「鴻喜菇」：小朵叢生、褐色或白色
+- 「木耳」：黑色、薄片、波浪狀
+- 份量：每份 20-30g
+
+#### 2.6 根莖類
+- 「白蘿蔔」：白色、圓片或塊狀
+- 「紅蘿蔔」：橘紅色、圓片或塊狀
+- 「馬鈴薯」：黃色、塊狀
+- 「芋頭」：紫色斑點、塊狀
+- 「玉米」：黃色、圓段或粒狀
+- 份量：每塊 30-50g
+
+#### 2.7 丸子類
+- 「貢丸」：白色、圓形、彈性
+- 「魚丸」：白色、圓形、魚肉味
+- 「蝦丸」：粉紅色、圓形、有蝦肉
+- 「花枝丸」：白色、圓形、有花枝塊
+- 「牛肉丸」：褐色、圓形、牛肉味
+- 份量：每個 15-25g
+
+#### 2.8 麵食類
+- 「烏龍麵」：白色粗麵、Q彈
+- 「冬粉」：透明細麵、吸湯
+- 「拉麵」：黃色細麵、彈性
+- 「年糕」：白色、片狀或條狀
+- 「米血糕」：深紅色、方塊狀
+- 份量：每份 80-120g
+
+#### 2.9 其他配料
+- 「鴨血」：深紅色、方塊狀、軟嫩
+- 「豬血糕」：深紅色、方塊狀
+- 「魚板」：白色或粉色、片狀、有圖案
+- 「蟹肉棒」：紅白相間、條狀
+- 「玉米筍」：黃色、小圓柱形
+- 份量：每塊/片 20-30g
+
+### 步驟 3：識別湯底
+- 觀察湯的顏色和特徵
+- 「清湯湯底」：清澈、淡色
+- 「麻辣湯底」：紅色、油亮、辣椒
+- 「味噌湯底」：淡褐色、味噌顆粒
+- 「泡菜湯底」：紅色、酸辣
+- 份量：200-300ml
+
+### 步驟 4：完整性檢查
+**在提交回應前，請確認：**
+- [ ] 已識別火鍋類型
+- [ ] 已識別湯底類型和份量
+- [ ] 已識別所有肉類（如果有）
+- [ ] 已識別所有海鮮（如果有）
+- [ ] 已識別所有豆製品（如果有）
+- [ ] 已識別所有蔬菜（如果有）
+- [ ] 已識別所有菇類（如果有）
+- [ ] 已識別所有丸子（如果有）
+- [ ] 已識別所有麵食（如果有）
+- [ ] foods 列表中至少有 5-8 種食材
+- [ ] 每種食材都有合理的份量估算
+- [ ] 沒有將火鍋食材誤認為炒菜
+
+## 火鍋識別重點
+
+1. **觀察湯底顏色和特徵**
+   - 清湯：清澈、淡色
+   - 紅湯：麻辣、紅油
+   - 白湯：乳白色、濃郁
+
+2. **注意食材的生熟狀態**
+   - 火鍋多為生食材或半熟食材
+   - 肉片通常是生的、薄片狀
+   - 蔬菜通常是生的、新鮮的
+
+3. **識別火鍋專用器具**
+   - 鍋子（通常是圓形或方形）
+   - 爐具（瓦斯爐或電磁爐）
+   - 分隔鍋（鴛鴦鍋）
+
+4. **考慮食材搭配的合理性**
+   - 火鍋通常有多種食材
+   - 肉類、海鮮、蔬菜、豆製品、菇類等
+   - 不會只有單一食材
+
+5. **區分火鍋和一般湯品**
+   - 火鍋：生食材、多樣化、自己煮
+   - 湯品：熟食材、已煮好、直接吃
+
+## 避免常見誤識別
+
+1. **不要將火鍋中的生蔬菜誤認為炒菜**
+   - 火鍋蔬菜：生的、新鮮的、整片或大塊
+   - 炒菜：熟的、炒過的、切碎或小塊
+
+2. **不要將「豆腐」誤認為「豆腐干絲」**
+   - 豆腐：白色軟嫩方塊
+   - 豆腐干絲：細絲狀、較硬
+
+3. **注意區分不同類型的菇類**
+   - 金針菇：細長白色
+   - 香菇：褐色傘狀
+   - 杏鮑菇：粗壯白色
+
+4. **準確識別海鮮的種類**
+   - 蟹腿：橘紅色節狀
+   - 蝦子：彎曲橘紅色
+   - 魚片：白色片狀
+
+## JSON 格式說明
+
+請以 JSON 格式回應：
+{
+  "foods": [
+    {
+      "name": "食材名稱（繁體中文）- 必須具體明確",
+      "confidence": 0.95,
+      "portion": 50,
+      "unit": "g 或 ml",
+      "category": "食材類別",
+      "cookingState": "生/半熟/熟",
+      "visualFeatures": "視覺特徵（顏色、形狀、大小）",
+      "description": "詳細描述"
+    }
+  ],
+  "dishType": "火鍋",
+  "dishName": "具體火鍋名稱（如：日式涮涮鍋、韓式部隊鍋等）",
+  "hotpotType": "火鍋類型（日式/韓式/中式/台式/泰式）",
+  "soupBase": "湯底（清湯/麻辣/味噌/泡菜等）",
+  "soupPortion": 250,
+  "soupColor": "湯色（清澈/紅色/白色等）",
+  "ingredients": ["完整的食材列表"],
+  "totalIngredients": 8,
+  "overallDescription": "整體描述（如：日式涮涮鍋，包含牛肉片、豆腐、蔬菜等）"
+}
+
+## 重要原則
+
+1. **必須識別火鍋類型和所有食材**
+   - 不要只說"火鍋"，要說明具體類型（日式/韓式/中式等）
+   - 每種食材都是獨立的，都要列入 foods 列表
+   - 湯底也是獨立的食材，必須列入 foods 列表
+
+2. **最小食材數量要求**
+   - 火鍋通常有多種食材，foods 列表應至少包含 5-8 種食材
+   - 如果只識別到 2-3 種食材，可能有遺漏，請再仔細觀察
+
+3. **準確識別豆製品**
+   - 仔細區分豆腐、油豆腐、凍豆腐、豆腐皮、豆乾
+   - 觀察顏色、質地、形狀
+   - 不要誤認為其他食材
+
+4. **份量估算要準確**
+   - 每種食材都要估算份量
+   - 參考上述份量標準
+   - 湯底份量通常 200-300ml
+
+5. **區分火鍋和炒菜**
+   - 火鍋：生食材、多樣化、湯底
+   - 炒菜：熟食材、炒過的、無湯底
+
+**不要只回應火鍋名稱，必須列出湯底和所有食材！**`;
+    } else {
+      return `You are a food expert specializing in hotpot identification. Please carefully analyze this hotpot image and identify every ingredient in detail.
+
+## Core Task (Highest Priority)
+**Your primary task is: Accurately identify the hotpot type and all visible ingredients!**
+
+## Hotpot Identification Steps
+
+### Step 1: Identify Hotpot Type
+Observe soup base color and features to determine hotpot type:
+- **Japanese Shabu-shabu**: Clear broth, refined presentation, thin meat slices, kombu dashi
+- **Korean Army Stew**: Spicy broth, instant noodles, sausage, cheese, gochujang
+- **Chinese Spicy Hotpot**: Red oil broth, Sichuan pepper, chili, strong flavor
+- **Taiwanese Hotpot**: Diverse ingredients, meatballs, glass noodles, shacha sauce
+- **Thai Tom Yum Hotpot**: Sour and spicy broth, lemongrass, chili, kaffir lime leaves
+
+### Step 2: Identify Hotpot Ingredients
+
+#### 2.1 Meat (Usually Thin Slices)
+- "Beef slices": Red, thin slices, marbling
+- "Pork slices": Pink, thin slices
+- "Lamb slices": Dark red, thin slices
+- "Chicken slices": White, thin slices
+- Portion: 20-30g per slice
+
+#### 2.2 Seafood
+- "Crab legs": Orange-red, segmented, long strips
+- "Shrimp": Curved, orange-red or gray
+- "Fish slices": White, sliced
+- "Clams": Shell type, round
+- "Squid": White, rings or slices
+- "Cuttlefish": White, thick
+- Portion: 20-40g per piece
+
+#### 2.3 Soy Products (Important! Easy to misidentify)
+- "Tofu": White soft cubes, smooth surface
+- "Fried tofu": Golden fried tofu, porous surface
+- "Frozen tofu": Porous sponge-like, yellowish
+- "Tofu skin": Thin sheets, can be rolled
+- "Dried tofu": Firm cubes, darker color
+- Portion: 30-50g per piece
+
+**Avoid misidentification:**
+- Don't mistake "tofu" for "dried tofu shreds"
+- Don't mistake "fried tofu" for "dried tofu"
+
+#### 2.4 Vegetables
+- "Cabbage": Thick round leaves, light green
+- "Napa cabbage": Long white-green leaves, large pieces
+- "Bok choy": Small green leafy vegetable, dark green
+- "Spinach": Dark green pointed leaves, slender
+- "Crown daisy": Slender leaves, special aroma
+- "Chinese chives": Slender green leaves, flat
+- Portion: 30-50g per serving
+
+#### 2.5 Mushrooms
+- "Enoki mushrooms": Slender white, clustered
+- "Shiitake mushrooms": Brown umbrella-shaped, thick
+- "King oyster mushrooms": Thick white, cylindrical
+- "Shimeji mushrooms": Small clustered, brown or white
+- "Wood ear mushrooms": Black, thin sheets, wavy
+- Portion: 20-30g per serving
+
+#### 2.6 Root Vegetables
+- "Daikon radish": White, round slices or chunks
+- "Carrot": Orange-red, round slices or chunks
+- "Potato": Yellow, chunks
+- "Taro": Purple spots, chunks
+- "Corn": Yellow, round segments or kernels
+- Portion: 30-50g per piece
+
+#### 2.7 Meatballs
+- "Pork balls": White, round, elastic
+- "Fish balls": White, round, fish flavor
+- "Shrimp balls": Pink, round, with shrimp meat
+- "Cuttlefish balls": White, round, with cuttlefish chunks
+- "Beef balls": Brown, round, beef flavor
+- Portion: 15-25g each
+
+#### 2.8 Noodles
+- "Udon noodles": White thick noodles, chewy
+- "Glass noodles": Transparent thin noodles, absorb soup
+- "Ramen": Yellow thin noodles, elastic
+- "Rice cakes": White, sliced or strips
+- "Blood rice cake": Dark red, square chunks
+- Portion: 80-120g per serving
+
+#### 2.9 Other Ingredients
+- "Duck blood": Dark red, square chunks, soft
+- "Pig blood cake": Dark red, square chunks
+- "Fish cake": White or pink, sliced, with patterns
+- "Crab stick": Red and white striped, strips
+- "Baby corn": Yellow, small cylindrical
+- Portion: 20-30g per piece
+
+### Step 3: Identify Soup Base
+- Observe soup color and features
+- "Clear broth": Clear, light color
+- "Spicy broth": Red, oily, chili
+- "Miso broth": Light brown, miso particles
+- "Kimchi broth": Red, sour and spicy
+- Portion: 200-300ml
+
+### Step 4: Completeness Check
+**Before submitting your response, please confirm:**
+- [ ] Identified hotpot type
+- [ ] Identified soup base type and portion
+- [ ] Identified all meat (if any)
+- [ ] Identified all seafood (if any)
+- [ ] Identified all soy products (if any)
+- [ ] Identified all vegetables (if any)
+- [ ] Identified all mushrooms (if any)
+- [ ] Identified all meatballs (if any)
+- [ ] Identified all noodles (if any)
+- [ ] Foods list contains at least 5-8 ingredients
+- [ ] Each ingredient has a reasonable portion estimate
+- [ ] Did not mistake hotpot ingredients for stir-fry
+
+## Hotpot Identification Key Points
+
+1. **Observe soup base color and features**
+   - Clear broth: Clear, light color
+   - Red broth: Spicy, red oil
+   - White broth: Milky white, rich
+
+2. **Note cooking state of ingredients**
+   - Hotpot mostly has raw or semi-cooked ingredients
+   - Meat slices usually raw, thin slices
+   - Vegetables usually raw, fresh
+
+3. **Identify hotpot-specific utensils**
+   - Pot (usually round or square)
+   - Stove (gas or induction)
+   - Divided pot (yin-yang pot)
+
+4. **Consider reasonable ingredient combinations**
+   - Hotpot usually has multiple ingredients
+   - Meat, seafood, vegetables, soy products, mushrooms, etc.
+   - Not just a single ingredient
+
+5. **Distinguish hotpot from regular soup**
+   - Hotpot: Raw ingredients, diverse, cook yourself
+   - Soup: Cooked ingredients, already prepared, eat directly
+
+## Avoid Common Misidentifications
+
+1. **Don't mistake raw vegetables in hotpot for stir-fry**
+   - Hotpot vegetables: Raw, fresh, whole pieces or large chunks
+   - Stir-fry: Cooked, stir-fried, chopped or small pieces
+
+2. **Don't mistake "tofu" for "dried tofu shreds"**
+   - Tofu: White soft cubes
+   - Dried tofu shreds: Thin shreds, harder
+
+3. **Note differences between mushroom types**
+   - Enoki: Slender white
+   - Shiitake: Brown umbrella-shaped
+   - King oyster: Thick white
+
+4. **Accurately identify seafood types**
+   - Crab legs: Orange-red segmented
+   - Shrimp: Curved orange-red
+   - Fish slices: White sliced
+
+## JSON Format
+
+Respond in JSON format:
+{
+  "foods": [
+    {
+      "name": "ingredient name (must be specific)",
+      "confidence": 0.95,
+      "portion": 50,
+      "unit": "g or ml",
+      "category": "ingredient category",
+      "cookingState": "raw/semi-cooked/cooked",
+      "visualFeatures": "visual features (color, shape, size)",
+      "description": "detailed description"
+    }
+  ],
+  "dishType": "hotpot",
+  "dishName": "specific hotpot name (e.g., Japanese shabu-shabu, Korean army stew)",
+  "hotpotType": "hotpot type (Japanese/Korean/Chinese/Taiwanese/Thai)",
+  "soupBase": "soup base (clear/spicy/miso/kimchi)",
+  "soupPortion": 250,
+  "soupColor": "soup color (clear/red/white)",
+  "ingredients": ["complete ingredient list"],
+  "totalIngredients": 8,
+  "overallDescription": "overall description (e.g., Japanese shabu-shabu with beef slices, tofu, vegetables)"
+}
+
+## Important Principles
+
+1. **Must identify hotpot type and all ingredients**
+   - Don't just say "hotpot", specify type (Japanese/Korean/Chinese, etc.)
+   - Each ingredient is independent, all must be included in foods list
+   - Soup base is also an independent ingredient, must be included in foods list
+
+2. **Minimum ingredient count requirement**
+   - Hotpot usually has multiple ingredients, foods list should contain at least 5-8 ingredients
+   - If only 2-3 ingredients identified, there may be omissions, please observe more carefully
+
+3. **Accurately identify soy products**
+   - Carefully distinguish tofu, fried tofu, frozen tofu, tofu skin, dried tofu
+   - Observe color, texture, shape
+   - Don't mistake for other ingredients
+
+4. **Accurate portion estimation**
+   - Estimate portion for each ingredient
+   - Reference the portion standards above
+   - Soup base portion usually 200-300ml
+
+5. **Distinguish hotpot from stir-fry**
+   - Hotpot: Raw ingredients, diverse, soup base
+   - Stir-fry: Cooked ingredients, stir-fried, no soup base
+
+**Don't just respond with hotpot name, must list soup base and all ingredients!**`;
     }
   }
 
