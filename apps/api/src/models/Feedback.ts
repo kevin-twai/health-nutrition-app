@@ -64,7 +64,7 @@ export interface ComponentDetectionSnapshot {
   };
   components: ComponentSnapshot[];
   totalComponents: number;
-  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized';
   processingTime: number;
 }
 

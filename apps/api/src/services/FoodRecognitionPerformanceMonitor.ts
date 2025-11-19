@@ -103,7 +103,7 @@ export interface ComponentDetectionMetrics {
   
   // 結果
   averageConfidence: number;
-  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized';
   success: boolean;
   errorMessage?: string;
   
@@ -939,7 +939,7 @@ ${Array.from(stats.errorDistribution.entries())
     sessionId: string,
     componentsDetected: number,
     averageConfidence: number,
-    detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid',
+    detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized',
     success: boolean,
     errorMessage?: string
   ): void {

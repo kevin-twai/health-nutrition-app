@@ -898,10 +898,11 @@ export interface CookingImpactDetail {
 export interface ComponentDetectionMetadata {
   processingTime: number;
   confidenceScore: number;
-  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid';
+  detectionMethod: 'vision_api' | 'knowledge_base' | 'hybrid' | 'pre_recognized';
   componentsDetected: number;
   componentsFromKB: number;
   componentsFromVision: number;
+  componentsFromPreRecognition?: number;
 }
 
 /**
