@@ -11,6 +11,7 @@ import { ComponentNutritionCalculator } from '../services/ComponentNutritionCalc
 import { ComponentAdjustmentService } from '../services/ComponentAdjustmentService';
 import { ApiResponse, RecognitionResult, NutritionData } from '../types/shared';
 import { ComponentRecognitionResponse, ComponentDetectionResult, DetectComponentsOptions, DishType, RecognizedFood } from '../types/ComponentDetection';
+import { recognitionConsistencyMonitor, RecognitionSessionMetrics, ConsistencyCheckResult } from '../services/RecognitionConsistencyMonitor';
 
 export interface PhotoUploadRequest extends Request {
   file?: Express.Multer.File;
@@ -1027,6 +1028,51 @@ export class PhotoController {
       console.log(`[${sessionId}]   - 成分識別: ${performanceMetrics.confidence.componentDetection}`);
       console.log(`[${sessionId}] =====================================\n`);
 
+      // 記錄到 RecognitionConsistencyMonitor
+      try {
+        const consistencyCheckResult: ConsistencyCheckResult = {
+          passed: consistencyCheckPassed,
+          baseRecognitionFoodCount: multiStageResult.foods?.length || 0,
+          componentDetectionCount: componentResult.components.length,
+          missingFoodsCount,
+          extraComponentsCount,
+          missingFoods: multiStageResult.foods && multiStageResult.foods.length > 0
+            ? Array.from(new Set(multiStageResult.foods.map(f => f.name))).filter(
+                name => !componentResult.components.some(c => c.name === name)
+              )
+            : [],
+          extraComponents: Array.from(new Set(componentResult.components.map(c => c.name))).filter(
+            name => !multiStageResult.foods?.some(f => f.name === name)
+          ),
+          matchRate: multiStageResult.foods?.length > 0
+            ? (multiStageResult.foods.length - missingFoodsCount) / multiStageResult.foods.length
+            : 0
+        };
+
+        const sessionMetrics: RecognitionSessionMetrics = {
+          sessionId,
+          userId: (req as any).user?.id, // 如果有用戶認證
+          timestamp: new Date(),
+          totalProcessingTime,
+          baseRecognitionTime,
+          componentDetectionTime,
+          visionApiCalls: usedPreRecognizedFoods ? 0 : 1, // 如果使用預識別食物，則沒有額外的 Vision API 調用
+          visionApiCallsAvoided: usedPreRecognizedFoods ? 1 : 0,
+          usedPreRecognizedFoods,
+          consistencyCheck: consistencyCheckResult,
+          detectionMethod: componentResult.metadata.detectionMethod,
+          success: true,
+          recognizedFoodsCount: multiStageResult.foods?.length || 0,
+          componentsDetectedCount: componentResult.components.length
+        };
+
+        recognitionConsistencyMonitor.recordSession(sessionMetrics);
+        console.log(`[${sessionId}] ✓ 性能指標已記錄到 RecognitionConsistencyMonitor`);
+      } catch (monitorError) {
+        console.error(`[${sessionId}] 記錄性能指標失敗:`, monitorError);
+        // 不影響主要流程
+      }
+
       // 初始化調整會話（允許用戶後續調整成分）
       try {
         this.componentAdjustmentService.initializeSession(sessionId, componentResult);
@@ -1044,6 +1090,44 @@ export class PhotoController {
 
     } catch (error) {
       console.error(`[${sessionId}] 食物辨識錯誤:`, error);
+      
+      // 記錄失敗的會話到監控器
+      try {
+        const errorType = this.getErrorCode(error);
+        const errorMessage = error instanceof Error ? error.message : '未知錯誤';
+        
+        const failedSessionMetrics: RecognitionSessionMetrics = {
+          sessionId,
+          userId: (req as any).user?.id,
+          timestamp: new Date(),
+          totalProcessingTime: Date.now() - startTime,
+          baseRecognitionTime: 0,
+          componentDetectionTime: 0,
+          visionApiCalls: 0,
+          visionApiCallsAvoided: 0,
+          usedPreRecognizedFoods: false,
+          consistencyCheck: {
+            passed: false,
+            baseRecognitionFoodCount: 0,
+            componentDetectionCount: 0,
+            missingFoodsCount: 0,
+            extraComponentsCount: 0,
+            missingFoods: [],
+            extraComponents: [],
+            matchRate: 0
+          },
+          detectionMethod: 'vision_api',
+          success: false,
+          errorType,
+          errorMessage,
+          recognizedFoodsCount: 0,
+          componentsDetectedCount: 0
+        };
+        
+        recognitionConsistencyMonitor.recordSession(failedSessionMetrics);
+      } catch (monitorError) {
+        console.error(`[${sessionId}] 記錄失敗會話指標失敗:`, monitorError);
+      }
       
       res.status(500).json({
         success: false,
