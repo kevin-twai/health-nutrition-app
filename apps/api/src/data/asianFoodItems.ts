@@ -59,7 +59,7 @@ export const ASIAN_FOOD_ITEMS: Record<string, FoodItem> = {
   '豆腐': {
     id: 'tofu',
     name: '豆腐',
-    nameVariants: ['嫩豆腐', '板豆腐', '凍豆腐'],
+    nameVariants: ['嫩豆腐', '板豆腐', '凍豆腐', '豆腐塊', '火鍋豆腐'],
     category: FoodCategory.TOFU,
     visualFeatures: {
       color: ['白色', '米白色'],
@@ -1623,6 +1623,139 @@ export const ASIAN_FOOD_ITEMS: Record<string, FoodItem> = {
     cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE, CuisineType.JAPANESE],
     commonPairings: ['排骨', '豆腐', '味噌', '醋'],
     tags: ['高碘', '海鮮', '湯品常用']
+  },
+
+  // ==================== 新增火鍋常見食材 ====================
+  '蟹腿': {
+    id: 'crab_leg',
+    name: '蟹腿',
+    nameVariants: ['蟹腳', '蟹肉', '蟹棒', '蟹腳肉'],
+    category: FoodCategory.SEAFOOD,
+    visualFeatures: {
+      color: ['橙紅色', '白色', '紅白相間'],
+      shape: ['長條狀', '圓柱形'],
+      texture: ['緊實', 'Q彈', '纖維狀'],
+      size: '長8-15cm',
+      appearance: '紅白相間的長條狀，有明顯的肉質纖維',
+      surfaceCharacteristics: ['表面光滑', '有殼或無殼'],
+      glossiness: '有光澤',
+      transparency: '不透明'
+    },
+    nutritionPer100g: {
+      calories: 97,
+      protein: 19.4,
+      carbohydrates: 0.5,
+      fat: 1.5,
+      fiber: 0,
+      sodium: 293,
+      calcium: 89,
+      iron: 0.5
+    },
+    commonConfusions: ['蟹肉棒', '魚板'],
+    distinguishingFeatures: ['紅白相間', '有蟹肉纖維', '鮮甜味', '常見於火鍋'],
+    cookingMethods: [CookingMethod.BOIL, CookingMethod.STEAM, CookingMethod.STIR_FRY],
+    cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE, CuisineType.JAPANESE],
+    commonPairings: ['火鍋湯底', '蔬菜', '豆腐', '麵條'],
+    tags: ['火鍋', '海鮮', '高蛋白', '低脂']
+  },
+
+  '豆苗': {
+    id: 'pea_shoots',
+    name: '豆苗',
+    nameVariants: ['豌豆苗', '豆苗菜', '豌豆尖'],
+    category: FoodCategory.LEAFY_GREENS,
+    visualFeatures: {
+      color: ['翠綠色', '嫩綠色'],
+      shape: ['細長莖', '小葉片'],
+      texture: ['脆嫩', '多汁', '柔軟'],
+      size: '長10-15cm',
+      appearance: '細長的嫩莖，頂端有小葉片和卷鬚',
+      surfaceCharacteristics: ['表面光滑', '嫩綠'],
+      glossiness: '有光澤',
+      transparency: '不透明'
+    },
+    nutritionPer100g: {
+      calories: 35,
+      protein: 4.0,
+      carbohydrates: 5.5,
+      fat: 0.4,
+      fiber: 2.6,
+      sodium: 4,
+      calcium: 65,
+      iron: 2.1
+    },
+    commonConfusions: ['空心菜', '龍鬚菜'],
+    distinguishingFeatures: ['有卷鬚', '嫩綠色', '清甜味', '常用於快炒或火鍋'],
+    cookingMethods: [CookingMethod.STIR_FRY, CookingMethod.BLANCH, CookingMethod.BOIL],
+    cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE, CuisineType.CANTONESE],
+    commonPairings: ['蒜', '蠔油', '薑', '火鍋'],
+    tags: ['火鍋', '清炒', '高纖', '低卡']
+  },
+
+  '魚片': {
+    id: 'fish_fillet',
+    name: '魚片',
+    nameVariants: ['魚肉片', '鱼片', '生魚片', '魚柳'],
+    category: FoodCategory.SEAFOOD,
+    visualFeatures: {
+      color: ['白色', '淡粉色', '灰白色'],
+      shape: ['薄片狀', '長方形'],
+      texture: ['細緻', '柔軟', '鮮嫩'],
+      size: '長5-10cm，厚0.5-1cm',
+      appearance: '薄片狀，肉質細緻，可見肌肉紋理',
+      surfaceCharacteristics: ['表面光滑', '濕潤'],
+      glossiness: '有光澤',
+      transparency: '半透明（生）'
+    },
+    nutritionPer100g: {
+      calories: 110,
+      protein: 20.5,
+      carbohydrates: 0,
+      fat: 3.5,
+      fiber: 0,
+      sodium: 55,
+      calcium: 15,
+      iron: 0.4
+    },
+    commonConfusions: ['雞肉片', '豬肉片'],
+    distinguishingFeatures: ['白色或淡粉色', '肉質細緻', '魚腥味', '常見於火鍋或清蒸'],
+    cookingMethods: [CookingMethod.BOIL, CookingMethod.STEAM, CookingMethod.STIR_FRY, CookingMethod.RAW],
+    cuisineTypes: [CuisineType.CHINESE, CuisineType.TAIWANESE, CuisineType.JAPANESE],
+    commonPairings: ['薑', '蔥', '醬油', '火鍋湯底'],
+    tags: ['火鍋', '海鮮', '高蛋白', '低脂', '清蒸']
+  },
+
+  '水菜': {
+    id: 'mizuna',
+    name: '水菜',
+    nameVariants: ['京水菜', '日本水菜', '水京菜'],
+    category: FoodCategory.LEAFY_GREENS,
+    visualFeatures: {
+      color: ['深綠色', '翠綠色'],
+      shape: ['羽狀', '細長鋸齒葉'],
+      texture: ['脆嫩', '多汁'],
+      size: '長15-25cm',
+      appearance: '羽狀細長葉片，邊緣有鋸齒，白色莖部',
+      surfaceCharacteristics: ['表面光滑', '葉片薄'],
+      glossiness: '有光澤',
+      transparency: '不透明'
+    },
+    nutritionPer100g: {
+      calories: 23,
+      protein: 2.2,
+      carbohydrates: 4.1,
+      fat: 0.3,
+      fiber: 2.9,
+      sodium: 70,
+      calcium: 210,
+      iron: 2.1
+    },
+    commonConfusions: ['芝麻菜', '青江菜'],
+    distinguishingFeatures: ['羽狀葉片', '細長鋸齒邊', '略帶芥末味', '常見於日式火鍋'],
+    cookingMethods: [CookingMethod.BOIL, CookingMethod.STIR_FRY, CookingMethod.RAW],
+    cuisineTypes: [CuisineType.JAPANESE, CuisineType.TAIWANESE],
+    commonPairings: ['火鍋', '沙拉', '豆腐', '肉片'],
+    tags: ['日式', '火鍋', '高鈣', '低卡', '沙拉']
   },
 
   '蝦米': {
