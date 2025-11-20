@@ -562,4 +562,104 @@ export class NutritionCalculator {
     
     return advice;
   }
+
+  /**
+   * 查找營養數據
+   * 先嘗試精確匹配，如果失敗則使用模糊匹配
+   */
+  private async findNutritionData(foodName: string): Promise<any> {
+    try {
+      // 首先嘗試精確匹配
+      let nutritionData = await this.foodRepository.findByName(foodName);
+      
+      if (!nutritionData) {
+        // 如果沒有找到，嘗試模糊匹配
+        nutritionData = await this.fuzzyMatchNutrition(foodName);
+      }
+      
+      if (!nutritionData) {
+        // 如果還是沒有找到，使用默認值
+        console.warn(`未找到 ${foodName} 的營養數據，使用默認值`);
+        return this.getDefaultNutrition();
+      }
+      
+      return nutritionData;
+    } catch (error) {
+      console.error(`查找營養數據錯誤 (${foodName}):`, error);
+      return this.getDefaultNutrition();
+    }
+  }
+
+  /**
+   * 模糊匹配營養數據
+   * 使用改進的匹配邏輯，優先選擇精確匹配和較短的名稱
+   */
+  private async fuzzyMatchNutrition(foodName: string): Promise<any> {
+    try {
+      // 移除常見修飾詞
+      const cleanName = foodName.replace(/新鮮|有機|冷凍|生|熟/g, '').trim();
+      
+      // 嘗試部分匹配
+      const partialMatches = await this.foodRepository.findByPartialName(cleanName);
+      
+      if (partialMatches && partialMatches.length > 0) {
+        // 優先選擇精確匹配或最相似的匹配
+        const bestMatch = this.findBestMatch(cleanName, partialMatches);
+        console.log(`模糊匹配 ${foodName} -> ${bestMatch.name}`);
+        return bestMatch;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`模糊匹配錯誤 (${foodName}):`, error);
+      return null;
+    }
+  }
+
+  /**
+   * 從匹配結果中找到最佳匹配
+   * 優先級：精確匹配 > 名稱長度接近 > 避免過長的名稱
+   */
+  private findBestMatch(searchName: string, matches: any[]): any {
+    // 1. 優先精確匹配
+    const exactMatch = matches.find(match => match.name === searchName);
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    // 2. 優先選擇名稱長度最接近的（避免選擇包含搜索詞的長名稱）
+    const sortedByLength = matches.sort((a, b) => {
+      const aDiff = Math.abs(a.name.length - searchName.length);
+      const bDiff = Math.abs(b.name.length - searchName.length);
+      return aDiff - bDiff;
+    });
+
+    // 3. 在長度相近的選項中，優先選擇不包含額外字符的
+    // 如果搜索「豆腐」，優先選擇「豆腐」而不是「豆腐干絲」
+    const bestMatch = sortedByLength.find(match => {
+      return match.name.length <= searchName.length + 2;
+    }) || sortedByLength[0];
+
+    return bestMatch;
+  }
+
+  /**
+   * 獲取默認營養數據
+   */
+  private getDefaultNutrition(): any {
+    return {
+      name: '未知食物',
+      nutritionPer100g: {
+        calories: 100,
+        protein: 5,
+        carbohydrates: 15,
+        fat: 3,
+        fiber: 2,
+        sugar: 5,
+        sodium: 100,
+        vitamins: {},
+        minerals: {}
+      }
+    };
+  }
 }

@@ -546,6 +546,83 @@ export class FoodRepository extends MongoDBBaseRepository<FoodItem> {
     return results.map(result => result._id);
   }
 
+  /**
+   * 根據名稱精確查找食物
+   */
+  async findByName(name: string): Promise<FoodItem | null> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，無法查找食物');
+      return null;
+    }
+
+    try {
+      // 先嘗試從 nutrition_database 查找
+      const nutritionDoc = await this.nutritionDbCollection!.findOne({
+        food_name: name
+      });
+
+      if (nutritionDoc) {
+        return convertNutritionDbToFoodItem(nutritionDoc);
+      }
+
+      // 如果沒找到，嘗試從 food_items 查找
+      const foodDoc = await this.collection!.findOne({ name: name });
+      if (foodDoc) {
+        return this.mapToFoodItem(foodDoc);
+      }
+
+      return null;
+    } catch (error) {
+      console.error('根據名稱查找食物錯誤:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 根據部分名稱查找食物（模糊匹配）
+   * 改進的排序邏輯：精確匹配 > 開頭匹配 > 包含匹配，並優先選擇較短的名稱
+   */
+  async findByPartialName(partialName: string): Promise<FoodItem[]> {
+    if (!this.isMongoDBAvailable()) {
+      console.warn('MongoDB 不可用，返回空列表');
+      return [];
+    }
+
+    try {
+      // 從 nutrition_database 查找
+      const nutritionDocs = await this.nutritionDbCollection!.find({
+        food_name: { $regex: partialName, $options: 'i' }
+      }).toArray();
+
+      const foods = nutritionDocs.map((doc: NutritionDatabaseDocument) => 
+        convertNutritionDbToFoodItem(doc)
+      );
+
+      // 排序邏輯：精確匹配 > 開頭匹配 > 包含匹配
+      return foods.sort((a, b) => {
+        const aName = a.name.toLowerCase();
+        const bName = b.name.toLowerCase();
+        const searchTerm = partialName.toLowerCase();
+
+        // 精確匹配優先
+        if (aName === searchTerm && bName !== searchTerm) return -1;
+        if (bName === searchTerm && aName !== searchTerm) return 1;
+
+        // 開頭匹配優先
+        const aStartsWith = aName.startsWith(searchTerm);
+        const bStartsWith = bName.startsWith(searchTerm);
+        if (aStartsWith && !bStartsWith) return -1;
+        if (bStartsWith && !aStartsWith) return 1;
+
+        // 長度越短越優先（避免選擇包含搜索詞的長名稱）
+        return a.name.length - b.name.length;
+      });
+    } catch (error) {
+      console.error('查找部分匹配食物錯誤:', error);
+      return [];
+    }
+  }
+
   // 將文件映射為 FoodItem 物件
   private mapToFoodItem(doc: FoodItemDocument): FoodItem {
     return {
